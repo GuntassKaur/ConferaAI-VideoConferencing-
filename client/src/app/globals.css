@@ -68,15 +68,26 @@ body {
 }
 
 .video-grid-item {
-  @apply relative aspect-video rounded-3xl overflow-hidden fluent-glass fluent-shadow transition-all duration-300 hover:scale-[1.01] hover:shadow-primary/10;
+  @apply relative aspect-video rounded-3xl overflow-hidden fluent-glass fluent-shadow transition-all duration-300;
+  &:hover {
+    @apply scale-[1.01];
+    box-shadow: 0 0 20px rgba(0, 120, 212, 0.1);
+  }
 }
 
 .btn-primary {
-  @apply px-6 py-3 rounded-2xl bg-primary text-white font-semibold hover:bg-primary-hover transition-all active:scale-95 shadow-lg shadow-primary/20 border border-white/10;
+  @apply px-6 py-3 rounded-2xl bg-primary text-white font-semibold transition-all active:scale-95 border border-white/10;
+  &:hover {
+    @apply bg-primary-hover;
+    box-shadow: 0 10px 15px -3px rgba(0, 120, 212, 0.2);
+  }
 }
 
 .btn-secondary {
-  @apply px-6 py-3 rounded-2xl fluent-glass font-semibold hover:bg-white/5 transition-all active:scale-95 border border-white/5;
+  @apply px-6 py-3 rounded-2xl fluent-glass font-semibold transition-all active:scale-95 border border-white/5;
+  &:hover {
+    @apply bg-white/5;
+  }
 }
 
 .custom-scrollbar::-webkit-scrollbar {
