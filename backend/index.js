@@ -39,6 +39,11 @@ io.on('connection', (socket) => {
       rooms.set(roomId, { users: [], transcript: [], startTime: Date.now() });
     }
     const room = rooms.get(roomId);
+    
+    // Return existing users to the new joiner
+    const existingUsers = room.users.map(u => u.socketId).filter(id => id !== socket.id);
+    socket.emit('all-users', existingUsers);
+
     room.users.push({ userId, userName, socketId: socket.id });
 
     socket.on('disconnect', () => {
