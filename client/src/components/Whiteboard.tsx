@@ -93,8 +93,8 @@ export const Whiteboard = () => {
     return (
         <div className="flex flex-col h-full bg-background overflow-hidden relative">
             {/* Toolbar */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">
-                <GlassCard className="flex items-center gap-2 p-2 rounded-2xl border-white/10 shadow-2xl">
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20">
+                <GlassCard className="flex items-center gap-1.5 p-2 rounded-[24px] border-white/5 shadow-2xl fluent-glass !fluent-shadow">
                     {[
                       { id: 'select', icon: <MousePointer2 className="w-4 h-4" /> },
                       { id: 'pen', icon: <Pencil className="w-4 h-4" /> },
@@ -106,45 +106,48 @@ export const Whiteboard = () => {
                         key={t.id}
                         variant={tool === t.id ? 'primary' : 'ghost'} 
                         size="icon" 
-                        className="h-10 w-10 rounded-xl"
+                        className={`h-11 w-11 rounded-xl transition-all duration-300 ${tool === t.id ? 'shadow-lg shadow-primary/30' : 'text-secondary'}`}
                         onClick={() => setTool(t.id as any)}
                       >
                          {t.icon}
                       </Button>
                     ))}
-                    <div className="w-px h-8 bg-white/10 mx-2" />
-                    {[ '#2563eb', '#9333ea', '#ef4444', '#10b981', '#f59e0b', '#ffffff' ].map(c => (
-                      <button 
-                         key={c}
-                         className={`w-6 h-6 rounded-full border-2 transition-all ${color === c ? 'border-primary ring-2 ring-primary/20 scale-125' : 'border-transparent'}`}
-                         style={{ backgroundColor: c }}
-                         onClick={() => { setColor(c); setTool('pen'); }}
-                      />
-                    ))}
-                    <div className="w-px h-8 bg-white/10 mx-2" />
-                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-red-500 hover:bg-red-500/10" onClick={clearCanvas}>
+                    <div className="w-px h-10 bg-white/10 mx-2" />
+                    <div className="flex gap-1.5 px-2">
+                        {[ '#2563eb', '#9333ea', '#ef4444', '#10b981', '#f59e0b', '#ffffff' ].map(c => (
+                        <button 
+                            key={c}
+                            className={`w-7 h-7 rounded-full border-2 transition-all flex items-center justify-center ${color === c ? 'border-primary ring-4 ring-primary/10 scale-125' : 'border-white/10'}`}
+                            style={{ backgroundColor: c }}
+                            onClick={() => { setColor(c); setTool('pen'); }}
+                        >
+                            {color === c && <div className="w-1.5 h-1.5 rounded-full bg-[#020617] opacity-50" />}
+                        </button>
+                        ))}
+                    </div>
+                    <div className="w-px h-10 bg-white/10 mx-2" />
+                    <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-red-500 hover:bg-red-500/10 hover:text-red-400 transition-all" onClick={clearCanvas}>
                        <Trash2 className="w-4 h-4" />
                     </Button>
                 </GlassCard>
             </div>
 
             {/* Canvas */}
-            <canvas 
-                ref={canvasRef}
-                onMouseDown={startDrawing}
-                onMouseMove={draw}
-                onMouseUp={stopDrawing}
-                onMouseLeave={stopDrawing}
-                onTouchStart={startDrawing}
-                onTouchMove={draw}
-                onTouchEnd={stopDrawing}
-                className="w-full h-full cursor-crosshair touch-none"
-            />
+            <div className="flex-1 bg-zinc-950/20 backdrop-blur-sm relative cursor-crosshair">
+                <canvas 
+                    ref={canvasRef}
+                    onMouseDown={startDrawing}
+                    onMouseMove={draw}
+                    onMouseUp={stopDrawing}
+                    onMouseLeave={stopDrawing}
+                    className="w-full h-full touch-none"
+                />
+            </div>
 
             {/* Export Controls */}
-            <div className="absolute bottom-4 right-4 z-20 flex gap-2">
-                 <Button variant="secondary" className="gap-2 h-10 px-4 rounded-xl text-xs"><Share2 className="w-3.5 h-3.5" /> Share Board</Button>
-                 <Button variant="secondary" className="gap-2 h-10 px-4 rounded-xl text-xs"><Download className="w-3.5 h-3.5" /> Save</Button>
+            <div className="absolute bottom-6 right-6 z-20 flex gap-3">
+                 <Button variant="secondary" className="gap-2.5 h-12 px-6 rounded-2xl text-[11px] font-bold shadow-2xl hover:scale-105 transition-transform"><Share2 className="w-4 h-4 text-primary" /> Live Link</Button>
+                 <Button className="gap-2.5 h-12 px-6 rounded-2xl text-[11px] font-bold shadow-2xl hover:scale-105 transition-transform"><Download className="w-4 h-4" /> Save Export</Button>
             </div>
         </div>
     );
