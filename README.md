@@ -4,19 +4,17 @@
 
 ![Confera AI Dashboard](/hero-v2.png) (Mock)
 
-## ✨ Premium Features
+## ✨ Enterprise Features
 
-- **Stunning UI/UX**: Futuristic theme with glassmorphism, fluid animations (Framer Motion), and intuitive navigation.
-- **AI Intelligence**:
-  - **5-Minute Recap**: Instant automated summaries of every meeting segment.
-  - **Live Transcription**: Real-time multi-language transcription and translation.
-  - **Meeting Insights**: Searchable highlights timeline with keyword indexing.
+- **💎 Microsoft-Level UX**: Futuristic glassmorphism, fluid Framer Motion animations, and custom Fluent-inspired design system.
+- **🧠 5-Minute AI Recap**: Instant meeting insights and summaries powered by structured AI analysis.
+- **⏱️ Smart Timeline**: A visual index of meeting highlights, decisions, and action items with keyword search.
+- **💬 Live Engagement**: Real-time emoji reactions, interactive polls, and AI-generated icebreakers.
+- **🌐 Global Collaboration**: Live transcription and instant translation hooks for multi-language conferences.
+- **🚪 AI Breakout Rooms**: Automated participant grouping based on role and expertise with dedicated AI moderators.
+- **🎨 Infinite Whiteboard**: Collaborative drawing space with vector tools and project export.
+- **🔒 Enterprise Security**: End-to-end encrypted signaling and secure session management.
   - **Adaptive AI**: Smart background noise cancellation and adaptive video quality.
-- **Collaboration Suite**:
-  - **Infinite Whiteboard**: Real-time collaborative canvas for visual planning.
-  - **Breakout Rooms**: Controlled environments with AI moderators.
-  - **Engagement Boosters**: Emoji reactions, instant polls, and AI-generated icebreakers.
-- **Enterprise Grade**:
   - **Security**: Military-grade end-to-end encryption (E2EE).
   - **Performance**: High-speed WebRTC signaling and scalable Node.js backend.
   - **Compliance**: Built for enterprise-level privacy and global standards.
