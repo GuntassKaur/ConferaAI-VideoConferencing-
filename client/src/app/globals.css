@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #f8fafc;
@@ -26,66 +28,57 @@
   --glass-border: rgba(255, 255, 255, 0.05);
 }
 
-@theme {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-secondary: var(--secondary);
-  --color-accent: var(--accent);
-  --color-card: var(--card);
-  --color-border: var(--border);
-  --font-sans: var(--font-inter);
-  --font-heading: var(--font-outfit);
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    @apply antialiased transition-colors duration-500;
+  }
 }
 
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  @apply antialiased selection:bg-primary/20 transition-colors duration-500;
-}
+@layer components {
+  .fluent-glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--glass-border);
+  }
 
-.fluent-glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--glass-border);
-}
+  .fluent-shadow {
+    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2), 0 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+  }
 
-.fluent-shadow {
-  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2), 0 0 1px 0 rgba(255, 255, 255, 0.1) inset;
-}
+  .text-gradient {
+    background: linear-gradient(135deg, #60a5fa 0%, #a855f7 50%, #ec4899 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 
-.text-gradient {
-  background: linear-gradient(135deg, #60a5fa 0%, #a855f7 50%, #ec4899 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+  .bg-hero-glow {
+    background: radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.15), transparent 70%);
+  }
 
-.bg-hero-glow {
-  background: radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.15), transparent 70%);
-}
-
-.video-grid-item {
-  @apply relative aspect-video rounded-3xl overflow-hidden fluent-glass fluent-shadow transition-all duration-300;
-  &:hover {
+  .video-grid-item {
+    @apply relative aspect-video rounded-3xl overflow-hidden fluent-glass fluent-shadow transition-all duration-300;
+  }
+  .video-grid-item:hover {
     @apply scale-[1.01];
     box-shadow: 0 0 20px rgba(0, 120, 212, 0.1);
   }
-}
 
-.btn-primary {
-  @apply px-6 py-3 rounded-2xl bg-primary text-white font-semibold transition-all active:scale-95 border border-white/10;
-  &:hover {
-    @apply bg-primary-hover;
+  .btn-primary {
+    @apply px-6 py-3 rounded-2xl bg-primary text-white font-semibold transition-all active:scale-95 border border-white/10;
+  }
+  .btn-primary:hover {
+    @apply bg-primary/90;
     box-shadow: 0 10px 15px -3px rgba(0, 120, 212, 0.2);
   }
-}
 
-.btn-secondary {
-  @apply px-6 py-3 rounded-2xl fluent-glass font-semibold transition-all active:scale-95 border border-white/5;
-  &:hover {
+  .btn-secondary {
+    @apply px-6 py-3 rounded-2xl fluent-glass font-semibold transition-all active:scale-95 border border-white/5;
+  }
+  .btn-secondary:hover {
     @apply bg-white/5;
   }
 }
