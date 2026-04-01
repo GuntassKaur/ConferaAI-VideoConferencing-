@@ -24,8 +24,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable} dark`}>
-      <body className="font-sans bg-background text-foreground min-h-screen selection:bg-primary/30">
-        <div className="fixed inset-0 -z-10 bg-gradient-mesh opacity-50" />
+      <body className="antialiased bg-background text-foreground min-h-screen">
+        <div className="fixed inset-0 -z-10 bg-hero-glow opacity-50" />
         {children}
       </body>
     </html>
