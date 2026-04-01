@@ -26,7 +26,8 @@ const MeetingRoom = () => {
   const peersRef = useRef([]);
 
   useEffect(() => {
-    socketRef.current = io('http://localhost:5000'); // Update to production URL later
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+    socketRef.current = io(BACKEND_URL);
 
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((currentStream) => {
       setStream(currentStream);
