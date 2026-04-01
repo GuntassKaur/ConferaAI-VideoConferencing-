@@ -3,8 +3,8 @@
 Elite AI-native video conferencing platform with real-time transcription, automated meeting summaries, and a premium glassmorphic UI.
 
 ## 🚀 Project Structure
-- `/frontend`: React + Vite + Tailwind + Framer Motion
-- `/backend`: Node.js + Socket.io + Express + PeerJS
+- `/client`: React + Vite + Tailwind + Framer Motion
+- `/server`: Node.js + Socket.io + Express + PeerJS
 
 ## 🛠️ Features
 - **Working Video/Audio**: Real-time WebRTC streams with signaling.
@@ -15,30 +15,30 @@ Elite AI-native video conferencing platform with real-time transcription, automa
 
 ## 📦 Local Setup
 
-### 1. Backend
+### 1. Server
 ```bash
-cd backend
+cd server
 npm install
 # Create .env with OPENAI_API_KEY
 npm start
 ```
 
-### 2. Frontend
+### 2. Client
 ```bash
-cd frontend
+cd client
 npm install
 npm run dev
 ```
 
 ## 🌐 Deployment
 
-### Frontend (Vercel)
-1. Push `frontend/` to GitHub.
+### Client (Vercel)
+1. Push `client/` to GitHub.
 2. Connect to Vercel.
 3. Set `VITE_BACKEND_URL` env variable.
 
-### Backend (Render)
-1. Push `backend/` to GitHub.
+### Server (Render)
+1. Push `server/` to GitHub.
 2. Deploy as Web Service on Render.
 3. Set `OPENAI_API_KEY` and `FRONTEND_URL`.
 
