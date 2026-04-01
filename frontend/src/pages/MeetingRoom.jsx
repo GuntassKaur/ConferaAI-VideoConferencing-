@@ -70,6 +70,15 @@ const MeetingRoom = () => {
       socketRef.current.on('ai-insight', (insight) => {
         setAiInsights(prev => [insight, ...prev]);
       });
+
+      // Hackathon Feature: AI Assistant Joins
+      setTimeout(() => {
+        setMessages(prev => [...prev, { 
+          userName: 'Confera AI', 
+          message: 'Hello! I am your AI assistant. I will be taking notes and providing insights in real-time.', 
+          timestamp: new Date() 
+        }]);
+      }, 3000);
     });
 
     return () => {
