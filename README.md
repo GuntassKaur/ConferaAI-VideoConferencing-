@@ -1,46 +1,69 @@
-# Confera AI - Next-Gen Video Conferencing
+# Confera AI - Enterprise-Grade AI Video Conferencing
 
-Elite AI-native video conferencing platform with real-time transcription, automated meeting summaries, and a premium glassmorphic UI.
+**Confera AI** is a next-generation, elite video conferencing platform designed for modern enterprises. Built with a stunning Microsoft-level UI/UX, it leverages deep AI integration to transform meetings into actionable intelligence.
 
-## 🚀 Project Structure
-- `/client`: React + Vite + Tailwind + Framer Motion
-- `/server`: Node.js + Socket.io + Express + PeerJS
+![Confera AI Dashboard](/hero-v2.png) (Mock)
 
-## 🛠️ Features
-- **Working Video/Audio**: Real-time WebRTC streams with signaling.
-- **AI Insights**: Live meeting observations (OpenAI powered).
-- **Meeting Summary**: Post-meeting intelligence.
-- **Premium UI**: Glassmorphism, smooth animations, dark-themed dashboard.
-- **Fully Responsive**: Works on all devices.
+## ✨ Premium Features
 
-## 📦 Local Setup
+- **Stunning UI/UX**: Futuristic theme with glassmorphism, fluid animations (Framer Motion), and intuitive navigation.
+- **AI Intelligence**:
+  - **5-Minute Recap**: Instant automated summaries of every meeting segment.
+  - **Live Transcription**: Real-time multi-language transcription and translation.
+  - **Meeting Insights**: Searchable highlights timeline with keyword indexing.
+  - **Adaptive AI**: Smart background noise cancellation and adaptive video quality.
+- **Collaboration Suite**:
+  - **Infinite Whiteboard**: Real-time collaborative canvas for visual planning.
+  - **Breakout Rooms**: Controlled environments with AI moderators.
+  - **Engagement Boosters**: Emoji reactions, instant polls, and AI-generated icebreakers.
+- **Enterprise Grade**:
+  - **Security**: Military-grade end-to-end encryption (E2EE).
+  - **Performance**: High-speed WebRTC signaling and scalable Node.js backend.
+  - **Compliance**: Built for enterprise-level privacy and global standards.
 
-### 1. Server
+## 🚀 Tech Stack
+
+### Frontend
+- **Framework**: [Next.js 15+](https://nextjs.org/) (App Router)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Real-time**: [Socket.io Client](https://socket.io/), [PeerJS](https://peerjs.com/)
+
+### Backend
+- **Core**: [Node.js](https://nodejs.org/), [Express](https://expressjs.com/)
+- **Real-time**: [Socket.io](https://socket.io/)
+- **Signaling**: PeerJS Server integration
+- **AI**: [OpenAI SDK](https://openai.com/)
+
+## 🛠️ Local Setup
+
+### 1. Backend Server
 ```bash
 cd server
 npm install
-# Create .env with OPENAI_API_KEY
+# Configure your .env
 npm start
 ```
 
-### 2. Client
+### 2. Frontend Client
 ```bash
 cd client
 npm install
 npm run dev
 ```
 
-## 🌐 Deployment
+## 🌐 Environment Variables
 
-### Client (Vercel)
-1. Push `client/` to GitHub.
-2. Connect to Vercel.
-3. Set `VITE_BACKEND_URL` env variable.
+### Server (`/server/.env`)
+- `OPENAI_API_KEY`: Your OpenAI API key for recaps/insights.
+- `FRONTEND_URL`: URL of your deployed client for CORS.
+- `PORT`: (Default: 5000)
 
-### Server (Render)
-1. Push `server/` to GitHub.
-2. Deploy as Web Service on Render.
-3. Set `OPENAI_API_KEY` and `FRONTEND_URL`.
+### Client (`/client/.env.local`)
+- `NEXT_PUBLIC_SOCKET_URL`: URL of your deployed server.
 
 ---
-Built for the Hackathon Winning Experience.
+
+Built for **Elite Collaboration** and **High-Performance Teams**.
+**Confera AI** - The Future of Meetings is Intelligent.
