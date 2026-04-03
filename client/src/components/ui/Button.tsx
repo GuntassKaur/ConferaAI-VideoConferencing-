@@ -33,8 +33,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           'inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none',
           variants[variant],
-          size !== 'icon' && sizes[size as keyof typeof sizes],
-          size === 'icon' && 'p-3 aspect-square flex items-center justify-center rounded-full',
+          sizes[size as keyof typeof sizes],
           className
         )}
         {...props}

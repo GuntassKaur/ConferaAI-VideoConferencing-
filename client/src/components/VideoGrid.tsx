@@ -4,6 +4,7 @@ import React, { useRef, useEffect } from 'react';
 import { useMeeting } from '@/context/MeetingContext';
 import { MicOff, CameraOff, Volume2, User, MoreHorizontal, Maximize } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/Button';
 
 export const VideoGrid = () => {
   const { localStream, remoteParticipants, isMicOn, isCamOn } = useMeeting();
@@ -83,5 +84,4 @@ export const VideoGrid = () => {
   );
 };
 
-// Re-defining Button here for simplicity or we should import it
-import { Button } from '@/components/ui/Button';
+

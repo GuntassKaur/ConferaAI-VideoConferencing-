@@ -89,7 +89,7 @@ export const MeetingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (stream) {
         call.answer(stream);
         call.on('stream', (remoteStream) => {
-          // Handle remote stream - simplified for now
+          console.log('Received remote stream:', remoteStream.id);
         });
       }
     });
