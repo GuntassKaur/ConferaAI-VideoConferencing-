@@ -147,28 +147,7 @@ export default function Home() {
             </div>
           </div>
           
-          {/* Testimonial */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="glass-card p-16 text-center max-w-4xl mx-auto border-[var(--border)] premium-shadow relative overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 blur-[100px] rounded-full" />
-            <div className="flex justify-center mb-6">
-              {[1,2,3,4,5].map(i => <Star key={i} className="w-6 h-6 text-yellow-400 fill-yellow-400 mx-1" />)}
-            </div>
-            <p className="text-2xl md:text-3xl font-bold font-outfit leading-relaxed text-[var(--foreground)] mb-10">
-              "Confera AI replaced Zoom, Otter, and our manual note-taking entirely. The UI is completely unparalleled, and the real-time AI capabilities feel like absolute magic during board meetings."
-            </p>
-            <div className="flex items-center justify-center gap-4">
-               <div className="w-14 h-14 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full border-2 border-[var(--background)] premium-shadow" />
-               <div className="text-left">
-                  <h5 className="font-bold text-lg leading-tight text-[var(--foreground)]">Sarah Jenkins</h5>
-                  <span className="text-sm text-[var(--muted-fg)] font-medium">VP Engineering, TechNova</span>
-               </div>
-            </div>
-          </motion.div>
+        {/* Testimonial Removed for Launch */}
         </div>
       </main>
     </div>
