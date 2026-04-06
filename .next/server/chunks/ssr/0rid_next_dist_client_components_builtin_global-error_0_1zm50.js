@@ -1,0 +1,3 @@
+module.exports=[33699,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(88470);a.n(d("[project]/Downloads/zoomai/node_modules/next/dist/client/components/builtin/global-error.js <module evaluation>"))},9012,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(88470);a.n(d("[project]/Downloads/zoomai/node_modules/next/dist/client/components/builtin/global-error.js"))},36438,a=>{"use strict";a.i(33699);var b=a.i(9012);a.n(b)},68454,a=>{a.n(a.i(36438))}];
+
+//# sourceMappingURL=0rid_next_dist_client_components_builtin_global-error_0_1zm50.js.map

@@ -1,1 +1,10 @@
-{"/_not-found/page":"/_not-found","/favicon.ico/route":"/favicon.ico","/page":"/","/meeting/[id]/page":"/meeting/[id]","/dashboard/page":"/dashboard"}
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/recap/route": "/api/recap",
+  "/dashboard/page": "/dashboard",
+  "/favicon.ico/route": "/favicon.ico",
+  "/meeting/[id]/page": "/meeting/[id]",
+  "/page": "/",
+  "/profile/page": "/profile"
+}
