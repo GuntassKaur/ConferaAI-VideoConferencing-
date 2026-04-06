@@ -17,16 +17,20 @@ export const metadata: Metadata = {
   description: "Next-generation AI-powered video conferencing for modern enterprises.",
 };
 
+import { ThemeProvider } from "@/components/ThemeProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable} dark`}>
-      <body className="antialiased bg-background text-foreground min-h-screen">
-        <div className="fixed inset-0 -z-10 bg-hero-glow opacity-50" />
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className="antialiased min-h-screen">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div className="fixed inset-0 -z-10 bg-hero-glow opacity-50" />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

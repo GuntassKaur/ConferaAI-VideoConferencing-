@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@/components/ui/Button';
-import { Video, Sparkles, Layout, Clock, ChevronRight, ArrowRight } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { Video, Sparkles, Layout, Clock, ArrowRight, ShieldCheck, Zap, Users, Star, BarChart3, Globe2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
@@ -10,15 +10,24 @@ export default function Home() {
   const features = [
     { icon: <Sparkles className="w-6 h-6" />, title: 'Smart AI Recaps', desc: 'Get automatic summaries, action items, and key points precisely five minutes after every meeting concludes.' },
     { icon: <Layout className="w-6 h-6" />, title: 'Pristine Interface', desc: 'Zero clutter. Crafted for absolute focus, allowing your team to connect deeply without UI distractions.' },
-    { icon: <Clock className="w-6 h-6" />, title: 'Time Machine', desc: 'Stop taking manual notes. Let the built-in ChatGPT assistant handle knowledge retention perfectly.' },
+    { icon: <Zap className="w-6 h-6" />, title: 'Real-time Translation', desc: 'Break global barriers with instantaneous speech-to-text translation across 50+ languages.' },
+    { icon: <BarChart3 className="w-6 h-6" />, title: 'Speaker Analytics', desc: 'Measure engagement and talk-time distribution perfectly with beautiful post-meeting charts.' },
+    { icon: <ShieldCheck className="w-6 h-6" />, title: 'Enterprise Security', desc: 'Bank-grade E2EE encryption ensures your corporate conversations never leak outside your space.' },
+    { icon: <Globe2 className="w-6 h-6" />, title: 'Global Edge Network', desc: 'Sub-50ms latency worldwide via our highly optimized WebRTC edge relay infrastructure.' },
+  ];
+
+  const stats = [
+    { value: '99.9%', label: 'Uptime SLA' },
+    { value: '50M+', label: 'Meeting Minutes' },
+    { value: '<50ms', label: 'Global Latency' },
+    { value: '10k+', label: 'Teams Worldwide' },
   ];
 
   return (
-    <div className="relative min-h-screen bg-[#fafafc] text-slate-900 font-sans hero-gradient selection:bg-indigo-100 selection:text-indigo-900 overflow-hidden">
+    <div className="relative min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans hero-gradient selection:bg-indigo-500/30 overflow-hidden">
       
-      {/* Background Decorators for WOW effect */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-100 rounded-full blur-[150px] -z-10 translate-x-1/3 -translate-y-1/3 opacity-60" />
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-violet-100 rounded-full blur-[150px] -z-10 -translate-x-1/3 translate-y-1/3 opacity-50" />
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[var(--bg-accent-1)] rounded-full blur-[150px] -z-10 translate-x-1/3 -translate-y-1/3 opacity-70" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[var(--bg-accent-2)] rounded-full blur-[150px] -z-10 -translate-x-1/3 translate-y-1/3 opacity-70" />
 
       {/* Navbar */}
       <motion.header 
@@ -27,19 +36,20 @@ export default function Home() {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 w-full z-50 px-6 py-6"
       >
-        <nav className="max-w-7xl mx-auto flex items-center justify-between glass-card px-6 py-3 rounded-2xl border-white/80">
+        <nav className="max-w-7xl mx-auto flex items-center justify-between glass-card px-6 py-3 border-[var(--border)]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[14px] bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center premium-shadow">
+            <div className="w-10 h-10 rounded-[14px] bg-gradient-to-tr from-indigo-500 to-indigo-600 flex items-center justify-center premium-shadow">
               <Video className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-extrabold tracking-tight font-outfit text-slate-900">Confera AI</span>
+            <span className="text-xl font-extrabold tracking-tight font-outfit text-[var(--foreground)]">Confera AI</span>
           </div>
           <div className="flex items-center gap-6">
-            <Link href="/login" className="text-sm font-semibold text-slate-500 hover:text-indigo-600 transition-colors">
+            <Link href="/login" className="text-sm font-semibold text-[var(--muted-fg)] hover:text-[var(--primary)] transition-colors hidden sm:block">
               Log in
             </Link>
+            <ThemeToggle />
             <Link href="/dashboard">
-              <button className="btn-primary py-2.5 px-6 text-sm rounded-xl font-bold tracking-wide">
+              <button className="btn-primary py-2.5 px-6 text-sm font-bold tracking-wide">
                 Start Free
               </button>
             </Link>
@@ -47,25 +57,26 @@ export default function Home() {
         </nav>
       </motion.header>
 
-      <main className="relative z-10 pt-48 pb-20 px-6">
-        <div className="max-w-6xl mx-auto">
+      <main className="relative z-10 pt-48 pb-32 px-6">
+        <div className="max-w-7xl mx-auto">
           {/* Hero Section */}
           <div className="flex flex-col items-center text-center mb-32 relative">
              <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/80 backdrop-blur-md text-xs font-bold text-indigo-600 mb-10 border border-white shadow-[0_4px_20px_rgba(79,70,229,0.1)] tracking-widest uppercase"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-card text-xs font-bold text-[var(--primary)] mb-10 tracking-widest uppercase relative overflow-hidden"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>The Next Generation of Conferencing</span>
+              <div className="absolute inset-0 bg-blue-500/10 dark:bg-blue-500/20" />
+              <Sparkles className="w-3.5 h-3.5 relative z-10" />
+              <span className="relative z-10">The Next Generation of Conferencing</span>
             </motion.div>
             
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="text-6xl md:text-[80px] font-extrabold font-outfit mb-8 max-w-4xl tracking-tight leading-[1.05] text-slate-900"
+              className="text-6xl md:text-[80px] font-extrabold font-outfit mb-8 max-w-5xl tracking-tight leading-[1.05] text-[var(--foreground)]"
             >
               Smart <span className="text-gradient">AI Meetings</span> <br /> designed for clarity.
             </motion.h1>
@@ -74,9 +85,9 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="text-xl text-slate-500/90 mb-12 max-w-2xl leading-relaxed font-medium"
+              className="text-xl text-[var(--muted-fg)] mb-12 max-w-2xl leading-relaxed font-medium"
             >
-              A stunning, zero-clutter conversational experience. Auto-generating insights, summaries, and action items effortlessly while you focus on the connection.
+              A stunning, zero-clutter conversational experience. Auto-generating insights, summaries, transcriptions, and tracking speaker analytics effortlessly while you focus on the connection.
             </motion.p>
 
             <motion.div
@@ -86,34 +97,78 @@ export default function Home() {
               className="flex flex-col sm:flex-row gap-4 w-full justify-center max-w-md"
             >
               <Link href="/dashboard" className="w-full sm:w-auto">
-                <button className="btn-primary w-full text-base py-4 px-10 rounded-[20px] flex items-center justify-center gap-3 group font-bold tracking-wide">
+                <button className="btn-primary w-full text-base py-4 px-8 justify-center gap-3 font-bold tracking-wide">
                   Start an Instant Meeting
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 transition-transform" />
                 </button>
               </Link>
+              <button className="btn-secondary w-full sm:w-auto text-base py-4 px-8 justify-center font-bold tracking-wide">
+                Join Meeting
+              </button>
             </motion.div>
           </div>
 
-          {/* Feature Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-20">
-            {features.map((feature, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.7, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <div className="h-full glass-card p-10 group hover:-translate-y-2 transition-transform duration-500">
-                  <div className="w-16 h-16 rounded-[22px] bg-indigo-50 flex items-center justify-center text-indigo-600 mb-8 border border-white shadow-inner group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-2xl font-extrabold mb-4 font-outfit text-slate-900">{feature.title}</h3>
-                  <p className="text-slate-500 leading-relaxed font-medium">{feature.desc}</p>
+          {/* Stats Bar */}
+          <motion.div 
+             initial={{ opacity: 0, y: 40 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             viewport={{ once: true }}
+             className="glass-card mb-32 p-10 grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-[var(--border)] border-[var(--border)] text-center"
+          >
+             {stats.map((stat, i) => (
+                <div key={i} className="flex flex-col">
+                   <h4 className="text-4xl md:text-5xl font-extrabold font-outfit text-gradient mb-2">{stat.value}</h4>
+                   <span className="text-sm font-semibold text-[var(--muted-fg)] uppercase tracking-wider">{stat.label}</span>
                 </div>
-              </motion.div>
-            ))}
+             ))}
+          </motion.div>
+
+          {/* Feature Grid */}
+          <div className="mb-32">
+            <h2 className="text-3xl md:text-5xl font-extrabold font-outfit text-center mb-16 text-[var(--foreground)]">Enterprise Intelligence, <br/>Beautifully Delivered.</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-20">
+              {features.map((feature, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.7, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <div className="h-full glass-card p-10 hover:-translate-y-2 transition-transform duration-500 border border-[var(--border)] group">
+                    <div className="w-16 h-16 rounded-[22px] bg-[var(--background)] border border-[var(--border)] flex items-center justify-center text-[var(--primary)] mb-8 premium-shadow group-hover:bg-[var(--primary)] group-hover:text-white transition-all duration-500">
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-2xl font-extrabold mb-4 font-outfit text-[var(--foreground)]">{feature.title}</h3>
+                    <p className="text-[var(--muted-fg)] leading-relaxed font-medium">{feature.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
+          
+          {/* Testimonial */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="glass-card p-16 text-center max-w-4xl mx-auto border-[var(--border)] premium-shadow relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 blur-[100px] rounded-full" />
+            <div className="flex justify-center mb-6">
+              {[1,2,3,4,5].map(i => <Star key={i} className="w-6 h-6 text-yellow-400 fill-yellow-400 mx-1" />)}
+            </div>
+            <p className="text-2xl md:text-3xl font-bold font-outfit leading-relaxed text-[var(--foreground)] mb-10">
+              "Confera AI replaced Zoom, Otter, and our manual note-taking entirely. The UI is completely unparalleled, and the real-time AI capabilities feel like absolute magic during board meetings."
+            </p>
+            <div className="flex items-center justify-center gap-4">
+               <div className="w-14 h-14 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full border-2 border-[var(--background)] premium-shadow" />
+               <div className="text-left">
+                  <h5 className="font-bold text-lg leading-tight text-[var(--foreground)]">Sarah Jenkins</h5>
+                  <span className="text-sm text-[var(--muted-fg)] font-medium">VP Engineering, TechNova</span>
+               </div>
+            </div>
+          </motion.div>
         </div>
       </main>
     </div>

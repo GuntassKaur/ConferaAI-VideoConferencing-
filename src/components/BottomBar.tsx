@@ -2,53 +2,47 @@
 
 import React from 'react';
 import { useMeeting } from '@/context/MeetingContext';
-import { Mic, MicOff, Video, VideoOff, PhoneOff } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Mic, MicOff, Video, VideoOff, PhoneOff, MonitorUp, SmilePlus } from 'lucide-react';
 
 export const BottomBar = () => {
-  const { isMicOn, isCamOn, toggleMic, toggleCam, leaveRoom } = useMeeting();
+  const { isMicOn, toggleMic, isCamOn, toggleCam, localStream } = useMeeting();
 
-  // Floating minimal bottom bar
   return (
-    <div className="flex items-center justify-center gap-4 w-full h-full p-2">
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={toggleMic}
-        className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-sm
-          ${isMicOn 
-            ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200' 
-            : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-100'}`}
-      >
-        {isMicOn ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
-      </motion.button>
+    <div className="flex items-center gap-4 sm:gap-6 px-6 sm:px-10 py-5 bg-[var(--card)] border border-[var(--border)] rounded-[26px] premium-shadow backdrop-blur-xl">
+       <button 
+          onClick={toggleMic}
+          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-[20px] flex items-center justify-center transition-all ${isMicOn ? 'bg-[var(--muted)] text-[var(--foreground)] hover:bg-[var(--background)] border border-[var(--border)]' : 'bg-red-500/10 text-red-500 hover:bg-red-500/20 shadow-inner'}`}
+       >
+          {isMicOn ? <Mic className="w-5 h-5 sm:w-6 sm:h-6" /> : <MicOff className="w-5 h-5 sm:w-6 sm:h-6" />}
+       </button>
+       <button 
+          onClick={toggleCam}
+          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-[20px] flex items-center justify-center transition-all ${isCamOn ? 'bg-[var(--muted)] text-[var(--foreground)] hover:bg-[var(--background)] border border-[var(--border)]' : 'bg-red-500/10 text-red-500 hover:bg-red-500/20 shadow-inner'}`}
+       >
+          {isCamOn ? <Video className="w-5 h-5 sm:w-6 sm:h-6" /> : <VideoOff className="w-5 h-5 sm:w-6 sm:h-6" />}
+       </button>
 
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={toggleCam}
-        className={`w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-sm
-          ${isCamOn 
-            ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200' 
-            : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-100'}`}
-      >
-        {isCamOn ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
-      </motion.button>
+       {/* Screen Share Mock */}
+       <button className="hidden sm:flex w-14 h-14 rounded-[20px] items-center justify-center bg-[var(--muted)] text-[var(--foreground)] hover:bg-[var(--background)] border border-[var(--border)] transition-all">
+          <MonitorUp className="w-6 h-6" />
+       </button>
 
-      <div className="w-px h-8 bg-slate-200 mx-2" />
+       {/* Reactions Mock */}
+       <button className="hidden sm:flex w-14 h-14 rounded-[20px] items-center justify-center bg-[var(--muted)] text-[var(--foreground)] hover:bg-[var(--background)] border border-[var(--border)] transition-all">
+          <SmilePlus className="w-6 h-6" />
+       </button>
 
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => {
-            leaveRoom();
+       {/* End Call */}
+       <div className="w-px h-10 bg-[var(--border)] mx-2" />
+       <button 
+          onClick={() => {
+            localStream?.getTracks().forEach(track => track.stop());
             window.location.href = '/dashboard';
-        }}
-        className="px-8 h-14 rounded-full flex items-center justify-center gap-2 bg-red-600 text-white font-medium hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/30 transition-all font-outfit"
-      >
-        <PhoneOff className="w-5 h-5" />
-        <span>End Call</span>
-      </motion.button>
+          }}
+          className="px-6 sm:px-8 py-3.5 sm:py-4 rounded-[20px] bg-red-500 text-white font-bold hover:bg-red-600 shadow-[0_10px_20px_-5px_rgba(239,68,68,0.4)] flex items-center gap-3 transition-colors uppercase tracking-widest text-xs sm:text-sm"
+       >
+          <PhoneOff className="w-4 h-4 sm:w-5 sm:h-5" /> <span className="hidden sm:inline">Leave</span>
+       </button>
     </div>
   );
 };

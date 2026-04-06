@@ -69,20 +69,33 @@ const MeetingContent = () => {
     }
 
     return (
-        <div className="flex flex-col h-screen bg-[#fafafc] text-slate-900 overflow-hidden font-sans p-6 gap-6 relative">
+        <div className="flex flex-col h-[100dvh] bg-[var(--background)] text-[var(--foreground)] overflow-hidden font-sans p-4 sm:p-6 gap-4 sm:gap-6 relative">
             {/* Ambient Backgrounds */}
-            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-100 rounded-full blur-[150px] -z-10 translate-x-1/4 -translate-y-1/4 opacity-40 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-violet-100 rounded-full blur-[150px] -z-10 -translate-x-1/4 translate-y-1/4 opacity-40 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[var(--bg-accent-1)] rounded-full blur-[150px] -z-10 translate-x-1/4 -translate-y-1/4 opacity-40 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[var(--bg-accent-2)] rounded-full blur-[150px] -z-10 -translate-x-1/4 translate-y-1/4 opacity-40 pointer-events-none" />
             
-            <div className="flex flex-1 overflow-hidden gap-6 rounded-[32px] relative z-10">
-                <div className="flex-1 rounded-[32px] overflow-hidden bg-slate-50 border border-white shadow-[0_10px_40px_-10px_rgba(79,70,229,0.1)] relative">
+            {/* NEW TOP BAR */}
+            <header className="flex-shrink-0 h-16 w-full glass-card border-[var(--border)] px-6 flex items-center justify-between z-20">
+               <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500/20 text-red-500 animate-pulse">
+                     <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                  </div>
+                  <h1 className="font-outfit font-extrabold text-lg text-[var(--foreground)]">Project Zenith Sync</h1>
+               </div>
+               <div className="flex items-center gap-2 px-4 py-2 bg-[var(--muted)] border border-[var(--border)] rounded-xl font-medium font-mono text-sm">
+                  00:42:15
+               </div>
+            </header>
+
+            <div className="flex flex-col lg:flex-row flex-1 overflow-hidden gap-4 sm:gap-6 rounded-[32px] relative z-10 min-h-0">
+                <div className="flex-1 min-h-0 rounded-[32px] overflow-hidden bg-[var(--card)] border border-[var(--border)] shadow-[0_10px_40px_-10px_var(--glow)] relative flex">
                    <VideoGrid />
                 </div>
-                <div className="w-[420px] flex-shrink-0 bg-white/80 backdrop-blur-xl rounded-[32px] border border-white premium-shadow overflow-hidden flex flex-col transition-all">
+                <div className="lg:w-[420px] w-full min-h-0 flex-shrink-0 bg-[var(--card)] backdrop-blur-xl rounded-[32px] border border-[var(--border)] premium-shadow overflow-hidden flex flex-col transition-all">
                    <SidePanel />
                 </div>
             </div>
-            <div className="flex-shrink-0 h-24 bg-white/80 backdrop-blur-xl rounded-[28px] border border-white premium-shadow flex items-center justify-center relative z-10">
+            <div className="flex-shrink-0 flex justify-center w-full relative z-10 transition-all pb-2">
                 <BottomBar />
             </div>
         </div>
