@@ -170,11 +170,26 @@ export const MeetingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const requestRecap = useCallback(async () => {
     setIsRecapLoading(true);
-    // Mocking API call
-    setTimeout(() => {
-      setRecap('The meeting focused on the Q4 roadmap. We decided to prioritize the AI recap feature and the collaborative whiteboard. John will take the lead on the frontend overhaul.');
+    try {
+      const mockText = "Alice: Hi everyone, let's discuss the Q4 roadmap.\nBob: I think we need to prioritize the AI recap feature first. The ui needs to be clean.\nCharlie: Agreed. I will handle the frontend implementation.\nAlice: Great, and I'll schedule the next sync with the stakeholders for next Friday. Let's make sure the design uses the new white and indigo theme.";
+      
+      const res = await fetch('/api/recap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: mockText })
+      });
+      const data = await res.json();
+      
+      if (data.recap) {
+         setRecap(data.recap);
+      } else {
+         setRecap("Failed to generate recap. Please try again.");
+      }
+    } catch (e) {
+      setRecap("Error connecting to AI service.");
+    } finally {
       setIsRecapLoading(false);
-    }, 2000);
+    }
   }, []);
 
   return (

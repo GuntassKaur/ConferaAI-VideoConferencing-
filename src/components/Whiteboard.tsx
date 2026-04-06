@@ -94,7 +94,7 @@ export const Whiteboard = () => {
         <div className="flex flex-col h-full bg-background overflow-hidden relative">
             {/* Toolbar */}
             <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20">
-                <GlassCard className="flex items-center gap-1.5 p-2 rounded-[24px] border-white/5 shadow-2xl fluent-glass !fluent-shadow">
+                <GlassCard className="flex items-center gap-1.5 p-2 rounded-[24px] border-slate-200 shadow-2xl fluent-glass !fluent-shadow">
                     {[
                       { id: 'select', icon: <MousePointer2 className="w-4 h-4" /> },
                       { id: 'pen', icon: <Pencil className="w-4 h-4" /> },
@@ -112,12 +112,12 @@ export const Whiteboard = () => {
                          {t.icon}
                       </Button>
                     ))}
-                    <div className="w-px h-10 bg-white/10 mx-2" />
+                    <div className="w-px h-10 bg-slate-50 mx-2" />
                     <div className="flex gap-1.5 px-2">
                         {[ '#2563eb', '#9333ea', '#ef4444', '#10b981', '#f59e0b', '#ffffff' ].map(c => (
                         <button 
                             key={c}
-                            className={`w-7 h-7 rounded-full border-2 transition-all flex items-center justify-center ${color === c ? 'border-primary ring-4 ring-primary/10 scale-125' : 'border-white/10'}`}
+                            className={`w-7 h-7 rounded-full border-white transition-all flex items-center justify-center ${color === c ? 'border-primary ring-4 ring-primary/10 scale-125' : 'border-slate-200'}`}
                             style={{ backgroundColor: c }}
                             onClick={() => { setColor(c); setTool('pen'); }}
                         >
@@ -125,7 +125,7 @@ export const Whiteboard = () => {
                         </button>
                         ))}
                     </div>
-                    <div className="w-px h-10 bg-white/10 mx-2" />
+                    <div className="w-px h-10 bg-slate-50 mx-2" />
                     <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-red-500 hover:bg-red-500/10 hover:text-red-400 transition-all" onClick={clearCanvas}>
                        <Trash2 className="w-4 h-4" />
                     </Button>

@@ -27,7 +27,7 @@ export const Transcription = () => {
 
     return (
         <div className="flex-1 flex flex-col h-full overflow-hidden">
-            <div className="p-4 border-b border-white/5 flex items-center justify-between">
+            <div className="p-4 border-b border-slate-200 flex items-center justify-between">
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-primary font-bold text-[10px]">
                    <Languages className="w-3.5 h-3.5" /> {language}
                 </div>
@@ -55,7 +55,7 @@ export const Transcription = () => {
                             </span>
                             <span className="text-[10px] text-zinc-600 font-medium">{log.time}</span>
                         </div>
-                        <GlassCard className={`p-4 ${log.type === 'system' ? 'bg-primary/5 border-primary/20 shadow-primary/10' : 'bg-white/5 border-white/10 shadow-xl'} !rounded-2xl`}>
+                        <GlassCard className={`p-4 ${log.type === 'system' ? 'bg-primary/5 border-primary/20 shadow-primary/10' : 'bg-white border-slate-200 shadow-xl'} !rounded-2xl`}>
                             <p className={`text-xs leading-relaxed ${log.type === 'system' ? 'text-primary' : 'text-foreground'}`}>
                                 {log.text}
                             </p>
@@ -70,7 +70,7 @@ export const Transcription = () => {
                 </div>
             </div>
 
-            <div className="p-4 border-t border-white/5 space-y-3">
+            <div className="p-4 border-t border-slate-200 space-y-3">
                  <Button variant="secondary" className="w-full text-[11px] font-bold gap-2 py-4 shadow-xl">
                     <Download className="w-4 h-4 text-primary" /> Download Full Transcript
                  </Button>

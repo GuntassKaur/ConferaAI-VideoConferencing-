@@ -2,9 +2,8 @@
 
 import React, { useRef, useEffect } from 'react';
 import { useMeeting } from '@/context/MeetingContext';
-import { MicOff, CameraOff, Volume2, User, MoreHorizontal, Maximize } from 'lucide-react';
+import { MicOff, Maximize2, MoreHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/Button';
 
 export const VideoGrid = () => {
   const { localStream, remoteParticipants, isMicOn, isCamOn } = useMeeting();
@@ -17,23 +16,23 @@ export const VideoGrid = () => {
   }, [localStream]);
 
   const participants = [
-    { id: 'local', name: 'You (Host)', stream: localStream, isLocal: true },
+    { id: 'local', name: 'You (Host)', stream: localStream, isLocal: true, avatar: 'You' },
     ...remoteParticipants,
-    // Mocks for visual demo if no one else is there
+    // Mocks for visual demo
     { id: 'mock1', name: 'Sarah Chen (AI Expert)', isMock: true, avatar: 'SC' },
     { id: 'mock2', name: 'Alex Miller (PM)', isMock: true, avatar: 'AM' },
   ];
 
   return (
-    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 auto-rows-fr gap-4 p-4 overflow-y-auto custom-scrollbar">
+    <div className="w-full h-full p-6 grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto custom-scrollbar bg-[#fdfdfd]">
       <AnimatePresence>
         {participants.map((p: any, idx) => (
           <motion.div
             key={p.id}
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="video-grid-item group"
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="relative w-full aspect-video bg-slate-50 rounded-[28px] overflow-hidden border border-slate-200 shadow-sm group hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.15)] transition-all duration-300 transform-gpu hover:scale-[1.01]"
           >
             {p.isLocal ? (
               <video 
@@ -41,47 +40,51 @@ export const VideoGrid = () => {
                 autoPlay 
                 muted 
                 playsInline 
-                className={`w-full h-full object-cover transition-all ${!isCamOn ? 'opacity-0' : 'opacity-100'}`}
+                className={`w-full h-full object-cover transition-opacity duration-300 ${!isCamOn ? 'opacity-0' : 'opacity-100'}`}
               />
             ) : p.isMock ? (
-              <div className="w-full h-full bg-zinc-900 flex items-center justify-center relative">
-                 <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-primary/20 to-purple-500/20 flex items-center justify-center text-4xl font-bold border border-white/10">
+              <div className="w-full h-full bg-slate-50 flex items-center justify-center relative">
+                 <div className="w-24 h-24 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-3xl font-bold text-indigo-600 font-outfit premium-shadow">
                    {p.avatar}
                  </div>
               </div>
             ) : (
-              <div className="w-full h-full bg-zinc-900 border border-white/5" />
+              <div className="w-full h-full bg-slate-50 flex items-center justify-center" />
             )}
 
-            {/* Overlay Info */}
-            <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-white shadow-sm">{p.name}</span>
-                {p.isLocal && !isMicOn && <MicOff className="w-3 h-3 text-red-500" />}
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/40 hover:bg-black/60">
-                   <Maximize className="w-4 h-4 text-white" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 bg-black/40 hover:bg-black/60">
-                   <MoreHorizontal className="w-4 h-4 text-white" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Offline State */}
+            {/* Offline Local State Camera Off */}
             {p.isLocal && !isCamOn && (
-               <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center">
-                 <div className="w-20 h-20 rounded-full bg-zinc-800 flex items-center justify-center border border-white/5">
-                   <User className="w-10 h-10 text-zinc-600" />
+               <div className="absolute inset-0 bg-slate-50 flex items-center justify-center">
+                 <div className="w-24 h-24 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-3xl font-bold font-outfit text-indigo-600 premium-shadow">
+                   {p.avatar}
                  </div>
                </div>
             )}
+
+            {/* Top Right Controls (Hover) */}
+            <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+               <button className="w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm border border-slate-200 flex items-center justify-center text-slate-700 hover:text-indigo-600 shadow-sm transition-colors">
+                  <Maximize2 className="w-4 h-4" />
+               </button>
+               <button className="w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm border border-slate-200 flex items-center justify-center text-slate-700 hover:text-indigo-600 shadow-sm transition-colors">
+                  <MoreHorizontal className="w-4 h-4" />
+               </button>
+            </div>
+
+            {/* Bottom Left Info Tag (macOS FaceTime style) */}
+            <div className="absolute bottom-4 left-4">
+               <div className="flex items-center gap-3 px-4 py-2 bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200 shadow-sm leading-none">
+                 <span className="text-[13px] font-semibold text-slate-900 font-outfit">{p.name}</span>
+                 {p.isLocal && !isMicOn && (
+                     <div className="w-6 h-6 rounded-full bg-red-50 flex items-center justify-center">
+                        <MicOff className="w-3 h-3 text-red-500" />
+                     </div>
+                 )}
+               </div>
+            </div>
           </motion.div>
         ))}
       </AnimatePresence>
     </div>
   );
 };
-
-

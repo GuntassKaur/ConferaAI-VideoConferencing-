@@ -34,7 +34,7 @@ export const BreakoutRooms = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
                 {rooms.map((room) => (
-                    <GlassCard key={room.id} className="p-4 bg-white/5 border-white/5 hover:bg-white/10 transition-all cursor-pointer group shadow-xl">
+                    <GlassCard key={room.id} className="p-4 bg-white border-slate-200 hover:bg-slate-50 transition-all cursor-pointer group shadow-xl">
                         <div className="flex justify-between items-start mb-4">
                             <div className="flex items-center gap-2 text-primary font-bold text-xs">
                                 <Grid className="w-4 h-4" /> Room {room.id}
@@ -58,7 +58,7 @@ export const BreakoutRooms = () => {
                 ))}
             </div>
 
-            <div className="flex flex-col items-center justify-center p-8 text-center bg-white/5 rounded-3xl border border-dashed border-white/10">
+            <div className="flex flex-col items-center justify-center p-8 text-center bg-white rounded-3xl border border-dashed border-slate-200">
                  <Button variant="secondary" className="font-bold tracking-tight gap-2 py-6 px-10 shadow-2xl">
                     <Users className="w-5 h-5 text-primary" /> Group Automatically
                  </Button>

@@ -30,18 +30,18 @@ export const Polls = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
           >
-            <GlassCard className="bg-white/5 border-primary/20 p-4 space-y-4 shadow-2xl">
+            <GlassCard className="bg-white border-primary/20 p-4 space-y-4 shadow-2xl">
               <div className="flex justify-between items-center">
                  <span className="font-bold text-xs">New Poll</span>
                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsCreating(false)}><X className="w-4 h-4" /></Button>
               </div>
               <input 
                 placeholder="Ask a question..." 
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-primary/50"
+                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-primary/50"
               />
               <div className="space-y-2">
-                 <input placeholder="Option 1" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs" />
-                 <input placeholder="Option 2" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs" />
+                 <input placeholder="Option 1" className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs" />
+                 <input placeholder="Option 2" className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs" />
               </div>
               <Button className="w-full h-10 text-xs font-bold" onClick={() => {
                 setActivePolls([{
@@ -59,7 +59,7 @@ export const Polls = () => {
         ) : (
           <div className="space-y-4">
             {activePolls.map((poll, idx) => (
-              <GlassCard key={idx} className="p-4 bg-white/5 border-white/5 border shadow-xl">
+              <GlassCard key={idx} className="p-4 bg-white border-slate-200 border shadow-xl">
                  <h4 className="font-bold text-sm mb-4 flex items-center gap-2">
                    <PieChart className="w-4 h-4 text-primary" /> {poll.question}
                  </h4>
@@ -72,7 +72,7 @@ export const Polls = () => {
                               <span>{opt.text}</span>
                               <span className="text-secondary">{perc}% ({opt.votes})</span>
                            </div>
-                           <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                           <div className="h-1.5 w-full bg-white rounded-full overflow-hidden">
                               <motion.div 
                                  initial={{ width: 0 }}
                                  animate={{ width: `${perc}%` }}
@@ -87,7 +87,7 @@ export const Polls = () => {
               </GlassCard>
             ))}
             {activePolls.length === 0 && (
-              <div className="flex flex-col items-center justify-center p-8 text-center bg-white/5 rounded-2xl border border-dashed border-white/10">
+              <div className="flex flex-col items-center justify-center p-8 text-center bg-white rounded-2xl border border-dashed border-slate-200">
                  <BarChart3 className="w-8 h-8 text-zinc-700 mb-2" />
                  <p className="text-[10px] text-secondary font-medium tracking-wide">No active polls in this session</p>
               </div>

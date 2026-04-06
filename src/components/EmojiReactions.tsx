@@ -7,14 +7,14 @@ const EMOJIS = ['❤️', '👏', '😂', '😮', '😢', '🔥', '👍', '🎉'
 
 export const EmojiReactions = ({ onReact }: { onReact: (emoji: string) => void }) => {
   return (
-    <div className="flex items-center gap-1 p-1 bg-white/5 fluent-glass rounded-full border border-white/10 shadow-xl">
+    <div className="flex items-center gap-1 p-1 bg-white fluent-glass rounded-full border border-slate-200 shadow-xl">
       {EMOJIS.map((emoji) => (
         <motion.button
           key={emoji}
           whileHover={{ scale: 1.3, y: -5 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => onReact(emoji)}
-          className="w-10 h-10 flex items-center justify-center text-xl hover:bg-white/10 rounded-full transition-colors"
+          className="w-10 h-10 flex items-center justify-center text-xl hover:bg-slate-50 rounded-full transition-colors"
         >
           {emoji}
         </motion.button>

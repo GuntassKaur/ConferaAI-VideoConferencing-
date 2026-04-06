@@ -18,13 +18,13 @@ export const MeetingTimeline = () => {
             <div className="flex items-center justify-between">
                 <h3 className="text-sm font-bold uppercase tracking-widest text-secondary">Meeting Timeline</h3>
                 <div className="flex gap-1.5">
-                   <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 shadow-sm"><Search className="w-4 h-4 text-zinc-500" /></div>
-                   <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 shadow-sm"><Zap className="w-4 h-4 text-primary" /></div>
+                   <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center border border-slate-200 shadow-sm"><Search className="w-4 h-4 text-slate-500" /></div>
+                   <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center border border-slate-200 shadow-sm"><Zap className="w-4 h-4 text-primary" /></div>
                 </div>
             </div>
 
             <div className="relative pl-6 space-y-8 mt-4">
-                <div className="absolute left-1.5 top-2 bottom-4 w-px bg-white/10" />
+                <div className="absolute left-1.5 top-2 bottom-4 w-px bg-slate-50" />
                 {highlights.map((h, i) => (
                     <motion.div 
                         key={i} 
@@ -33,7 +33,7 @@ export const MeetingTimeline = () => {
                         transition={{ delay: i * 0.1 }}
                         className="relative group"
                     >
-                        <div className={`absolute -left-[22px] top-1 w-3.5 h-3.5 rounded-full border-2 border-[#020617] ${h.type === 'decision' ? 'bg-emerald-500 shadow-emerald-500/50 shadow-[0_0_10px_0px]' : 'bg-primary'} z-10`} />
+                        <div className={`absolute -left-[22px] top-1 w-3.5 h-3.5 rounded-full border-white border-[#020617] ${h.type === 'decision' ? 'bg-emerald-500 shadow-emerald-500/50 shadow-[0_0_10px_0px]' : 'bg-primary'} z-10`} />
                         <div className="space-y-1">
                             <div className="flex items-center gap-2">
                                 <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded uppercase tracking-tighter">{h.time}</span>
@@ -56,7 +56,7 @@ export const MeetingTimeline = () => {
                  </h4>
                  <div className="flex flex-wrap gap-2">
                     {['Context', 'Frontend', 'Backend', 'AI', 'Timeline', 'Security', 'Enterprise'].map(tag => (
-                      <span key={tag} className="text-[9px] font-bold px-2 py-1 rounded-md bg-white/5 border border-white/10 hover:bg-primary/20 hover:border-primary/30 transition-all cursor-pointer">
+                      <span key={tag} className="text-[9px] font-bold px-2 py-1 rounded-md bg-white border border-slate-200 hover:bg-primary/20 hover:border-primary/30 transition-all cursor-pointer">
                         {tag}
                       </span>
                     ))}
