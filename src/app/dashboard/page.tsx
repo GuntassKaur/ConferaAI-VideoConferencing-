@@ -1,105 +1,110 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Plus, Video, Calendar, Clock, Settings, User, 
-  MoreVertical, LogOut, ChevronRight, BarChart3, TrendingUp, Sparkles, FileText
+  MoreVertical, LogOut, ChevronRight, BarChart3, TrendingUp, Sparkles, FileText, Zap, ShieldCheck
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function Dashboard() {
   const upcomingMeetings = [
-    { title: 'Project Zenith Sync', time: '10:30 AM', duration: '45m', participants: 8, id: 'zenith-sync', isNow: true },
-    { title: 'Design Review', time: '1:00 PM', duration: '60m', participants: 4, id: 'design-review', isNow: false },
-    { title: 'Quarterly Planning', time: '4:15 PM', duration: '90m', participants: 12, id: 'q-planning', isNow: false },
+    { title: 'Technical Sync: Project Orion', time: '10:30 AM', duration: '45m', participants: 8, id: 'orion-sync', isNow: true },
+    { title: 'Global Operations Sync', time: '1:00 PM', duration: '60m', participants: 4, id: 'global-ops', isNow: false },
+    { title: 'Future Strategy Review', time: '4:15 PM', duration: '90m', participants: 12, id: 'strat-review', isNow: false },
   ];
 
-  const recentSummaries = [
-    { title: 'Marketing Sync Q3', date: 'Yesterday', insights: 4 },
-    { title: 'Tech Architecture Review', date: 'Oct 12', insights: 7 },
+  const recentIntelligence = [
+    { title: 'Marketing Sync Q3', date: 'Yesterday', insights: 4, score: 87 },
+    { title: 'Internal Review: v2.4', date: 'Oct 12', insights: 7, score: 92 },
   ];
 
   return (
-    <div className="flex h-screen bg-[var(--background)] overflow-hidden font-sans text-[var(--foreground)] selection:bg-indigo-500/30">
-      {/* Sidebar */}
-      <aside className="w-[88px] border-r border-[var(--border)] flex flex-col items-center py-8 gap-8 bg-[var(--card)] z-20 backdrop-blur-xl">
-        <div className="w-12 h-12 rounded-[16px] bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center premium-shadow mb-4">
-          <Video className="w-6 h-6 text-white" />
+    <div className="flex h-screen bg-background overflow-hidden font-sans text-foreground selection:bg-primary/30 relative">
+      {/* Background Decorators */}
+      <div className="fixed inset-0 orb-background z-0" />
+      <div className="fixed top-[-100px] left-[-100px] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="fixed bottom-[-100px] right-[-100px] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
+
+      {/* Sidebar Navigation */}
+      <aside className="w-[100px] border-r border-white/5 flex flex-col items-center py-10 gap-10 glass-card z-20 backdrop-blur-[32px]">
+        <div className="w-14 h-14 rounded-[18px] bg-gradient-to-tr from-primary to-indigo-400 flex items-center justify-center neon-glow mb-4 p-3">
+          <Video className="w-full h-full text-white" />
         </div>
         
-        <nav className="flex flex-col gap-4 w-full px-4">
-          <button className="w-full aspect-square rounded-[18px] bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center transition-all">
-            <Calendar className="w-6 h-6" />
+        <nav className="flex flex-col gap-6 w-full px-5">
+          <button className="w-full aspect-square rounded-[22px] bg-primary/20 text-indigo-400 flex items-center justify-center transition-all p-4 border border-indigo-500/30">
+            <Calendar className="w-full h-full" />
           </button>
-          <button className="w-full aspect-square rounded-[18px] text-[var(--muted-fg)] hover:text-[var(--foreground)] hover:bg-[var(--muted)] flex items-center justify-center transition-all">
-            <Clock className="w-6 h-6" />
+          <button className="w-full aspect-square rounded-[22px] text-muted-foreground hover:text-foreground hover:bg-white/5 flex items-center justify-center transition-all p-4">
+            <Clock className="w-full h-full" />
           </button>
-          <Link href="/profile" className="w-full aspect-square rounded-[18px] text-[var(--muted-fg)] hover:text-[var(--foreground)] hover:bg-[var(--muted)] flex items-center justify-center transition-all">
-            <User className="w-6 h-6" />
+          <Link href="/profile" className="w-full aspect-square rounded-[22px] text-muted-foreground hover:text-foreground hover:bg-white/5 flex items-center justify-center transition-all p-4">
+            <User className="w-full h-full" />
           </Link>
-          <button className="w-full aspect-square rounded-[18px] text-[var(--muted-fg)] hover:text-[var(--foreground)] hover:bg-[var(--muted)] flex items-center justify-center transition-all">
-            <BarChart3 className="w-6 h-6" />
+          <button className="w-full aspect-square rounded-[22px] text-muted-foreground hover:text-foreground hover:bg-white/5 flex items-center justify-center transition-all p-4">
+            <BarChart3 className="w-full h-full" />
           </button>
         </nav>
 
-        <div className="mt-auto flex flex-col gap-4 w-full px-4">
-          <div className="flex justify-center mb-4"><ThemeToggle /></div>
-          <button className="w-full aspect-square rounded-[18px] text-[var(--muted-fg)] hover:text-[var(--foreground)] hover:bg-[var(--muted)] flex items-center justify-center transition-all">
-            <Settings className="w-6 h-6" />
+        <div className="mt-auto flex flex-col gap-6 w-full px-5">
+          <button className="w-full aspect-square rounded-[22px] text-muted-foreground hover:text-foreground hover:bg-white/5 flex items-center justify-center transition-all p-4">
+            <Settings className="w-full h-full" />
           </button>
-          <button className="w-full aspect-square rounded-[18px] text-[var(--muted-fg)] hover:text-red-500 hover:bg-red-500/10 flex items-center justify-center transition-all">
-            <LogOut className="w-6 h-6" />
+          <button className="w-full aspect-square rounded-[22px] text-muted-foreground hover:text-red-500 hover:bg-red-500/10 flex items-center justify-center transition-all p-4">
+            <LogOut className="w-full h-full" />
           </button>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[var(--bg-accent-1)] rounded-full blur-[150px] -z-10 opacity-60 pointer-events-none translate-x-1/3 -translate-y-1/3" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[var(--bg-accent-2)] rounded-full blur-[150px] -z-10 opacity-40 pointer-events-none -translate-x-1/3 translate-y-1/3" />
-        
-        <header className="px-14 py-12 flex justify-between items-end">
+      <main className="flex-1 flex flex-col overflow-hidden relative z-10">
+        <header className="px-16 py-12 flex justify-between items-end">
            <div>
-              <h1 className="text-4xl font-extrabold font-outfit text-[var(--foreground)] tracking-tight">Good Morning, Alex</h1>
-              <p className="text-[var(--muted-fg)] mt-2 font-medium text-lg">You have 3 meetings scheduled today.</p>
+              <h1 className="text-5xl font-extrabold font-outfit text-white tracking-tighter">Good Morning, Alex.</h1>
+              <p className="text-muted-foreground mt-3 font-medium text-lg leading-relaxed max-w-lg">Your AI assistant has analyzed 2 recent meetings and has 11 key actions waiting for you.</p>
            </div>
            <Link href={`/meeting/${Math.random().toString(36).substr(2, 9)}`}>
-               <button className="btn-primary py-3.5 px-8 font-bold gap-3 flex items-center shadow-lg shadow-indigo-500/20">
-                  <Plus className="w-5 h-5" /> Instant Meeting
+               <button className="bg-white text-black py-4 px-10 rounded-[22px] font-extrabold gap-3 flex items-center shadow-xl hover:bg-indigo-50 transition-all font-outfit text-base">
+                  <Plus className="w-5 h-5 stroke-[3]" /> Launch Sync
                </button>
            </Link>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-14 pb-14 custom-scrollbar">
-          <div className="max-w-[1400px] grid grid-cols-1 xl:grid-cols-3 gap-10">
+        <div className="flex-1 overflow-y-auto px-16 pb-16 custom-scrollbar">
+          <div className="max-w-[1440px] grid grid-cols-1 xl:grid-cols-4 gap-12">
             
-            {/* Left Column: Upcoming Meetings */}
-            <div className="xl:col-span-2 space-y-10">
+            {/* Left Multi-Column: Meetings and Dynamic Action Items */}
+            <div className="xl:col-span-3 space-y-12">
                 <section>
                   <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--muted-fg)]">Upcoming Today</h2>
+                    <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-400">Next Priority Syncs</h2>
+                    <div className="flex gap-2">
+                       <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                       <span className="text-xs font-bold text-muted-foreground">Encrypted Pipeline Active</span>
+                    </div>
                   </div>
-                  <div className="grid gap-5">
+                  <div className="grid gap-6">
                     {upcomingMeetings.map((mtg, i) => (
                       <motion.div
                         key={i}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                        className="glass-card p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-[var(--primary)] transition-all duration-500 group"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                        className="glass-card p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-10 hover:border-primary/50 transition-all duration-500 group relative overflow-hidden"
                       >
-                        <div className="flex items-center gap-6 md:gap-8">
-                            <div className="flex flex-col items-center justify-center w-24 h-24 rounded-[24px] bg-[var(--muted)] border border-[var(--border)] shadow-sm group-hover:bg-[var(--primary)] group-hover:bg-opacity-10 transition-all duration-500">
-                              <span className="text-xs font-bold text-[var(--muted-fg)] uppercase tracking-widest">Time</span>
-                              <span className="text-[17px] font-extrabold text-[var(--primary)] mt-1">{mtg.time}</span>
+                        <div className="flex items-center gap-10">
+                            <div className="flex flex-col items-center justify-center w-28 h-28 rounded-[32px] bg-white text-black border border-white shadow-xl hover:scale-105 transition-all p-4">
+                              <span className="text-xs font-black uppercase tracking-widest opacity-60">Session</span>
+                              <span className="text-[17px] font-black mt-2">{mtg.time}</span>
                             </div>
                             <div>
-                              <h3 className="font-extrabold text-xl font-outfit text-[var(--foreground)] tracking-tight">{mtg.title}</h3>
-                              <div className="flex items-center gap-5 text-sm text-[var(--muted-fg)] mt-2 font-medium">
-                                <span className="flex items-center gap-2"><Clock className="w-4 h-4" /> {mtg.duration}</span>
-                                <span className="flex items-center gap-2"><User className="w-4 h-4" /> {mtg.participants} Attendees</span>
+                              <h3 className="font-extrabold text-2xl font-outfit text-white tracking-tight">{mtg.title}</h3>
+                              <div className="flex items-center gap-6 text-sm text-muted-foreground mt-4 font-bold">
+                                <span className="flex items-center gap-2"><Clock className="w-4 h-4 text-indigo-400" /> {mtg.duration}</span>
+                                <span className="flex items-center gap-2"><User className="w-4 h-4 text-indigo-400" /> {mtg.participants} Experts</span>
+                                <div className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">Active Link</div>
                               </div>
                             </div>
                         </div>
@@ -107,13 +112,13 @@ export default function Dashboard() {
                         <div className="flex items-center gap-4">
                             {mtg.isNow ? (
                               <Link href={`/meeting/${mtg.id}`}>
-                                  <button className="btn-primary py-3 px-8 rounded-[18px] text-sm font-bold tracking-wide shadow-md shadow-indigo-500/30">Join</button>
+                                  <button className="bg-primary hover:bg-primary/90 text-white py-4 px-10 rounded-[20px] text-base font-extrabold tracking-tight shadow-xl shadow-primary/20 neon-glow transition-all">Join Room</button>
                               </Link>
                             ) : (
-                              <button className="btn-secondary py-3 px-8 rounded-[18px] text-sm font-bold tracking-wide">Details</button>
+                              <button className="glass-card py-4 px-10 rounded-[20px] text-base font-extrabold hover:bg-white/5 transition-all">View Agenda</button>
                             )}
-                            <button className="btn-icon bg-[var(--muted)] border border-[var(--border)] hover:bg-[var(--background)] text-[var(--muted-fg)] shadow-sm">
-                              <MoreVertical className="w-5 h-5" />
+                            <button className="glass-card w-14 h-14 rounded-[20px] flex items-center justify-center text-muted-foreground hover:text-white transition-all">
+                              <MoreVertical className="w-6 h-6" />
                             </button>
                         </div>
                       </motion.div>
@@ -122,53 +127,49 @@ export default function Dashboard() {
                 </section>
             </div>
 
-            {/* Right Column: AI Analytics & Summaries */}
-            <div className="space-y-10">
+            {/* Right Column: AI Insights & Analytics */}
+            <div className="space-y-12">
                 {/* Analytics Snapshot */}
                 <section>
                    <div className="flex items-center justify-between mb-8">
-                      <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--muted-fg)]">Analytics</h2>
+                      <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-400">Real-time Intel</h2>
                    </div>
-                   <div className="grid grid-cols-2 gap-4">
-                      <div className="glass-card p-6 border border-[var(--border)]">
-                         <div className="w-10 h-10 rounded-[14px] bg-green-500/10 text-green-500 flex items-center justify-center mb-4">
-                            <Clock className="w-5 h-5" />
+                   <div className="grid grid-cols-1 gap-5">
+                      <div className="glass-card p-10 rounded-[40px] border border-white/5 group hover:bg-white/5 transition-all">
+                         <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-6">
+                            <TrendingUp className="w-7 h-7" />
                          </div>
-                         <p className="text-sm font-semibold text-[var(--muted-fg)]">Meeting Hours</p>
-                         <h3 className="text-3xl font-extrabold font-outfit mt-1">14.2<span className="text-lg text-[var(--muted-fg)] font-medium">h</span></h3>
-                      </div>
-                      <div className="glass-card p-6 border border-[var(--border)]">
-                         <div className="w-10 h-10 rounded-[14px] bg-blue-500/10 text-blue-500 flex items-center justify-center mb-4">
-                            <TrendingUp className="w-5 h-5" />
+                         <p className="text-sm font-black text-muted-foreground uppercase tracking-widest">Global Focus Score</p>
+                         <h3 className="text-5xl font-black font-outfit mt-2 text-white">94%</h3>
+                         <div className="w-full bg-white/5 h-2 rounded-full mt-6 overflow-hidden">
+                            <div className="bg-primary w-[94%] h-full rounded-full" />
                          </div>
-                         <p className="text-sm font-semibold text-[var(--muted-fg)]">Engagement</p>
-                         <h3 className="text-3xl font-extrabold font-outfit mt-1">87<span className="text-lg text-[var(--muted-fg)] font-medium">%</span></h3>
                       </div>
                    </div>
                 </section>
 
-                {/* AI Summaries */}
+                {/* Recent AI Intelligence */}
                 <section>
                   <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--muted-fg)]">Recent AI Intelligence</h2>
-                    <span className="text-xs font-bold text-[var(--primary)] cursor-pointer hover:underline">View All</span>
+                    <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-indigo-400">AI Memory</h2>
+                    <span className="text-xs font-black text-primary cursor-pointer hover:underline uppercase tracking-tighter">History</span>
                   </div>
-                  <div className="space-y-4">
-                     {recentSummaries.map((summary, idx) => (
-                        <div key={idx} className="glass-card p-5 border border-[var(--border)] hover:border-[var(--primary)] transition-all flex flex-col gap-3 group cursor-pointer">
+                  <div className="space-y-5">
+                     {recentIntelligence.map((summary, idx) => (
+                        <div key={idx} className="glass-card p-6 border border-white/5 hover:border-primary/40 transition-all flex flex-col gap-4 group cursor-pointer rounded-[30px]">
                            <div className="flex items-start justify-between">
-                              <div className="flex items-center gap-3">
-                                 <div className="w-10 h-10 rounded-xl bg-[var(--muted)] flex items-center justify-center group-hover:bg-[var(--primary)] group-hover:text-white transition-all text-[var(--foreground)]">
-                                    <FileText className="w-5 h-5" />
+                              <div className="flex items-center gap-4">
+                                 <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all text-muted-foreground p-3">
+                                    <FileText className="w-full h-full" />
                                  </div>
                                  <div>
-                                   <h4 className="font-bold font-outfit text-[var(--foreground)]">{summary.title}</h4>
-                                   <p className="text-xs font-medium text-[var(--muted-fg)]">{summary.date}</p>
+                                   <h4 className="font-bold text-lg font-outfit text-white tracking-tight">{summary.title}</h4>
+                                   <p className="text-xs font-bold text-muted-foreground uppercase tracking-tighter">{summary.date}</p>
                                  </div>
                               </div>
                            </div>
-                           <div className="bg-[var(--primary)]/5 rounded-xl p-3 flex flex-col gap-1 border border-[var(--primary)]/10">
-                              <span className="text-xs font-bold text-[var(--primary)] flex items-center gap-1.5"><Sparkles className="w-3 h-3"/> {summary.insights} Key Actions Extracted</span>
+                           <div className="bg-primary/10 rounded-2xl p-4 border border-primary/20">
+                              <span className="text-xs font-black text-indigo-300 flex items-center gap-2 uppercase tracking-widest"><Sparkles className="w-3.5 h-3.5"/> {summary.insights} Intelligent Actions Found</span>
                            </div>
                         </div>
                      ))}
