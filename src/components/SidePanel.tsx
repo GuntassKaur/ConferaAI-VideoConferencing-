@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useMeeting } from '@/context/MeetingContext';
-import { Send, Sparkles, User, FileText, Globe2, BarChart3, MessageSquare, Download } from 'lucide-react';
+import { Send, Sparkles, User, FileText, Globe2, BarChart3, MessageSquare, Download, Mic } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const SidePanel = () => {
@@ -109,7 +109,7 @@ export const SidePanel = () => {
                  <div className="space-y-4 pb-10">
                     <div className="flex items-center justify-between">
                        <h3 className="font-bold text-lg font-outfit">Structured Intelligence</h3>
-                       <button className="flex items-center gap-2 text-xs font-bold text-[var(--primary)] bg-[var(--primary)]/10 px-3 py-1.5 rounded-lg hover:bg-[var(--primary)]/20 transition-colors">
+                       <button onClick={() => window.print()} className="flex items-center gap-2 text-xs font-bold text-[var(--primary)] bg-[var(--primary)]/10 px-3 py-1.5 rounded-lg hover:bg-[var(--primary)]/20 transition-colors">
                           <Download className="w-3.5 h-3.5" /> PDF
                        </button>
                     </div>
@@ -193,24 +193,29 @@ export const SidePanel = () => {
          </AnimatePresence>
       </div>
 
-      {/* Input Area (Only for Chat) */}
-      {activeTab === 'chat' && (
-         <div className="p-4 border-t border-[var(--border)] bg-[var(--card)] flex-shrink-0">
-          <div className="relative group">
-             <input 
-                type="text"
-                placeholder="Ask AI or chat with group..."
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAIMessage()}
-                className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-[20px] px-5 py-4 text-sm focus:outline-none focus:border-[var(--primary)] focus:bg-[var(--card)] transition-all font-medium placeholder:text-[var(--muted-fg)] pr-12 shadow-inner"
-             />
-             <button onClick={handleAIMessage} className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-[var(--primary)] text-white rounded-[14px] hover:scale-105 transition-all shadow-md shadow-indigo-500/20">
-                <Send className="w-4 h-4 ml-0.5" />
-             </button>
-          </div>
-         </div>
-      )}
+         {/* Input Area (Only for Chat & Translation) */}
+         {(activeTab === 'chat' || activeTab === 'translate') && (
+            <div className="p-4 border-t border-[var(--border)] bg-[var(--card)] flex-shrink-0">
+             <div className="relative group flex items-center gap-2">
+                <button className="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-[var(--muted)] hover:bg-indigo-500/10 text-[var(--foreground)] hover:text-indigo-500 rounded-[14px] transition-colors border border-[var(--border)] shadow-sm" title="Voice Commands">
+                   <Mic className="w-4 h-4" />
+                </button>
+                <div className="relative flex-1">
+                   <input 
+                      type="text"
+                      placeholder={activeTab === 'chat' ? "Ask AI or chat with group..." : "Type to translate..."}
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleAIMessage()}
+                      className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-[20px] px-5 py-3 text-sm focus:outline-none focus:border-[var(--primary)] focus:bg-[var(--background)] transition-all font-medium placeholder:text-[var(--muted-fg)] pr-12 shadow-inner"
+                   />
+                   <button onClick={handleAIMessage} className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-[var(--primary)] text-white rounded-[14px] hover:scale-105 transition-all shadow-md shadow-indigo-500/20">
+                      <Send className="w-3.5 h-3.5 ml-0.5" />
+                   </button>
+                </div>
+             </div>
+            </div>
+         )}
     </div>
   );
 };
