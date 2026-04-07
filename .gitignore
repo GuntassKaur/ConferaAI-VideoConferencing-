@@ -6,3 +6,11 @@ dist/
 frontend/dist/
 server/node_modules/
 client/node_modules/
+
+# Next.js
+/.next/
+/out/
+build/
+
+# Logs
+build_log*.txt
