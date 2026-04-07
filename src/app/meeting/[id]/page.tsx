@@ -8,17 +8,26 @@ import { SidePanel } from '@/components/SidePanel';
 import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Video } from 'lucide-react';
+import { LiveKitRoom } from '@livekit/components-react';
+import '@livekit/components-styles';
 
 const MeetingContent = () => {
     const params = useParams();
     const { joinRoom } = useMeeting();
     const [isJoined, setIsJoined] = useState(false);
     const [userName, setUserName] = useState('');
+    const [token, setToken] = useState('');
 
-    const handleJoin = () => {
+    const handleJoin = async () => {
         if (userName.trim()) {
-            joinRoom(params.id as string, userName);
-            setIsJoined(true);
+            const res = await fetch(`/api/room/token?room=${params.id}&username=${encodeURIComponent(userName)}`);
+            const data = await res.json();
+            if (data.token) {
+                setToken(data.token);
+                setIsJoined(true);
+            } else {
+                alert('Failed to get token');
+            }
         }
     };
 
@@ -69,7 +78,14 @@ const MeetingContent = () => {
     }
 
     return (
-        <div className="flex flex-col h-[100dvh] bg-[var(--background)] text-[var(--foreground)] overflow-hidden font-sans p-4 sm:p-6 gap-4 sm:gap-6 relative">
+        <LiveKitRoom
+            serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+            token={token}
+            connect={true}
+            video={true}
+            audio={true}
+            className="flex flex-col h-[100dvh] bg-[var(--background)] text-[var(--foreground)] overflow-hidden font-sans p-4 sm:p-6 gap-4 sm:gap-6 relative"
+        >
             {/* Ambient Backgrounds */}
             <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[var(--bg-accent-1)] rounded-full blur-[150px] -z-10 translate-x-1/4 -translate-y-1/4 opacity-40 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[var(--bg-accent-2)] rounded-full blur-[150px] -z-10 -translate-x-1/4 translate-y-1/4 opacity-40 pointer-events-none" />
@@ -98,7 +114,7 @@ const MeetingContent = () => {
             <div className="flex-shrink-0 flex justify-center w-full relative z-10 transition-all pb-2">
                 <BottomBar />
             </div>
-        </div>
+        </LiveKitRoom>
     );
 };
 

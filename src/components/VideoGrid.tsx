@@ -7,9 +7,11 @@ import {
   Volume2, Settings2, BarChart3, SignalHigh 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRoomStore } from '@/store/useRoomStore';
 
 export const VideoGrid = () => {
   const { localStream, remoteParticipants, isMicOn, isCamOn } = useMeeting();
+  const { activeSpeaker } = useRoomStore();
   const localVideoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -29,14 +31,21 @@ export const VideoGrid = () => {
   return (
     <div className="w-full h-full p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 overflow-y-auto custom-scrollbar bg-transparent relative z-10">
       <AnimatePresence>
-        {participants.map((p: any, idx) => (
+        {participants.map((p: any, idx) => {
+          const isSpeaking = activeSpeaker === p.id;
+          return (
           <motion.div
             key={p.id}
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1, 
+              y: 0,
+              boxShadow: isSpeaking ? "0px 0px 30px 5px rgba(0,242,254,0.6)" : "0px 0px 0px 0px rgba(0,0,0,0)" 
+            }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ delay: idx * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="group relative w-full aspect-video glass-panel rounded-[32px] overflow-hidden border-white/[0.08] hover:border-primary/50 hover:shadow-[0_20px_50px_-10px_rgba(139,92,246,0.3)] transition-all duration-700 transform-gpu"
+            className={`group relative w-full aspect-video glass-panel rounded-[32px] overflow-hidden border-white/[0.08] hover:border-primary/50 transition-all duration-700 transform-gpu ${isSpeaking ? 'border-[#00f2fe]' : ''}`}
           >
             {/* Background Grain/Starfield per feed */}
             <div className="absolute inset-0 bg-[#0a0a0f] z-0 opacity-40" />
@@ -86,7 +95,7 @@ export const VideoGrid = () => {
             {/* LUX OVERLAYS: Status Badges (Top Left) */}
             <div className={`absolute top-6 left-6 z-30 transition-all ${!p.isLocal || isMicOn ? 'opacity-100' : 'opacity-0'}`}>
                <div className="flex items-center gap-3 px-3 py-1.5 glass-panel rounded-full border-white/5 backdrop-blur-xl">
-                  {i < 2 ? <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--primary)]" /> : <div className="w-1.5 h-1.5 rounded-full bg-white/20" />}
+                  {idx < 2 ? <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--primary)]" /> : <div className="w-1.5 h-1.5 rounded-full bg-white/20" />}
                   <span className="text-[10px] font-black uppercase tracking-widest text-white/60">HQ Active</span>
                   <SignalHigh className="w-3 h-3 text-white/20" />
                </div>
@@ -117,7 +126,7 @@ export const VideoGrid = () => {
             </div>
 
             {/* Intelligence Spark Indicator */}
-            {i % 2 === 0 && (
+            {idx % 2 === 0 && (
                <div className="absolute bottom-6 right-6 z-40 opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="p-2 glass-panel rounded-lg border-indigo-400/20 text-indigo-400">
                      <Sparkles className="w-5 h-5" />
@@ -125,7 +134,7 @@ export const VideoGrid = () => {
                </div>
             )}
           </motion.div>
-        ))}
+        )})}
       </AnimatePresence>
     </div>
   );
