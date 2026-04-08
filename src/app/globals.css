@@ -4,31 +4,33 @@
 
 @layer base {
   :root {
-    --background: #F9FAFB;
-    --foreground: #1D1D1F;
+    --background: #FFFFFF;
+    --foreground: #09090b;
     --card: #FFFFFF;
-    --card-foreground: #1D1D1F;
-    --primary: #6366F1;
+    --card-foreground: #09090b;
+    --primary: #4F46E5; /* Indigo 600 */
     --primary-foreground: #FFFFFF;
-    --accent: #3B82F6;
-    --border: #E5E7EB;
-    --input: #F3F4F6;
-    --ring: #6366F1;
-    --radius: 0.75rem;
+    --accent: #8B5CF6; /* Violet 500 */
+    --border: #e2e8f0;
+    --input: #f1f5f9;
+    --ring: #4F46E5;
+    --radius: 1rem;
+    --muted: #f8fafc;
+    --muted-foreground: #64748b;
   }
 
   .dark {
-    --background: #0F172A;
-    --foreground: #F8FAFC;
-    --card: #1E293B;
-    --card-foreground: #F8FAFC;
-    --primary: #6366F1;
+    --background: #020617; /* Slate 950 */
+    --foreground: #f8fafc;
+    --card: rgba(15, 23, 42, 0.4);
+    --card-foreground: #f8fafc;
+    --primary: #6366f1; /* Indigo 500 */
     --primary-foreground: #FFFFFF;
-    --accent: #3B82F6;
-    --border: #334155;
-    --input: #1E293B;
-    --muted: #475569;
-    --muted-foreground: #94A3B8;
+    --accent: #a855f7; /* Purple 500 */
+    --border: rgba(255, 255, 255, 0.1);
+    --input: rgba(15, 23, 42, 0.6);
+    --muted: rgba(30, 41, 59, 0.5);
+    --muted-foreground: #94a3b8;
   }
 }
 
@@ -38,6 +40,7 @@
     color: var(--foreground);
     font-family: var(--font-inter), sans-serif;
     -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -47,46 +50,59 @@
 
 @layer utilities {
   .enterprise-glass {
-    background-color: var(--card);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--border);
-  }
-
-  .sidebar-icon-btn {
-    @apply w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-200;
-    color: var(--muted-foreground);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
   }
   
-  .sidebar-icon-btn:hover {
-    background-color: rgba(99, 102, 241, 0.1);
-    color: var(--primary);
+  .dark .enterprise-glass {
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 
-  .control-btn {
-    @apply w-12 h-12 flex items-center justify-center rounded-2xl transition-all duration-200;
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.8);
+  .premium-gradient-text {
+    background: linear-gradient(to right, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .premium-gradient-bg {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   }
 
-  .control-btn:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
+  .glass-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+  }
+
+  .dark .glass-card {
+    background: rgba(30, 41, 59, 0.3);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
   }
 
   .meeting-card {
     background-color: var(--card);
     border: 1px solid var(--border);
-    @apply rounded-2xl p-6 transition-all duration-300;
+    @apply rounded-[1.5rem] p-6 transition-all duration-500 ease-out;
   }
 
   .meeting-card:hover {
-    border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-4px);
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.15);
   }
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-.dark ::-webkit-scrollbar-thumb { background: #334155; }
+.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+.dark ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
