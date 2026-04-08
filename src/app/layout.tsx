@@ -26,9 +26,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased min-h-screen">
+      <body className={`${inter.variable} ${outfit.variable} antialiased min-h-screen bg-background text-foreground`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="fixed inset-0 -z-10 bg-hero-glow opacity-50" />
           {children}
         </ThemeProvider>
       </body>
