@@ -3,189 +3,196 @@
 import React, { useState } from 'react';
 import { 
   Plus, Video, Calendar, Clock, Settings, User, 
-  MoreVertical, LogOut, ChevronRight, BarChart3, TrendingUp, Sparkles, FileText, Zap, ShieldCheck, Activity, BrainCircuit, Users, Globe2
+  MoreVertical, LogOut, ChevronRight, BarChart3, TrendingUp, Sparkles, 
+  FileText, ShieldCheck, Activity, BrainCircuit, Users, Search, Bell
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
 export default function Dashboard() {
   const upcomingMeetings = [
-    { title: 'Executive Sync: Q4 Roadmap', time: '10:30 AM', duration: '45m', participants: 8, id: 'q4-sync', live: true },
-    { title: 'Global Ops Briefing', time: '1:00 PM', duration: '60m', participants: 4, id: 'ops-brief', live: false },
-    { title: 'Future Strategy: SpaceSync', time: '4:15 PM', duration: '90m', participants: 12, id: 'future-strat', live: false },
+    { title: 'Executive Sync: Q4 Roadmap', time: '10:30 AM', duration: '45m', participants: 8, id: 'q4-sync', live: true, category: 'Strategy' },
+    { title: 'Global Ops Briefing', time: '1:00 PM', duration: '60m', participants: 4, id: 'ops-brief', live: false, category: 'Operations' },
+    { title: 'Product Review: Confera AI v2', time: '2:30 PM', duration: '30m', participants: 6, id: 'product-v2', live: false, category: 'Product' },
+    { title: 'Future Strategy: SpaceSync', time: '4:15 PM', duration: '90m', participants: 12, id: 'future-strat', live: false, category: 'Research' },
   ];
 
-  const intelligenceCards = [
-    { title: 'Core Marketing Review', date: 'Yesterday', insights: 14, confidence: 98, role: 'AI Scribe' },
-    { title: 'Tech Architecture v2', date: 'Oct 12', insights: 22, confidence: 96, role: 'Solution AI' },
-  ];
+  const SidebarIcon = ({ icon: Icon, active = false }: any) => (
+    <button className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative ${
+      active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600'
+    }`}>
+      <Icon className="w-5 h-5" />
+      {!active && (
+        <div className="absolute left-16 px-3 py-1.5 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]">
+          {Icon.name}
+        </div>
+      )}
+    </button>
+  );
 
   return (
-    <div className="flex h-screen bg-[#020205] overflow-hidden font-sans text-foreground selection:bg-primary/30 relative">
-      {/* Intense Background Layers */}
-      <div className="fixed inset-0 z-0 bg-[radial-gradient(circle_at_-10%_110%,#1e1b4b_0%,transparent_50%)]" />
-      <div className="fixed top-[-400px] right-[-400px] w-[1000px] h-[1000px] bg-primary/10 rounded-full blur-[180px] pointer-events-none opacity-40 animate-pulse" />
-
-      {/* LUX SIDEBAR: Deep Glass Morphism */}
-      <aside className="w-[110px] border-r border-white/[0.05] flex flex-col items-center py-12 gap-12 glass-panel z-50 backdrop-blur-[45px] hover:w-[130px] transition-all duration-700 ease-out p-6">
-        <div className="w-14 h-14 rounded-[22px] bg-gradient-to-tr from-primary to-blue-500 flex items-center justify-center neon-border p-3 group cursor-pointer transition-all hover:rotate-[15deg]">
-          <Video className="w-full h-full text-white" />
+    <div className="flex h-screen bg-[#F9FAFB] dark:bg-[#0F172A] text-slate-900 dark:text-slate-100 overflow-hidden font-inter transition-colors duration-500">
+      
+      {/* Sidebar (Icons Only) */}
+      <aside className="w-[80px] flex-shrink-0 border-r border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl flex flex-col items-center py-8 gap-4 z-50">
+        <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center mb-6 shadow-lg shadow-indigo-600/20">
+          <Video className="w-6 h-6 text-white" />
         </div>
         
-        <nav className="flex flex-col gap-6 w-full h-full pt-10 px-2 opacity-60 hover:opacity-100 transition-opacity">
-          {[Calendar, Clock, User, BarChart3, BrainCircuit].map((Icon, i) => (
-             <button key={i} className="w-full aspect-square rounded-[24px] hover:bg-white/5 text-white/40 hover:text-primary flex items-center justify-center transition-all p-4 hover:neon-border hover:shadow-primary/10">
-               <Icon className="w-full h-full stroke-[2.5]" />
-             </button>
-          ))}
-          <div className="w-full h-px bg-white/5 my-4" />
-          <button className="w-full aspect-square rounded-[24px] hover:bg-white/5 text-white/40 hover:text-primary flex items-center justify-center transition-all p-4">
-             <Settings className="w-full h-full stroke-[2.5]" />
-          </button>
+        <nav className="flex flex-col gap-3">
+          <SidebarIcon icon={BrainCircuit} active />
+          <SidebarIcon icon={Calendar} />
+          <SidebarIcon icon={Users} />
+          <SidebarIcon icon={BarChart3} />
         </nav>
 
-        <button className="mt-auto w-full aspect-square rounded-[24px] text-red-500 hover:bg-red-500/10 flex items-center justify-center transition-all p-4">
-           <LogOut className="w-full h-full stroke-[2.5]" />
-        </button>
+        <div className="mt-auto flex flex-col gap-3">
+          <SidebarIcon icon={Settings} />
+          <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 mt-2 border-2 border-white dark:border-slate-700 shadow-sm overflow-hidden">
+             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Avatar" />
+          </div>
+        </div>
       </aside>
 
-      {/* PRIMARY DASHBOARD INTERFACE */}
-      <main className="flex-1 flex flex-col overflow-hidden relative z-10">
-        {/* TOP STATUS BAR */}
-        <header className="px-20 py-16 flex justify-between items-end border-b border-white/[0.03]">
-           <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                 <span className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.5em]">Global Uplink Active</span>
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col overflow-hidden">
+        {/* Sticky Top Navbar */}
+        <header className="h-[72px] flex-shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-10 flex items-center justify-between z-40">
+           <div className="flex items-center gap-8 flex-1">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500">Dashboard</h2>
+              <div className="relative max-w-md w-full">
+                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                 <input 
+                    placeholder="Search meetings, insights, files..."
+                    className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl pl-11 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
+                 />
               </div>
-              <h1 className="text-6xl font-[900] font-outfit text-white tracking-tight leading-none text-glow">HELLO,<br/><span className="text-white/20">AGENT MILLER.</span></h1>
            </div>
            
-           <div className="flex items-center gap-8">
-              <div className="flex flex-col items-end mr-10 hidden xl:flex">
-                 <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-2">Network Strength</span>
-                 <div className="flex gap-1.5 px-4 py-2 glass-panel rounded-xl">
-                    {[1,1,1,1,1].map((_, i) => <div key={i} className={`w-1 h-3 rounded-full ${i < 4 ? 'bg-primary shadow-[0_0_8px_var(--primary)]' : 'bg-white/5'}`} />)}
-                 </div>
-              </div>
+           <div className="flex items-center gap-6">
+              <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors relative">
+                 <Bell className="w-5 h-5" />
+                 <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900" />
+              </button>
+              <div className="h-6 w-px bg-slate-200 dark:bg-slate-800" />
               <Link href={`/meeting/${Math.random().toString(36).substr(2, 9)}`}>
-                  <button className="btn-premium h-[85px] px-14 !bg-primary !text-white !border-primary/40 font-black text-lg gap-4 shadow-2xl shadow-primary/30 uppercase tracking-[0.2em] relative group overflow-hidden">
-                     <Plus className="w-6 h-6 stroke-[4]" /> Launch Sync
-                     <div className="absolute inset-0 bg-gradient-to-r from-primary via-white/5 to-primary transition-transform duration-1000 -translate-x-[200%] group-hover:translate-x-[200%]" />
+                  <button className="h-11 px-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-600/20 text-sm">
+                     <Plus className="w-4 h-4" /> Create Meeting
                   </button>
               </Link>
            </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-20 pb-20 pt-16 custom-scrollbar scroll-smooth">
-          <div className="max-w-[1500px] grid grid-cols-1 xl:grid-cols-5 gap-16">
-            
-            {/* LARGE GRID: Sessions & Real-time Activities */}
-            <div className="xl:col-span-3 space-y-16">
-                <section>
-                  <div className="flex items-center justify-between mb-12">
-                    <h2 className="text-sm font-black uppercase tracking-[0.4em] text-white/30 border-l-4 border-primary pl-6">Scheduled Synchronizations</h2>
-                  </div>
-                  <div className="grid gap-8">
-                    {upcomingMeetings.map((mtg, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.15, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                        className="glass-panel p-10 rounded-[35px] flex flex-col lg:flex-row lg:items-center justify-between gap-12 hover:neon-border hover:bg-white/[0.04] transition-all duration-700 group relative overflow-hidden"
-                      >
-                        <div className="flex items-center gap-12">
-                            <div className="flex flex-col items-center justify-center w-32 h-32 rounded-[32px] bg-white/[0.04] border border-white/5 shadow-2xl group-hover:bg-primary transition-all duration-700 p-4">
-                              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 group-hover:text-white/80">Sync At</span>
-                              <span className="text-2xl font-black text-white mt-1 uppercase tracking-tighter">{mtg.time}</span>
-                            </div>
-                            <div className="flex flex-col gap-3">
-                              <h3 className="font-extrabold text-3xl font-outfit text-white tracking-tighter text-glow">{mtg.title}</h3>
-                              <div className="flex items-center gap-8 text-xs text-white/30 mt-2 font-black uppercase tracking-[0.15em]">
-                                <span className="flex items-center gap-2 group-hover:text-primary transition-colors"><Clock className="w-5 h-5" /> {mtg.duration}</span>
-                                <span className="flex items-center gap-2 group-hover:text-primary transition-colors"><Users className="w-5 h-5" /> {mtg.participants} Analysts</span>
-                                {mtg.live && <span className="px-3 py-1 bg-primary/10 border border-primary/20 rounded-md text-primary text-[8px] animate-pulse">Now Live</span>}
-                              </div>
-                            </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-4">
-                            {mtg.live ? (
-                              <Link href={`/meeting/${mtg.id}`}>
-                                  <button className="btn-premium !bg-primary h-16 w-48 text-sm font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:neon-border transition-all">Join Space</button>
-                              </Link>
-                            ) : (
-                              <button className="btn-premium h-16 w-48 text-sm font-black uppercase tracking-widest hover:bg-white/10 transition-all">Details</button>
-                            )}
-                            <button className="w-16 h-16 rounded-[22px] glass-panel flex items-center justify-center text-white/20 hover:text-white transition-all">
-                              <MoreVertical className="w-7 h-7" />
-                            </button>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </section>
-            </div>
+        {/* Scrollable Area */}
+        <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
+           <div className="max-w-7xl mx-auto space-y-12">
+              
+              {/* Welcome Section */}
+              <section className="flex flex-col gap-2">
+                 <span className="text-sm font-bold text-indigo-600 uppercase tracking-widest">Welcome Back</span>
+                 <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">Your Meetings</h1>
+              </section>
 
-            {/* ANALYTICS RAIL: Space-Tech Widgets */}
-            <div className="xl:col-span-2 space-y-16">
-                {/* ADVANCED USAGE RADIOS */}
-                <section>
-                   <div className="flex items-center justify-between mb-12">
-                      <h2 className="text-sm font-black uppercase tracking-[0.4em] text-white/30 border-l-4 border-indigo-400 pl-6">Cognitive Metrics</h2>
-                   </div>
-                   <div className="grid grid-cols-1 gap-8">
-                      <div className="glass-panel p-12 rounded-[45px] hover:neon-border transition-all group cursor-default">
-                         <div className="flex justify-between items-start mb-10">
-                            <div className="w-16 h-16 rounded-[24px] bg-primary/10 text-primary flex items-center justify-center p-4">
-                               <TrendingUp className="w-full h-full" />
+              {/* Statistics Grid */}
+              <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                 {[
+                   { label: 'Total Syncs', value: '12', icon: Video, color: 'text-indigo-600', bg: 'bg-indigo-500/10' },
+                   { label: 'AI Insights', value: '142', icon: Sparkles, color: 'text-emerald-600', bg: 'bg-emerald-500/10' },
+                   { label: 'Action Items', value: '28', icon: ShieldCheck, color: 'text-blue-600', bg: 'bg-blue-500/10' },
+                   { label: 'Time Saved', value: '5.2h', icon: Clock, color: 'text-orange-600', bg: 'bg-orange-500/10' },
+                 ].map((stat, i) => (
+                    <div key={i} className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-5 hover:border-indigo-500/50 transition-all group">
+                       <div className={`w-12 h-12 rounded-xl ${stat.bg} ${stat.color} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
+                          <stat.icon className="w-6 h-6" />
+                       </div>
+                       <div className="flex flex-col">
+                          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest leading-none mb-1.5">{stat.label}</span>
+                          <span className="text-2xl font-black text-slate-900 dark:text-white">{stat.value}</span>
+                       </div>
+                    </div>
+                 ))}
+              </section>
+
+              {/* Upcoming Meetings Grid */}
+              <section className="space-y-6">
+                 <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">Upcoming Synchronizations</h3>
+                    <button className="text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+                       View All <ChevronRight className="w-4 h-4" />
+                    </button>
+                 </div>
+
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6">
+                    {upcomingMeetings.map((mtg, i) => (
+                      <div key={i} className="group p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300">
+                         <div className="flex justify-between items-start mb-6">
+                            <div className="flex items-center gap-2">
+                               <div className="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] font-bold uppercase tracking-widest border border-slate-200 dark:border-slate-700">
+                                  {mtg.category}
+                               </div>
+                               {mtg.live && (
+                                  <div className="px-2.5 py-1 rounded-md bg-red-500/10 text-red-600 text-[10px] font-bold uppercase tracking-widest border border-red-500/20 animate-pulse">
+                                     Live Now
+                                  </div>
+                               )}
                             </div>
-                            <Activity className="w-6 h-6 text-white/10 group-hover:text-primary transition-colors animate-pulse" />
+                            <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+                               <MoreVertical className="w-5 h-5" />
+                            </button>
                          </div>
-                         <p className="text-[10px] font-black text-white/2) uppercase tracking-[0.5em] mb-4">Space Productivity Score</p>
-                         <h3 className="text-7xl font-[900] font-outfit text-white tracking-tighter leading-none mb-10">92<span className="text-primary text-4xl">%</span></h3>
-                         <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden border border-white/5">
-                            <motion.div initial={{ width: 0 }} animate={{ width: '92%' }} className="h-full bg-gradient-to-r from-primary to-blue-500 shadow-[0_0_20px_rgba(139,92,246,0.6)]" />
+                         
+                         <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-indigo-600 transition-colors">{mtg.title}</h4>
+                         
+                         <div className="flex items-center gap-6 mb-8 text-sm text-slate-500 font-medium">
+                            <div className="flex items-center gap-2 font-semibold text-slate-900 dark:text-white">
+                               <Clock className="w-4 h-4 text-indigo-500" />
+                               {mtg.time}
+                            </div>
+                            <div className="flex items-center gap-2">
+                               <Users className="w-4 h-4" />
+                               {mtg.participants} Analysts
+                            </div>
+                            <div className="flex items-center gap-2">
+                               <Activity className="w-4 h-4" />
+                               {mtg.duration}
+                            </div>
+                         </div>
+
+                         <div className="flex items-center gap-3">
+                            <Link href={`/meeting/${mtg.id}`} className="flex-1">
+                               <button className={`w-full h-11 rounded-xl font-bold text-sm transition-all ${
+                                 mtg.live ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20' : 'bg-slate-100 dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-slate-900 dark:text-white'
+                               }`}>
+                                  {mtg.live ? 'Join Space' : 'Meeting Details'}
+                               </button>
+                            </Link>
+                            <button className="w-11 h-11 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-500/50 transition-all">
+                               <Plus className="w-5 h-5" />
+                            </button>
                          </div>
                       </div>
-                   </div>
-                </section>
+                    ))}
+                 </div>
+              </section>
 
-                {/* AI INTELLIGENCE PIPELINE */}
-                <section>
-                  <div className="flex items-center justify-between mb-12">
-                    <h2 className="text-sm font-black uppercase tracking-[0.4em] text-white/30 border-l-4 border-emerald-400 pl-6">AI Knowledge Cluster</h2>
-                  </div>
-                  <div className="space-y-6">
-                     {intelligenceCards.map((card, idx) => (
-                        <div key={idx} className="glass-panel p-8 rounded-[35px] border-white/5 hover:border-emerald-500/30 transition-all flex flex-col gap-6 group cursor-pointer active:scale-[0.98]">
-                           <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-5">
-                                 <div className="w-14 h-14 rounded-2xl bg-emerald-500/5 group-hover:bg-emerald-500/20 text-emerald-500 flex items-center justify-center p-4 transition-all">
-                                    <Globe2 className="w-full h-full" />
-                                 </div>
-                                 <div className="flex flex-col">
-                                   <h4 className="font-exrabold text-xl font-outfit text-white tracking-tight leading-tight">{card.title}</h4>
-                                   <div className="flex items-center gap-2 mt-1">
-                                      <span className="text-[9px] font-black text-emerald-500/60 uppercase tracking-widest">{card.role}</span>
-                                   </div>
-                                 </div>
-                              </div>
-                              <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{card.confidence}% Accuracy</span>
-                           </div>
-                           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 flex items-center justify-between">
-                              <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] flex items-center gap-3">
-                                 <Sparkles className="w-3.5 h-3.5" /> {card.insights} Intelligent Decisions Synthesized
-                              </span>
-                              <ChevronRight className="w-4 h-4 text-emerald-500" />
-                           </div>
-                        </div>
-                     ))}
-                  </div>
-                </section>
-            </div>
-          </div>
+              {/* Bottom Quick Insight */}
+              <section className="p-8 bg-indigo-600 rounded-[2rem] text-white relative overflow-hidden shadow-2xl shadow-indigo-600/30">
+                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+                    <div className="space-y-4 max-w-xl">
+                       <div className="flex items-center gap-2 uppercase text-[10px] font-black tracking-widest opacity-80">
+                          <Sparkles className="w-4 h-4" />
+                          AI Intelligence Insight
+                       </div>
+                       <h3 className="text-2xl font-bold leading-tight">Your team's focus on "Infrastructure Scaling" has increased by 42% over the last 3 sessions.</h3>
+                    </div>
+                    <button className="h-12 px-8 bg-white text-indigo-600 rounded-xl font-bold flex items-center hovber:bg-indigo-50 transition-all shrink-0">
+                       Generate Full Report
+                    </button>
+                 </div>
+              </section>
+
+           </div>
         </div>
       </main>
     </div>
