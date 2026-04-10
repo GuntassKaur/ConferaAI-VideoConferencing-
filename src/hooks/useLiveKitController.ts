@@ -51,11 +51,11 @@ export function useLiveKitController() {
     }, 4000);
 
     room.on(RoomEvent.ActiveSpeakersChanged, handleActiveSpeakerChange);
-    room.on(RoomEvent.NetworkQualityChanged, handleNetworkQuality);
+    room.on(RoomEvent.ConnectionQualityChanged, handleNetworkQuality);
 
     return () => {
       room.off(RoomEvent.ActiveSpeakersChanged, handleActiveSpeakerChange);
-      room.off(RoomEvent.NetworkQualityChanged, handleNetworkQuality);
+      room.off(RoomEvent.ConnectionQualityChanged, handleNetworkQuality);
       clearInterval(simulateTranscription);
     };
   }, [room, setActiveSpeaker, addTranscript]);

@@ -1,95 +1,124 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Sparkles, CheckCircle2, MessageSquare, Target, Brain } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Send, Brain, ListChecks, MessageSquare, Loader2 } from 'lucide-react';
 
-const AIPanel = () => {
+export default function AIPanel() {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [showRecap, setShowRecap] = useState(false);
+  const [recap, setRecap] = useState<null | { summary: string, points: string[], actions: string[] }>(null);
 
-  const handleGenerateRecap = () => {
+  const generateRecap = () => {
     setIsGenerating(true);
     setTimeout(() => {
+      setRecap({
+        summary: "The team discussed the upcoming Q3 project launch. Key focus was on performance optimization and the new design system adoption.",
+        points: [
+          "Design system is 80% complete.",
+          "Performance issues identified in the dashboard grid.",
+          "Marketing team needs the final assets by Friday."
+        ],
+        actions: [
+          "Fix grid re-renders by EOD @Frontend",
+          "Send brand kit to Marketing @Design",
+          "Schedule follow-up on Thursday"
+        ]
+      });
       setIsGenerating(false);
-      setShowRecap(true);
     }, 2000);
   };
 
   return (
-    <div className="w-[380px] flex-shrink-0 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-white/10 flex flex-col h-full overflow-hidden">
-      {/* Header */}
-      <div className="p-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between">
+    <aside className="w-80 bg-slate-900 border-l border-white/5 flex flex-col h-full overflow-hidden">
+      <div className="p-4 border-b border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-indigo-600">
-             <Brain className="w-4 h-4 text-white" />
-          </div>
-          <h2 className="font-bold text-sm tracking-tight text-slate-900 dark:text-white">Neural Assistant</h2>
+           <Brain className="w-4 h-4 text-indigo-400" />
+           <span className="text-xs font-bold uppercase tracking-wider text-slate-300">AI Assistant</span>
         </div>
-        <div className="flex h-2 w-2 rounded-full bg-emerald-500" />
       </div>
 
-      {/* Content */}
-      <div className="flex-grow overflow-y-auto p-4 space-y-4">
-        {/* ChatGPT Style Messages */}
-        <div className="space-y-4">
-          <div className="bg-slate-50 dark:bg-white/5 p-3 rounded-2xl text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-            Hi, I'm analyzing the meeting in real-time. I can generate summaries, identify action items, or answer questions about the discussion.
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {!recap && !isGenerating && (
+          <div className="h-full flex flex-col items-center justify-center text-center p-6 bg-slate-800/20 rounded-2xl border border-white/5">
+             <div className="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center mb-4">
+                <Sparkles className="w-6 h-6 text-indigo-500" />
+             </div>
+             <p className="text-sm font-medium text-slate-400">
+               Click below to generate a real-time recap of your meeting.
+             </p>
           </div>
+        )}
 
-          <AnimatePresence>
-            {showRecap && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="glass-premium p-4 rounded-2xl border border-indigo-500/30 space-y-3"
-              >
-                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
-                   <Sparkles className="w-4 h-4" />
-                   <span className="text-xs font-black uppercase tracking-widest">5-Min Neural Recap</span>
+        {isGenerating && (
+           <div className="p-6 space-y-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-3 bg-slate-800 rounded animate-pulse w-1/4" />
+                  <div className="h-4 bg-slate-800 rounded animate-pulse w-full" />
                 </div>
-                <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                  The team discussed the Q3 product roadmap and final architecture for the AI integration module.
+              ))}
+           </div>
+        )}
+
+        <AnimatePresence>
+          {recap && !isGenerating && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6 p-2"
+            >
+              <section>
+                <div className="flex items-center gap-2 mb-2 text-indigo-400">
+                   <MessageSquare size={14} />
+                   <h3 className="text-[10px] font-bold uppercase tracking-widest text-indigo-400">Summary</h3>
+                </div>
+                <p className="text-sm text-slate-300 leading-relaxed font-medium">
+                  {recap.summary}
                 </p>
-                <div className="space-y-2">
-                   <div className="flex items-start gap-2 text-[11px] text-slate-500 italic">
-                      <ListChecks className="w-3.5 h-3.5 mt-0.5" />
-                      <div>
-                        <strong>Action:</strong> Guntass to finalize API specs. <br/>
-                        <strong>Action:</strong> Sarah to review UI mocks.
-                      </div>
-                   </div>
+              </section>
+
+              <section>
+                <div className="flex items-center gap-2 mb-2 text-indigo-400">
+                   <Target size={14} />
+                   <h3 className="text-[10px] font-bold uppercase tracking-widest text-indigo-400">Key Points</h3>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                <ul className="space-y-2">
+                  {recap.points.map((p, i) => (
+                    <li key={i} className="text-sm text-slate-400 flex gap-2">
+                       <span className="text-indigo-500">•</span> {p}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <section>
+                <div className="flex items-center gap-2 mb-2 text-indigo-400">
+                   <CheckCircle2 size={14} />
+                   <h3 className="text-[10px] font-bold uppercase tracking-widest text-indigo-400">Action Items</h3>
+                </div>
+                <ul className="space-y-2 text-sm text-slate-300">
+                   {recap.actions.map((a, i) => (
+                      <li key={i} className="flex gap-2 items-start">
+                         <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                         {a}
+                      </li>
+                   ))}
+                </ul>
+              </section>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Footer / Input */}
-      <div className="p-4 border-t border-slate-200 dark:border-white/10 space-y-4">
-        <button 
-          onClick={handleGenerateRecap}
-          disabled={isGenerating}
-          className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-black uppercase tracking-[0.15em] flex items-center justify-center gap-2 transition-all active:scale-95"
-        >
-          {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-          Generate 5-min Recap
-        </button>
-
-        <div className="relative">
-           <input 
-             type="text" 
-             placeholder="Ask anything..." 
-             className="w-full h-11 pl-4 pr-12 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-xs focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
-           />
-           <button className="absolute right-2 top-1.5 h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white hover:bg-indigo-500 transition-colors">
-              <Send className="w-4 h-4" />
-           </button>
-        </div>
+      <div className="p-4 bg-slate-900 border-t border-white/5">
+         <button 
+           onClick={generateRecap}
+           disabled={isGenerating}
+           className="btn-primary w-full h-12 text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all active:scale-95 disabled:opacity-50"
+         >
+            {isGenerating ? 'Analyzing...' : 'Generate 5-Min Recap'}
+         </button>
       </div>
-    </div>
+    </aside>
   );
-};
-
-export default AIPanel;
+}

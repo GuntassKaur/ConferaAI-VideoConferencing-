@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Video, MoreVertical, Play } from 'lucide-react';
+import Link from 'next/link';
 
 interface MeetingCardProps {
   title: string;
@@ -55,9 +56,11 @@ const MeetingCard = ({ title, date, time, participants, status = 'upcoming' }: M
           </div>
         </div>
         
-        <button className="h-9 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold flex items-center gap-2 transition-all active:scale-95">
-          Join <Play className="w-3.5 h-3.5 fill-white" />
-        </button>
+        <Link href="/meeting/123" className="block">
+          <button className="h-9 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold flex items-center gap-2 transition-all active:scale-95">
+            Join <Play className="w-3.5 h-3.5 fill-white" />
+          </button>
+        </Link>
       </div>
 
       {status === 'ongoing' && (
