@@ -5,17 +5,17 @@
 @layer base {
   :root {
     --background: #FFFFFF;
-    --foreground: #0F172A;
+    --foreground: #111827;
     --card: #FFFFFF;
-    --card-foreground: #0F172A;
-    --primary: #4F46E5; /* Indigo 600 */
-    --primary-hover: #4338CA; /* Indigo 700 */
-    --secondary: #F8FAFC;
+    --card-foreground: #111827;
+    --primary: #6366F1;
+    --primary-hover: #4F46E5;
+    --secondary: #3B82F6;
     --border: #E2E8F0;
     --input: #F8FAFC;
-    --ring: rgba(79, 70, 229, 0.4);
-    --radius: 0.75rem;
-    --muted: #64748B;
+    --ring: rgba(99, 102, 241, 0.4);
+    --radius: 0.75rem; /* rounded-xl */
+    --muted: #6B7280;
   }
 
   .dark {
@@ -25,7 +25,7 @@
     --card-foreground: #F8FAFC;
     --primary: #6366F1;
     --primary-hover: #818CF8;
-    --secondary: #1E293B;
+    --secondary: #3B82F6;
     --border: #334155;
     --input: #1E293B;
     --ring: rgba(99, 102, 241, 0.4);
@@ -60,11 +60,11 @@
   }
 
   .btn-primary {
-    @apply flex items-center justify-center gap-2 h-11 px-6 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-all shadow-sm active:scale-[0.98] disabled:opacity-50;
+    @apply flex items-center justify-center gap-2 h-11 px-6 rounded-xl bg-primary hover:bg-primary-hover text-white font-semibold transition-all duration-200 shadow-sm hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50;
   }
 
   .btn-secondary {
-    @apply flex items-center justify-center gap-2 h-11 px-6 rounded-lg bg-white border border-slate-200 text-slate-900 font-semibold hover:bg-slate-50 transition-all active:scale-[0.98] dark:bg-slate-800 dark:border-slate-700 dark:text-white dark:hover:bg-slate-700;
+    @apply flex items-center justify-center gap-2 h-11 px-6 rounded-xl bg-white border border-border text-foreground font-semibold hover:bg-slate-50 transition-all duration-200 shadow-sm hover:scale-[1.02] active:scale-[0.98] dark:bg-slate-800 dark:border-slate-700 dark:text-white dark:hover:bg-slate-700;
   }
 
   .card-shadow {

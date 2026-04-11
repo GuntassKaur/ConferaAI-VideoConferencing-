@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import DashboardSidebar from '@/components/DashboardSidebar';
 import MeetingCard from '@/components/MeetingCard';
@@ -14,33 +15,85 @@ const meetings = [
 ];
 
 export default function Dashboard() {
+  const router = useRouter();
+  const [meetingId, setMeetingId] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCreateMeeting = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/create-meeting', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        router.push(`/meeting/${data.meetingId}`);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleJoinMeeting = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!meetingId) return;
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/join-meeting', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ meetingId }) 
+      });
+      const data = await res.json();
+      if (data.success) {
+        router.push(`/meeting/${meetingId}`);
+      } else {
+        alert('Meeting not found or invalid.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="flex flex-col h-screen bg-background">
       <Navbar />
       
       <div className="flex flex-1 pt-16 overflow-hidden">
         <DashboardSidebar />
         
         <main className="flex-1 overflow-y-auto p-8">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-[1200px] w-full mx-auto">
             {/* Dashboard Header */}
-            <div className="flex items-end justify-between mb-10">
+            <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-10 gap-4">
               <div>
                 <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">My Meetings</h1>
                 <p className="text-slate-500 font-medium">Manage your upcoming and past AI-powered sessions.</p>
               </div>
-              <button className="btn-primary h-12 px-6">
-                <Plus className="w-5 h-5" /> Create Meeting
-              </button>
+              <div className="flex items-center gap-4">
+                <form onSubmit={handleJoinMeeting} className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enter Meeting ID"
+                    value={meetingId}
+                    onChange={(e) => setMeetingId(e.target.value)}
+                    className="h-12 px-4 rounded-xl border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  />
+                  <button type="submit" disabled={isLoading} className="btn-secondary h-12 px-6">
+                    Join
+                  </button>
+                </form>
+                <button onClick={handleCreateMeeting} disabled={isLoading} className="btn-primary h-12 px-6">
+                  <Plus className="w-5 h-5 mr-2" /> Create Meeting
+                </button>
+              </div>
             </div>
 
             {/* View Toggle / Filter Placeholder */}
             <div className="flex items-center gap-4 mb-8">
-               <div className="flex bg-white dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-800">
-                  <button className="p-2 bg-slate-50 dark:bg-slate-800 rounded-md text-indigo-600">
+               <div className="flex bg-card p-1 rounded-xl border border-border">
+                  <button className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-primary">
                     <LayoutGrid size={18} />
                   </button>
-                  <button className="p-2 text-slate-400 hover:text-slate-600 transition-all">
+                  <button className="p-2 text-muted hover:text-foreground transition-all duration-200">
                     <List size={18} />
                   </button>
                </div>
@@ -61,13 +114,13 @@ export default function Dashboard() {
 
               {/* Create New Card */}
               <motion.div 
-                whileHover={{ scale: 0.98 }}
-                className="p-6 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-center gap-3 cursor-pointer hover:bg-white dark:hover:bg-slate-900 transition-all group"
+                whileHover={{ scale: 1.02 }}
+                className="p-6 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center text-center gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-200 group"
               >
-                 <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-600 group-hover:bg-indigo-50 transition-all">
+                 <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-muted group-hover:text-primary group-hover:bg-primary/10 transition-all duration-200">
                     <Plus className="w-6 h-6" />
                  </div>
-                 <div className="text-sm font-bold text-slate-400 group-hover:text-slate-600">Schedule New</div>
+                 <div className="text-sm font-bold text-muted group-hover:text-foreground transition-colors duration-200">Schedule New</div>
               </motion.div>
             </div>
           </div>

@@ -17,22 +17,22 @@ const MeetingCard = ({ title, date, time, participants, status = 'upcoming' }: M
   return (
     <motion.div 
       whileHover={{ y: -4, shadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
-      className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 transition-all flex flex-col gap-4 relative group"
+      className="p-5 rounded-xl bg-card border border-border transition-all duration-200 flex flex-col gap-4 relative group hover:shadow-lg"
     >
       <div className="flex justify-between items-start">
-        <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center">
-          <Video className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+          <Video className="w-5 h-5 text-primary" />
         </div>
-        <button className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+        <button className="text-muted hover:text-foreground transition-colors duration-200">
           <MoreVertical className="w-5 h-5" />
         </button>
       </div>
 
       <div>
-        <h3 className="font-bold text-slate-900 dark:text-white mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+        <h3 className="font-bold text-foreground mb-1 group-hover:text-primary transition-colors duration-200">
           {title}
         </h3>
-        <div className="flex items-center gap-4 text-xs text-slate-500 font-medium">
+        <div className="flex items-center gap-4 text-xs text-muted font-medium">
           <span className="flex items-center gap-1">
             <Calendar className="w-3.5 h-3.5" />
             {date}
@@ -44,20 +44,20 @@ const MeetingCard = ({ title, date, time, participants, status = 'upcoming' }: M
         </div>
       </div>
 
-      <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between mt-auto">
+      <div className="pt-4 border-t border-border flex items-center justify-between mt-auto">
         <div className="flex -space-x-2">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="w-7 h-7 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold">
+            <div key={i} className="w-7 h-7 rounded-full border-2 border-card bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-700 dark:text-slate-300">
               {String.fromCharCode(64 + i)}
             </div>
           ))}
-          <div className="w-7 h-7 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-500">
+          <div className="w-7 h-7 rounded-full border-2 border-card bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold text-muted">
             +{participants - 3}
           </div>
         </div>
         
         <Link href="/meeting/123" className="block">
-          <button className="h-9 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold flex items-center gap-2 transition-all active:scale-95">
+          <button className="h-9 px-4 rounded-xl bg-primary hover:bg-primary-hover text-white text-sm font-bold flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
             Join <Play className="w-3.5 h-3.5 fill-white" />
           </button>
         </Link>
