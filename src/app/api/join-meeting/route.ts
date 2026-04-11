@@ -37,8 +37,9 @@ export async function POST(request: Request) {
         participants: meeting.participants
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Join API Error:', error);
     return NextResponse.json({ error: 'Real-time join failed. Please try again later.' }, { status: 500 });
   }
+
 }

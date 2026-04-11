@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     } else {
        return NextResponse.json({ error: "No response from AI" }, { status: 500 });
     }
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: "Failed to generate recap via OpenAI API" }, { status: 500 });
   }
 }

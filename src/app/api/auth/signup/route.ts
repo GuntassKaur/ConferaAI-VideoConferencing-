@@ -24,9 +24,9 @@ export async function POST(request: Request) {
 
     db.users.push(newUser);
 
-    const { password: _, ...userWithoutPassword } = newUser;
+    const { password: _password, ...userWithoutPassword } = newUser;
     return NextResponse.json({ success: true, user: userWithoutPassword });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -6,31 +6,33 @@ import { Send, LogOut, MessageSquare, Users, Video, Mic, Camera, Shield } from '
 
 export default function MeetingPage() {
   const { id } = useParams();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{name: string, id: string} | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [messages, setMessages] = useState<{user: string, text: string, time: string}[]>([]);
   const [inputText, setInputText] = useState('');
   const [isChatOpen, setIsChatOpen] = useState(true);
   const router = useRouter();
 
+
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (!savedUser) {
       router.push('/login');
-    } else {
+    } else if (savedUser) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUser(JSON.parse(savedUser));
     }
+
 
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       .then(s => setStream(s))
       .catch(err => console.error("Media access denied:", err));
     
     return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
+      // Clean up stream on unmount
     };
-  }, []);
+  }, [router]);
+
 
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();

@@ -30,7 +30,8 @@ export default function AIPanel() {
         setRecap({
           summary: data.minutes || "Neural synthesis complete. Meeting is in early stages.",
           points: [data.sentiment?.label || "Balanced Productivity"],
-          actions: data.actionItems?.map((a: any) => `${a.assignee}: ${a.task}`) || ["Monitoring session..."]
+          actions: data.actionItems?.map((a: {assignee: string, task: string}) => `${a.assignee}: ${a.task}`) || ["Monitoring session..."]
+
         });
       }
     } catch (error) {

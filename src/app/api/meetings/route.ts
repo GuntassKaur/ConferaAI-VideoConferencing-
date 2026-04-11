@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     const userMeetings = db.meetings.filter(m => m.participants.includes(userId));
 
     return NextResponse.json({ success: true, meetings: userMeetings });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

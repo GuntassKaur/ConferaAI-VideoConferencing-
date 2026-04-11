@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Video, MoreVertical, Play, ArrowUpRight } from 'lucide-react';
+import { Calendar, Clock, Video, MoreVertical, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 
 interface MeetingCardProps {

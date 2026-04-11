@@ -6,7 +6,7 @@ export {};
 let isProcessing = false;
 
 self.onmessage = async (e: MessageEvent) => {
-  const { type, data } = e.data;
+  const { type, data: _data } = e.data;
 
   if (type === 'PROCESS_AUDIO_CHUNK') {
     if (isProcessing) return;

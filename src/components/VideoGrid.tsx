@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MicOff, VideoOff, MoreHorizontal } from 'lucide-react';
+import { MicOff, MoreHorizontal } from 'lucide-react';
 
 interface Participant {
   id: string;

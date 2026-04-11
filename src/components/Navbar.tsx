@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Video, User, LogOut, ChevronDown } from 'lucide-react';
+import { Video, User, LogOut } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'next/navigation';
 

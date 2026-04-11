@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import Peer from 'peerjs';
 
@@ -185,7 +185,7 @@ export const MeetingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       } else {
          setRecap("Failed to generate recap. Please try again.");
       }
-    } catch (e) {
+    } catch (_e) {
       setRecap("Error connecting to AI service.");
     } finally {
       setIsRecapLoading(false);

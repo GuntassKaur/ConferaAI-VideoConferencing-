@@ -1,7 +1,7 @@
 'use client';
 
 import { useRoomContext, useConnectionState, useTracks, useRemoteParticipants } from '@livekit/components-react';
-import { RoomEvent, Track, ConnectionState } from 'livekit-client';
+import { RoomEvent, Track, ConnectionState, Participant, ConnectionQuality } from 'livekit-client';
 import { useEffect, useState, useCallback } from 'react';
 import { useRoomStore } from '@/store/useRoomStore';
 
@@ -23,7 +23,7 @@ export function useLiveKitController() {
     if (!room) return;
 
     // Handle Active Speaker Glow
-    const handleActiveSpeakerChange = (speakers: Array<any>) => {
+    const handleActiveSpeakerChange = (speakers: Participant[]) => {
       if (speakers && speakers.length > 0) {
         setActiveSpeaker(speakers[0].identity);
       } else {
@@ -32,9 +32,10 @@ export function useLiveKitController() {
     };
 
     // Quality Monitoring & Switching
-    const handleNetworkQuality = (quality: any, participant: any) => {
-      setNetworkQuality(prev => ({ ...prev, [participant.identity]: quality }));
+    const handleNetworkQuality = (quality: ConnectionQuality, participant: Participant) => {
+      setNetworkQuality(prev => ({ ...prev, [participant.identity]: quality as unknown as number }));
     };
+
 
     // For real STT Whisper integration we would pipe the audio track stream into Web Worker here.
     // Simulating transcription for demo aesthetics:

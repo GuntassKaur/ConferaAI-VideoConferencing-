@@ -1,0 +1,133 @@
+﻿
+> confera-ai@0.1.0 lint
+> eslint src
+
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\app\api\auth\login\route.ts
+  13:23  warning  '_' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  15:12  warning  'error' is defined but never used       @typescript-eslint/no-unused-vars
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\app\api\auth\signup\route.ts
+  27:23  warning  '_' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  29:12  warning  'error' is defined but never used       @typescript-eslint/no-unused-vars
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\app\api\create-meeting\route.ts
+  31:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\app\api\join-meeting\route.ts
+  40:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\app\api\meetings\participants\route.ts
+  22:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\app\api\meetings\route.ts
+  16:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\app\api\recap\route.ts
+  39:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\app\dashboard\page.tsx
+   9:36  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-explicit-any
+  17:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\app\dashboard\page.tsx:17:7
+  15 |       router.push('/login');
+  16 |     } else {
+> 17 |       setUser(JSON.parse(savedUser));
+     |       ^^^^^^^ Avoid calling setState() directly within an effect
+  18 |     }
+  19 |   }, []);
+  20 |  react-hooks/set-state-in-effect
+  19:6   warning  React Hook useEffect has a missing dependency: 'router'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    react-hooks/exhaustive-deps
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\app\meeting\[id]\page.tsx
+   5:39  warning  'Users' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+   9:36  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+  21:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\app\meeting\[id]\page.tsx:21:7
+  19 |       router.push('/login');
+  20 |     } else {
+> 21 |       setUser(JSON.parse(savedUser));
+     |       ^^^^^^^ Avoid calling setState() directly within an effect
+  22 |     }
+  23 |
+  24 |     navigator.mediaDevices.getUserMedia({ video: true, audio: true })  react-hooks/set-state-in-effect
+  33:6   warning  React Hook useEffect has missing dependencies: 'router' and 'stream'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    react-hooks/exhaustive-deps
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\app\page.tsx
+  15:6  warning  React Hook useEffect has a missing dependency: 'router'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\components\AIPanel.tsx
+  33:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\components\BottomBar.tsx
+   8:3   warning  'SmilePlus' is defined but never used             @typescript-eslint/no-unused-vars
+   8:14  warning  'MessageSquare' is defined but never used         @typescript-eslint/no-unused-vars
+   8:29  warning  'ShieldCheck' is defined but never used           @typescript-eslint/no-unused-vars
+   8:42  warning  'Share2' is defined but never used                @typescript-eslint/no-unused-vars
+   8:50  warning  'Hand' is defined but never used                  @typescript-eslint/no-unused-vars
+   8:56  warning  'Users' is defined but never used                 @typescript-eslint/no-unused-vars
+   8:63  warning  'Settings2' is defined but never used             @typescript-eslint/no-unused-vars
+   9:8   warning  'Layers' is defined but never used                @typescript-eslint/no-unused-vars
+   9:16  warning  'LayoutGrid' is defined but never used            @typescript-eslint/no-unused-vars
+  11:10  warning  'motion' is defined but never used                @typescript-eslint/no-unused-vars
+  15:39  warning  'viewMode' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  15:49  warning  'setViewMode' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\components\MeetingCard.tsx
+  5:48  warning  'Play' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\components\Navbar.tsx
+  5:31  warning  'ChevronDown' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\components\ThemeProvider.tsx
+  6:55  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\components\ThemeToggle.tsx
+  11:19  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\components\ThemeToggle.tsx:11:19
+   9 |   const [mounted, setMounted] = useState(false);
+  10 |
+> 11 |   useEffect(() => setMounted(true), []);
+     |                   ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  12 |
+  13 |   if (!mounted) return <div className="w-9 h-9" />;
+  14 |  react-hooks/set-state-in-effect
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\components\VideoGrid.tsx
+  5:18  warning  'VideoOff' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\context\MeetingContext.tsx
+    3:54  warning  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
+  188:14  warning  'e' is defined but never used          @typescript-eslint/no-unused-vars
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\hooks\useLiveKitController.ts
+  26:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:62  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Guntass Kaur\Downloads\zoomai\src\workers\audioProcessor.worker.ts
+  9:17  warning  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 41 problems (12 errors, 29 warnings)
+

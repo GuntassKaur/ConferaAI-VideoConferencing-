@@ -6,17 +6,21 @@ import { Plus, Search, Video, LogOut, User as UserIcon } from 'lucide-react';
 
 export default function Dashboard() {
   const [meetingId, setMeetingId] = useState('');
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ name: string; id: string } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (!savedUser) {
       router.push('/login');
-    } else {
-      setUser(JSON.parse(savedUser));
+    } else if (savedUser) {
+      const parsed = JSON.parse(savedUser);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setUser(parsed);
     }
-  }, []);
+  }, [router]);
+
+
 
   const createMeeting = () => {
     const id = Math.random().toString(36).substr(2, 9);

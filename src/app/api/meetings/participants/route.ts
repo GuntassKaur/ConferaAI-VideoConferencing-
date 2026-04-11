@@ -19,7 +19,7 @@ export async function GET(request: Request) {
       .map(u => ({ id: u.id, name: u.name, email: u.email }));
 
     return NextResponse.json({ success: true, participants });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

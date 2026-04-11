@@ -28,11 +28,13 @@ export async function POST(request: Request) {
     console.log('Meeting Created:', newMeeting);
 
     return NextResponse.json({ success: true, meeting: newMeeting });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create Meeting Error:', error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ 
       error: 'Failed to create meeting', 
-      details: error.message 
+      details: message 
     }, { status: 500 });
   }
+
 }
