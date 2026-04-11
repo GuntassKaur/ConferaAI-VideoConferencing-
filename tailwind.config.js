@@ -7,15 +7,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: "var(--primary)",
-        "primary-hover": "var(--primary-hover)",
-        secondary: "var(--secondary)",
+        primary: "rgb(var(--primary) / <alpha-value>)",
+        "primary-hover": "rgb(var(--primary-hover) / <alpha-value>)",
+        secondary: "rgb(var(--secondary) / <alpha-value>)",
         accent: "var(--accent)",
         background: "var(--background)",
         foreground: "var(--foreground)",
         card: "var(--card)",
         border: "var(--border)",
       },
+
       fontFamily: {
         sans: ["var(--font-inter)", "ui-sans-serif", "system-ui"],
         heading: ["var(--font-outfit)", "ui-sans-serif", "system-ui"],

@@ -8,15 +8,16 @@
     --foreground: #f8fafc;
     --card: #0f172a;
     --card-foreground: #f1f5f9;
-    --primary: #6366f1;
-    --primary-hover: #4f46e5;
-    --secondary: #3b82f6;
+    --primary: 99 102 241; /* 6366f1 as RGB components */
+    --primary-hover: 79 70 229; /* 4f46e5 as RGB components */
+    --secondary: 59 130 246; /* 3b82f6 as RGB components */
     --border: #1e293b;
     --input: #0f172a;
     --ring: rgba(99, 102, 241, 0.5);
     --radius: 1rem;
     --muted: #94a3b8;
   }
+
 }
 
 @layer base {
