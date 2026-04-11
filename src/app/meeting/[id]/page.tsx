@@ -1,204 +1,183 @@
 'use client';
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import VideoGrid from '@/components/VideoGrid';
-import AIPanel from '@/components/AIPanel';
-import ControlBar from '@/components/ControlBar';
-import { Shield, Send, Users, Activity, Sparkles, LayoutGrid, Loader2, Video } from 'lucide-react';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useRoomStore } from '@/store/useRoomStore';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, LogOut, MessageSquare, Users, Video, Mic, Camera, Shield } from 'lucide-react';
 
-export default function MeetingRoom() {
-  const { id } = useParams() as { id: string };
-  const router = useRouter();
-  const { user } = useAuthStore();
-  const { addTranscript } = useRoomStore();
-  
-  const [participants, setParticipants] = useState<any[]>([]);
+export default function MeetingPage() {
+  const { id } = useParams();
+  const [user, setUser] = useState<any>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
   const [messages, setMessages] = useState<{user: string, text: string, time: string}[]>([]);
-  const [input, setInput] = useState('');
-  const [isInitializing, setIsInitializing] = useState(true);
+  const [inputText, setInputText] = useState('');
+  const [isChatOpen, setIsChatOpen] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    // Session check
-    if (!user) {
-      const savedUser = localStorage.getItem('confera-session');
-      if (!savedUser) {
-        router.push('/login');
-        return;
-      }
+    const savedUser = localStorage.getItem('user');
+    if (!savedUser) {
+      router.push('/login');
+    } else {
+      setUser(JSON.parse(savedUser));
     }
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(s => setStream(s))
+      .catch(err => console.error("Media access denied:", err));
     
-    // Initial data fetch
-    const init = async () => {
-      await fetchParticipants();
-      setIsInitializing(false);
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
     };
-    init();
-
-    // Polling logic for "Real" feel
-    const pInterval = setInterval(fetchParticipants, 5000);
-    
-    // Welcome message
-    setMessages([
-      { 
-        user: 'Confera AI', 
-        text: 'Neural linkage initialized. All communications are E2EE secured.', 
-        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
-      }
-    ]);
-
-    return () => clearInterval(pInterval);
-  }, [id, user]);
-
-  const fetchParticipants = async () => {
-    try {
-      const res = await fetch(`/api/meetings/participants?meetingId=${id}`);
-      if (!res.ok) throw new Error('Meeting access failed');
-      const data = await res.json();
-      if (data.success) {
-        setParticipants(data.participants);
-      }
-    } catch (error) {
-       console.error('Participant Fetch Error:', error);
-    }
-  };
+  }, []);
 
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !user) return;
-    
-    const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    const newMsg = { user: user.name, text: input, time };
-    
-    setMessages(prev => [...prev, newMsg]);
-    
-    // Feed the AI transcripts store
-    addTranscript({
-       id: Math.random().toString(36),
-       speaker: user.name,
-       text: input,
-       timestamp: new Date()
-    });
-    
-    setInput('');
+    if (!inputText.trim()) return;
+    setMessages([...messages, { 
+      user: user.name, 
+      text: inputText, 
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+    }]);
+    setInputText('');
   };
 
-  if (isInitializing) {
-    return (
-      <div className="h-screen w-screen bg-[#020617] flex flex-col items-center justify-center">
-         <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center mb-6 animate-pulse border border-primary/20">
-            <Loader2 className="w-10 h-10 text-primary animate-spin" />
-         </div>
-         <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-500 animate-pulse">Syncing Neural Link...</p>
-      </div>
-    );
-  }
+  if (!user) return null;
 
   return (
-    <div className="h-screen w-screen bg-[#020617] flex flex-col overflow-hidden text-slate-100 selection:bg-primary/30 font-inter">
-      {/* Header Overlay */}
-      <header className="h-20 px-10 border-b border-white/5 flex items-center justify-between bg-black/40 backdrop-blur-3xl z-30">
-        <div className="flex items-center gap-8">
-           <div className="flex items-center gap-3 cursor-pointer hover:scale-105 transition-transform" onClick={() => router.push('/dashboard')}>
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.5)]">
-                 <Video className="w-6 h-6 text-white" />
-              </div>
-              <span className="font-black text-xl tracking-tighter">Confera<span className="text-primary italic">AI</span></span>
-           </div>
-           
-           <div className="h-8 w-[1px] bg-white/5" />
-           
-           <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Live Session</span>
-              <span className="text-sm font-bold text-slate-200"># {id}</span>
-           </div>
+    <div className="flex flex-col h-screen bg-[#020617] text-slate-200 overflow-hidden">
+      {/* Header */}
+      <header className="h-20 border-b border-white/5 px-8 flex items-center justify-between bg-slate-900/40 backdrop-blur-md">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20">
+            <Shield className="text-white w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-lg font-black text-white leading-tight">Secure Link: {id}</h1>
+            <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">End-to-End Encrypted</p>
+          </div>
         </div>
-
+        
         <div className="flex items-center gap-6">
-           <div className="hidden lg:flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/5 border border-white/5">
-              <div className="flex items-center gap-2">
-                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                 <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Connection Prime</span>
-              </div>
-              <div className="w-[1px] h-4 bg-white/10" />
-              <span className="text-[10px] font-black text-slate-500 uppercase">Latency: 12ms</span>
-           </div>
-
-           <div className="flex items-center gap-3 bg-indigo-500/10 px-4 py-2 rounded-2xl border border-indigo-500/20">
-              <Users size={16} className="text-indigo-400" />
-              <span className="text-xs font-black text-indigo-100">{participants.length}</span>
-           </div>
+          <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-white/5 rounded-full border border-white/5">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+            <span className="text-xs font-bold text-slate-300">Identity: {user.name}</span>
+          </div>
+          <button 
+            onClick={() => router.push('/dashboard')}
+            className="flex items-center gap-2 px-6 py-2.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl transition-all duration-300 font-bold text-sm border border-red-500/20"
+          >
+            <LogOut size={18} />
+            Leave
+          </button>
         </div>
       </header>
+      
+      <div className="flex flex-1 overflow-hidden">
+        {/* Main Video Stage */}
+        <main className="flex-1 p-6 flex flex-col items-center justify-center relative">
+          <div className="w-full h-full max-w-5xl glass-card overflow-hidden relative shadow-2xl">
+            {stream ? (
+              <video 
+                autoPlay 
+                playsInline 
+                muted 
+                ref={el => { if(el) el.srcObject = stream; }} 
+                className="w-full h-full object-cover" 
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center space-y-4">
+                <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center animate-pulse">
+                  <Camera size={40} className="text-slate-600" />
+                </div>
+                <p className="text-slate-500 font-medium">Calibrating optics...</p>
+              </div>
+            )}
+            
+            {/* Overlay User Name */}
+            <div className="absolute bottom-6 left-6 px-4 py-2 bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-xl text-sm font-bold text-white">
+              {user.name} (Host)
+            </div>
 
-      {/* Workspace Orchestrator */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Stage Content */}
-        <div className="flex-[0.7] flex flex-col p-4 bg-black/10">
-           <div className="flex-1 rounded-[3rem] overflow-hidden border border-white/5 bg-[#050b18] shadow-2xl relative group">
-              <VideoGrid participants={participants} />
-              
-              <div className="absolute top-8 left-8 flex items-center gap-4 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                 <div className="px-5 py-2.5 rounded-2xl glass-card border-white/10 flex items-center gap-3">
-                    <Activity size={18} className="text-primary animate-spin-slow" />
-                    <span className="text-xs font-black uppercase tracking-widest">Neural Stream</span>
-                 </div>
+            {/* Media Controls */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4">
+              <button className="w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/10 text-white transition-all shadow-xl">
+                 <Mic size={20} />
+              </button>
+              <button className="w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/10 text-white transition-all shadow-xl">
+                 <Video size={20} />
+              </button>
+              <button 
+                onClick={() => setIsChatOpen(!isChatOpen)}
+                className={`w-12 h-12 ${isChatOpen ? 'bg-indigo-600 text-white' : 'bg-white/10 text-slate-400'} hover:opacity-90 backdrop-blur-md rounded-full flex items-center justify-center border border-white/10 transition-all shadow-xl`}
+              >
+                 <MessageSquare size={20} />
+              </button>
+            </div>
+          </div>
+        </main>
+
+        {/* Chat Sidebar */}
+        <AnimatePresence>
+          {isChatOpen && (
+            <motion.aside 
+              initial={{ x: 400 }}
+              animate={{ x: 0 }}
+              exit={{ x: 400 }}
+              className="w-96 border-l border-white/5 flex flex-col bg-slate-900/40 backdrop-blur-xl"
+            >
+              <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MessageSquare size={18} className="text-indigo-500" />
+                  <h3 className="font-black text-white uppercase tracking-widest text-xs">Neural Feed</h3>
+                </div>
+                <div className="px-2 py-1 bg-white/5 rounded text-[10px] font-bold text-slate-500">
+                  {messages.length} MSG
+                </div>
               </div>
 
-              <ControlBar />
-           </div>
-        </div>
-
-        {/* Intelligence Side-Stack */}
-        <div className="flex-[0.3] flex flex-col bg-[#050b18] border-l border-white/10 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]">
-           <div className="flex-1 overflow-hidden transition-all duration-300">
-              <AIPanel />
-           </div>
-
-           {/* Communications Terminal */}
-           <div className="h-[45%] flex flex-col bg-black/20 border-t border-white/5">
-              <div className="p-6 border-b border-white/5 flex items-center justify-between bg-black/10">
-                 <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Comms Log</h3>
-                 <span className="text-[10px] font-bold text-emerald-500/50 uppercase tracking-widest">Synced</span>
-              </div>
-              
               <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
-                 {messages.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center opacity-20 grayscale">
-                       <Sparkles size={40} className="mb-4 text-primary" />
-                       <p className="text-[10px] font-bold uppercase tracking-[0.4em]">Initialize Chat</p>
-                    </div>
-                 ) : (
-                    messages.map((m, i) => (
-                      <div key={i} className={`flex flex-col gap-1.5 ${m.user === user?.name ? 'items-end' : 'items-start'}`}>
-                         <span className="text-[9px] font-black uppercase tracking-widest text-slate-600 px-2">{m.user}</span>
-                         <div className={`px-5 py-3.5 rounded-3xl text-sm max-w-[90%] shadow-lg leading-relaxed ${m.user === user?.name ? 'bg-primary text-white rounded-tr-none' : 'bg-slate-900 text-slate-300 border border-white/5 rounded-tl-none'}`}>
-                            {m.text}
-                            <span className="block mt-2 text-[9px] opacity-40 font-bold uppercase tracking-widest">{m.time}</span>
-                         </div>
+                {messages.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center opacity-30">
+                    <MessageSquare size={48} className="mb-4" />
+                    <p className="text-xs font-bold uppercase tracking-[.2em]">System Standby</p>
+                  </div>
+                ) : (
+                  messages.map((msg, index) => (
+                    <div key={index} className="flex flex-col gap-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-black uppercase text-indigo-400">{msg.user}</span>
+                        <span className="text-[10px] text-slate-600">{msg.time}</span>
                       </div>
-                    ))
-                 )}
+                      <div className="bg-white/5 p-3 rounded-2xl rounded-tl-none border border-white/5 text-sm leading-relaxed text-slate-300">
+                        {msg.text}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
 
-              <form onSubmit={sendMessage} className="p-6 bg-black/40 border-t border-white/5">
-                 <div className="relative group">
-                    <input
-                      type="text"
-                      placeholder="Transmission..."
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      className="w-full h-14 pl-6 pr-14 rounded-2xl bg-white/5 border border-white/10 text-sm font-medium focus:ring-4 focus:ring-primary/20 focus:border-primary/50 outline-none transition-all duration-300 placeholder:text-slate-700 hover:bg-white/10"
-                    />
-                    <button type="submit" className="absolute right-2 top-2 h-10 w-10 rounded-xl bg-primary hover:bg-primary-hover flex items-center justify-center text-white shadow-lg active:scale-95 transition-all">
-                       <Send size={18} />
-                    </button>
-                 </div>
+              <form onSubmit={sendMessage} className="p-6 border-t border-white/5">
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    value={inputText} 
+                    onChange={(e) => setInputText(e.target.value)} 
+                    placeholder="Transmit message..." 
+                    className="input-field w-full pr-12 text-sm"
+                  />
+                  <button 
+                    type="submit" 
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg flex items-center justify-center transition-all shadow-lg shadow-indigo-600/20"
+                  >
+                    <Send size={14} />
+                  </button>
+                </div>
               </form>
-           </div>
-        </div>
+            </motion.aside>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
