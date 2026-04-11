@@ -4,16 +4,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { MicOff, VideoOff, MoreHorizontal } from 'lucide-react';
 
-const participants = [
-  { id: 1, name: 'Guntass Kaur (You)', isSelf: true, isSpeaking: true },
-  { id: 2, name: 'Sarah Chen' },
-  { id: 3, name: 'Alex Thompson' },
-  { id: 4, name: 'Dante Rivera' },
-  { id: 5, name: 'Jane Doe' },
-  { id: 6, name: 'John Smith' },
-];
+interface Participant {
+  id: string;
+  name: string;
+  isSpeaking?: boolean;
+}
 
-const VideoGrid = () => {
+const VideoGrid = ({ participants }: { participants: Participant[] }) => {
   return (
     <div className="flex-grow p-4 md:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr h-full">
       {participants.map((person) => (

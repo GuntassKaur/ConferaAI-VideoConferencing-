@@ -5,7 +5,18 @@ import Link from 'next/link';
 import { Video, User } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 
+import { useAuthStore } from '@/store/useAuthStore';
+import { useRouter } from 'next/navigation';
+
 const Navbar = () => {
+  const { user, logout } = useAuthStore();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
+
   return (
     <nav className="fixed top-0 inset-x-0 h-16 z-[100] bg-background/80 backdrop-blur-md border-b border-border shadow-[0_1px_2px_0_rgba(0,0,0,0.03)]">
       <div className="max-container h-full flex items-center justify-between">
@@ -22,16 +33,25 @@ const Navbar = () => {
         {/* Right Actions */}
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <Link href="/login">
-            <button className="h-10 px-5 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:scale-[1.02] transition-all duration-200 active:scale-[0.98]">
-              Login
-            </button>
-          </Link>
-          <Link href="/dashboard" className="hidden sm:block hover:scale-[1.02] transition-all duration-200 active:scale-[0.98]">
-            <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 border border-border flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200 cursor-pointer">
-              <User className="w-5 h-5 text-muted" />
+          
+          {!user ? (
+            <Link href="/login">
+              <button className="h-10 px-5 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:scale-[1.02] transition-all duration-200 active:scale-[0.98]">
+                Login
+              </button>
+            </Link>
+          ) : (
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-bold text-foreground hidden md:block">{user.name}</span>
+              <div 
+                onClick={handleLogout}
+                className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center hover:bg-primary/20 transition-all duration-200 cursor-pointer group"
+                title="Logout"
+              >
+                <User className="w-5 h-5 text-primary" />
+              </div>
             </div>
-          </Link>
+          )}
         </div>
       </div>
     </nav>

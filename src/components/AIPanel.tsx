@@ -4,28 +4,43 @@ import React, { useState } from 'react';
 import { Sparkles, CheckCircle2, MessageSquare, Target, Brain } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { useRoomStore } from '@/store/useRoomStore';
+
 export default function AIPanel() {
+  const { transcripts } = useRoomStore();
   const [isGenerating, setIsGenerating] = useState(false);
   const [recap, setRecap] = useState<null | { summary: string, points: string[], actions: string[] }>(null);
 
-  const generateRecap = () => {
+  const generateRecap = async () => {
     setIsGenerating(true);
-    setTimeout(() => {
-      setRecap({
-        summary: "The team discussed the upcoming Q3 project launch. Key focus was on performance optimization and the new design system adoption.",
-        points: [
-          "Design system is 80% complete.",
-          "Performance issues identified in the dashboard grid.",
-          "Marketing team needs the final assets by Friday."
-        ],
-        actions: [
-          "Fix grid re-renders by EOD @Frontend",
-          "Send brand kit to Marketing @Design",
-          "Schedule follow-up on Thursday"
-        ]
+    
+    // Convert transcript objects to string for AI
+    const fullTranscript = transcripts.length > 0 
+      ? transcripts.map(t => `${t.speaker}: ${t.text}`).join('\n')
+      : "No conversation recorded yet.";
+
+    try {
+      const res = await fetch('/api/ai/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcript: fullTranscript })
       });
+      const data = await res.json();
+      
+      if (res.ok) {
+        // Map the API response to the local UI state
+        // API returns { minutes: string, actionItems: [{assignee, task}], sentiment: {score, label} }
+        setRecap({
+          summary: data.minutes || "No summary generated.",
+          points: [data.sentiment?.label || "Balanced sentiment"],
+          actions: data.actionItems?.map((a: any) => `${a.assignee}: ${a.task}`) || []
+        });
+      }
+    } catch (error) {
+      console.error('Recap failed', error);
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   };
 
   return (

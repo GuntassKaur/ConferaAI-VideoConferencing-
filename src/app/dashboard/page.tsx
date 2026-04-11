@@ -8,24 +8,48 @@ import MeetingCard from '@/components/MeetingCard';
 import { motion } from 'framer-motion';
 import { Plus, LayoutGrid, List } from 'lucide-react';
 
-const meetings = [
-  { id: 1, title: 'Weekly Product Sync', date: 'Apr 12, 2026', time: '10:00 AM', participants: 8, status: 'ongoing' as const },
-  { id: 2, title: 'Q3 Strategy Review', date: 'Apr 12, 2026', time: '02:30 PM', participants: 12 },
-  { id: 3, title: 'Frontend Architecture', date: 'Apr 13, 2026', time: '11:00 AM', participants: 4 },
-];
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function Dashboard() {
   const router = useRouter();
+  const { user } = useAuthStore();
   const [meetingId, setMeetingId] = useState('');
+  const [meetings, setMeetings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleCreateMeeting = async () => {
-    setIsLoading(true);
+  React.useEffect(() => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    fetchMeetings();
+  }, [user]);
+
+  const fetchMeetings = async () => {
+    if (!user) return;
     try {
-      const res = await fetch('/api/create-meeting', { method: 'POST' });
+      const res = await fetch(`/api/meetings?userId=${user.id}`);
       const data = await res.json();
       if (data.success) {
-        router.push(`/meeting/${data.meetingId}`);
+        setMeetings(data.meetings);
+      }
+    } catch (error) {
+      console.error('Failed to fetch meetings');
+    }
+  };
+
+  const handleCreateMeeting = async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/create-meeting', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, title: 'New Sync Session' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        router.push(`/meeting/${data.meeting.id}`);
       }
     } finally {
       setIsLoading(false);
@@ -34,19 +58,19 @@ export default function Dashboard() {
 
   const handleJoinMeeting = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!meetingId) return;
+    if (!meetingId || !user) return;
     setIsLoading(true);
     try {
       const res = await fetch('/api/join-meeting', { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ meetingId }) 
+        body: JSON.stringify({ meetingId, userId: user.id }) 
       });
       const data = await res.json();
       if (data.success) {
         router.push(`/meeting/${meetingId}`);
       } else {
-        alert('Meeting not found or invalid.');
+        alert(data.error || 'Meeting not found or invalid.');
       }
     } finally {
       setIsLoading(false);
@@ -101,27 +125,40 @@ export default function Dashboard() {
 
             {/* Meetings Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {meetings.map((meeting) => (
-                <MeetingCard 
-                  key={meeting.id}
-                  title={meeting.title}
-                  date={meeting.date}
-                  time={meeting.time}
-                  participants={meeting.participants}
-                  status={meeting.status}
-                />
-              ))}
+              {meetings.length === 0 ? (
+                <div className="col-span-full py-20 flex flex-col items-center justify-center text-center bg-slate-50 dark:bg-slate-900/40 rounded-3xl border border-dashed border-border group hover:border-primary transition-all duration-300">
+                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <Plus className="w-8 h-8 text-primary" />
+                   </div>
+                   <h3 className="text-xl font-bold text-foreground">No meetings found</h3>
+                   <p className="text-muted text-sm max-w-xs mt-2">Create your first meeting or join one using an ID to get started.</p>
+                </div>
+              ) : (
+                meetings.map((meeting) => (
+                  <MeetingCard 
+                    key={meeting.id}
+                    title={meeting.title}
+                    date={new Date(meeting.createdAt).toLocaleDateString()}
+                    time={new Date(meeting.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    participants={meeting.participants.length}
+                    status={meeting.status}
+                    meetingId={meeting.id}
+                  />
+                ))
+              )}
 
-              {/* Create New Card */}
-              <motion.div 
-                whileHover={{ scale: 1.02 }}
-                className="p-6 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center text-center gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-200 group"
-              >
-                 <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-muted group-hover:text-primary group-hover:bg-primary/10 transition-all duration-200">
-                    <Plus className="w-6 h-6" />
-                 </div>
-                 <div className="text-sm font-bold text-muted group-hover:text-foreground transition-colors duration-200">Schedule New</div>
-              </motion.div>
+              {meetings.length > 0 && (
+                <motion.div 
+                  whileHover={{ scale: 1.02 }}
+                  onClick={handleCreateMeeting}
+                  className="p-6 rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center text-center gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-200 group"
+                >
+                   <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-muted group-hover:text-primary group-hover:bg-primary/10 transition-all duration-200">
+                      <Plus className="w-6 h-6" />
+                   </div>
+                   <div className="text-sm font-bold text-muted group-hover:text-foreground transition-colors duration-200">Schedule New</div>
+                </motion.div>
+              )}
             </div>
           </div>
         </main>

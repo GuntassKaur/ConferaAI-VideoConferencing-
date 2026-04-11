@@ -7,15 +7,71 @@ import AIPanel from '@/components/AIPanel';
 import ControlBar from '@/components/ControlBar';
 import { Shield, Send } from 'lucide-react';
 
+import { useAuthStore } from '@/store/useAuthStore';
+import { useRouter } from 'next/navigation';
+
 export default function MeetingRoom() {
   const { id } = useParams() as { id: string };
+  const router = useRouter();
+  const { user } = useAuthStore();
+  const [participants, setParticipants] = useState<any[]>([]);
   const [messages, setMessages] = useState<{user: string, text: string}[]>([]);
   const [input, setInput] = useState('');
 
+  const { transcripts, addTranscript } = useRoomStore();
+
+  React.useEffect(() => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    fetchParticipants();
+    
+    // Poll for new participants every 5 seconds (Simple "Real" replacement for sockets)
+    const interval = setInterval(fetchParticipants, 5000);
+
+    // Simulate real-time transcription from active participants
+    const transcriptInterval = setInterval(() => {
+      if (participants.length > 0) {
+        const randomSpeaker = participants[Math.floor(Math.random() * participants.length)];
+        const messages = [
+          "We should definitely look into the new architecture.",
+          "I think the current timeline is a bit tight.",
+          "Let's focus on the design system first.",
+          "Does anyone have the final assets?",
+          "I've updated the dashboard grid performance."
+        ];
+        addTranscript({
+          id: Math.random().toString(),
+          speaker: randomSpeaker.name,
+          text: messages[Math.floor(Math.random() * messages.length)],
+          timestamp: new Date()
+        });
+      }
+    }, 10000);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(transcriptInterval);
+    };
+  }, [id, user, participants]);
+
+  const fetchParticipants = async () => {
+    try {
+      const res = await fetch(`/api/meetings/participants?meetingId=${id}`);
+      const data = await res.json();
+      if (data.success) {
+        setParticipants(data.participants);
+      }
+    } catch (error) {
+      console.error('Failed to fetch participants');
+    }
+  };
+
   const sendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
-    setMessages([...messages, { user: 'You', text: input }]);
+    if (!input.trim() || !user) return;
+    setMessages([...messages, { user: user.name, text: input }]);
     setInput('');
   };
 
@@ -37,7 +93,7 @@ export default function MeetingRoom() {
         {/* Left: Video Grid */}
         <div className="w-[70%] relative h-full bg-slate-950 p-6 flex flex-col">
            <div className="flex-1 overflow-hidden rounded-xl bg-black/40 ring-1 ring-white/10 shadow-2xl relative">
-             <VideoGrid />
+             <VideoGrid participants={participants} />
              <ControlBar />
            </div>
         </div>

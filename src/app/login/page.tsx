@@ -5,20 +5,36 @@ import { useRouter } from 'next/navigation';
 import { Video, Mail, Lock, ArrowRight, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [isLogin, setIsLogin] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const { setUser } = useAuthStore();
+  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
+    
+    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
+    
     try {
-      await fetch('/api/login', { method: 'POST', body: JSON.stringify({}) });
-      router.push('/dashboard');
-    } catch {
-      router.push('/dashboard');
+      const res = await fetch(endpoint, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData) 
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        setUser(data.user);
+        router.push('/dashboard');
+      } else {
+        setError(data.error || 'Something went wrong');
+      }
+    } catch (err) {
+      setError('Connection refused. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -47,7 +63,29 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {error && (
+          <div className="mb-6 p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-lg text-red-600 dark:text-red-400 text-xs font-bold text-center">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-5">
+          {!isLogin && (
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-muted uppercase tracking-wider ml-1">Full Name</label>
+              <div className="relative group">
+                <Video className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted group-focus-within:text-primary transition-colors duration-200" />
+                <input 
+                  required
+                  type="text"
+                  placeholder="John Doe"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full h-12 bg-background border border-border rounded-xl pl-12 pr-4 text-foreground placeholder:-muted focus:ring-2 focus:ring-primary/40 outline-none transition-all duration-200 font-medium"
+                />
+              </div>
+            </div>
+          )}
           <div className="space-y-2">
             <label className="text-xs font-bold text-muted uppercase tracking-wider ml-1">Work Email</label>
             <div className="relative group">
@@ -55,7 +93,8 @@ export default function LoginPage() {
               <input 
                 required
                 type="email"
-                placeholder="name@company.com"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full h-12 bg-background border border-border rounded-xl pl-12 pr-4 text-foreground placeholder:-muted focus:ring-2 focus:ring-primary/40 outline-none transition-all duration-200 font-medium"
               />
             </div>
@@ -68,7 +107,8 @@ export default function LoginPage() {
               <input 
                 required
                 type="password"
-                placeholder="••••••••"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="w-full h-12 bg-background border border-border rounded-xl pl-12 pr-4 text-foreground placeholder:-muted focus:ring-2 focus:ring-primary/40 outline-none transition-all duration-200 font-medium"
               />
             </div>

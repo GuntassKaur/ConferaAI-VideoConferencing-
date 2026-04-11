@@ -10,10 +10,11 @@ interface MeetingCardProps {
   date: string;
   time: string;
   participants: number;
-  status?: 'upcoming' | 'ongoing' | 'ended';
+  meetingId: string;
+  status?: 'upcoming' | 'ongoing' | 'ended' | 'live';
 }
 
-const MeetingCard = ({ title, date, time, participants, status = 'upcoming' }: MeetingCardProps) => {
+const MeetingCard = ({ title, date, time, participants, meetingId, status = 'upcoming' }: MeetingCardProps) => {
   return (
     <motion.div 
       whileHover={{ y: -4, shadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
@@ -56,7 +57,7 @@ const MeetingCard = ({ title, date, time, participants, status = 'upcoming' }: M
           </div>
         </div>
         
-        <Link href="/meeting/123" className="block">
+        <Link href={`/meeting/${meetingId}`} className="block">
           <button className="h-9 px-4 rounded-xl bg-primary hover:bg-primary-hover text-white text-sm font-bold flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
             Join <Play className="w-3.5 h-3.5 fill-white" />
           </button>
