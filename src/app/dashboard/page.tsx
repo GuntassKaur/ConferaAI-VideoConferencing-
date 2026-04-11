@@ -6,7 +6,7 @@ import Navbar from '@/components/Navbar';
 import DashboardSidebar from '@/components/DashboardSidebar';
 import MeetingCard from '@/components/MeetingCard';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, LayoutGrid, List, Search, Loader2, Video, RefreshCcw } from 'lucide-react';
+import { Plus, LayoutGrid, List, Search, Loader2, Video, RefreshCcw, Activity } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export default function Dashboard() {

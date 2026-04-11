@@ -7,12 +7,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  experimental: {
-    memoryBasedWorkersCount: true,
-    turbopack: {
-      root: "./",
-    },
-  },
 };
 
 module.exports = nextConfig;

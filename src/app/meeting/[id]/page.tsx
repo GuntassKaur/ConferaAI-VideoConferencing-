@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import VideoGrid from '@/components/VideoGrid';
 import AIPanel from '@/components/AIPanel';
 import ControlBar from '@/components/ControlBar';
-import { Shield, Send, Users, Activity, Sparkles, LayoutGrid, Loader2 } from 'lucide-react';
+import { Shield, Send, Users, Activity, Sparkles, LayoutGrid, Loader2, Video } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRoomStore } from '@/store/useRoomStore';
 
