@@ -8,7 +8,10 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export default function LoginPage() {
+  const router = useRouter();
   const { setUser } = useAuthStore();
+  const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
 

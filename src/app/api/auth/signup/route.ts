@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: Request) {
   try {
@@ -16,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     const newUser = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       name,
       email,
       password, // In real app, hash this!
