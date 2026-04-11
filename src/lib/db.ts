@@ -25,7 +25,15 @@ class Database {
   meetings: Meeting[] = [];
 
   constructor() {
-    // Add some initial data if needed, or leave empty for "REAL" flow
+    this.users = [
+      {
+        id: 'admin-id',
+        name: 'Admin User',
+        email: 'admin@confera.ai',
+        password: 'password123',
+        createdAt: new Date().toISOString()
+      }
+    ];
   }
 }
 
