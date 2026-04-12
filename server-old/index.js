@@ -3,118 +3,113 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
-const OpenAI = require('openai');
 
 const app = express();
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// Frontend URL is expected to be either Vercel URL or localhost
+const FRONTEND_URL = process.env.CLIENT_URL || process.env.FRONTEND_URL || '*';
 
-app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
+app.use(cors({
+  origin: FRONTEND_URL,
+  methods: ['GET', 'POST'],
+  credentials: true
+}));
+
 app.use(express.json());
 
 const server = http.createServer(app);
+
+// Critical: Set up Socket.IO properly for CORS and Polling fallback
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || '*',
-    methods: ['GET', 'POST']
-  }
+    origin: FRONTEND_URL,
+    methods: ['GET', 'POST'],
+    credentials: true
+  },
+  transports: ['websocket', 'polling'] // Allow fallback for Vercel/proxies
 });
 
-// Store active meetings
+// Store active meetings: roomId -> { users: { socketId: userId } }
 const rooms = new Map();
 
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+  console.log('User connected - Socket ID:', socket.id);
 
+  // 1. Join Room
   socket.on('join-room', ({ roomId, userId, userName }) => {
     socket.join(roomId);
     console.log(`User ${userName} (${userId}) joined room ${roomId}`);
     
-    // Notify others in the room
-    socket.to(roomId).emit('user-joined', { userId, userName, socketId: socket.id });
-    
-    // Handle room state
+    // Initialize room if doesn't exist
     if (!rooms.has(roomId)) {
-      rooms.set(roomId, { users: [], transcript: [], startTime: Date.now() });
+      rooms.set(roomId, { users: {} });
     }
     const room = rooms.get(roomId);
+    room.users[socket.id] = { userId, userName };
+
+    // Get list of other users to send to the new joiner
+    const otherUsers = Object.keys(room.users).filter(id => id !== socket.id);
     
-    // Return existing users to the new joiner
-    const existingUsers = room.users.map(u => u.socketId).filter(id => id !== socket.id);
-    socket.emit('all-users', existingUsers);
+    // Tell the new user about existing users
+    socket.emit('all-users', otherUsers);
 
-    room.users.push({ userId, userName, socketId: socket.id });
+    // Tell others that a new user connected
+    socket.to(roomId).emit('user-connected', {
+      userId,
+      userName,
+      socketId: socket.id
+    });
 
+    // 2. Disconnect Handler
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.id);
-      socket.to(roomId).emit('user-left', { userId, socketId: socket.id });
-      if (rooms.has(roomId)) {
-        const r = rooms.get(roomId);
-        r.users = r.users.filter(u => u.socketId !== socket.id);
-        if (r.users.length === 0) rooms.delete(roomId);
+      socket.to(roomId).emit('user-disconnected', socket.id);
+      
+      const r = rooms.get(roomId);
+      if (r) {
+        delete r.users[socket.id];
+        if (Object.keys(r.users).length === 0) {
+          rooms.delete(roomId);
+        }
       }
     });
   });
 
-  // Signaling for WebRTC
-  socket.on('signal', ({ to, signal, from }) => {
-    io.to(to).emit('signal', { signal, from });
-  });
-
-  // Chat message
-  socket.on('send-message', ({ roomId, message, userName, userId }) => {
-    io.to(roomId).emit('receive-message', { message, userName, userId, timestamp: new Date() });
-  });
-
-  // AI Insights - Mock for now
-  socket.on('request-ai-insight', async ({ roomId, text }) => {
-    try {
-      if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your_openai_api_key_here') {
-        const insight = `🔍 AI Mock Insight: We should discuss "${text.substring(0, 20)}..."`;
-        io.to(roomId).emit('ai-insight', { insight });
-        return;
-      }
-
-      const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: "You are an AI meeting assistant. Generate a short, one-sentence insight based on this snippet of conversation." },
-          { role: "user", content: text }
-        ],
-      });
-
-      const insight = `✨ AI: ${response.choices[0].message.content}`;
-      io.to(roomId).emit('ai-insight', { insight });
-    } catch (error) {
-      console.error('AI Error:', error);
-    }
-  });
-});
-
-app.post('/api/generate-summary', async (req, res) => {
-  const { transcript } = req.body;
-  try {
-    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your_openai_api_key_here') {
-      return res.json({ summary: "Mock Summary: Key decisions were made regarding the UI. Next sync at 10 AM.", keyPoints: ["Design overhaul", "Production deployment"] });
-    }
-
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: "Summarize this meeting transcript and provide key bullet points." },
-        { role: "user", content: transcript.join(' ') }
-      ],
+  // 3. WebRTC Signaling: Offer
+  socket.on('offer', payload => {
+    io.to(payload.userToSignal).emit('offer', {
+      signal: payload.signal,
+      callerId: payload.callerId
     });
+  });
 
-    res.json({ result: response.choices[0].message.content });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to generate summary' });
-  }
+  // 4. WebRTC Signaling: Answer
+  socket.on('answer', payload => {
+    io.to(payload.callerId).emit('answer', {
+      signal: payload.signal,
+      id: socket.id
+    });
+  });
+
+  // 5. WebRTC Signaling: ICE Candidate
+  socket.on('ice-candidate', payload => {
+    io.to(payload.targetId).emit('ice-candidate', {
+      candidate: payload.candidate,
+      senderId: socket.id
+    });
+  });
+
+  // Chat message broadcasting
+  socket.on('send-message', ({ roomId, message, userName }) => {
+    io.to(roomId).emit('receive-message', { 
+      message, 
+      userName, 
+      timestamp: new Date() 
+    });
+  });
 });
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'Confera AI Backend' });
+  res.json({ status: 'ok', service: 'Confera AI Socket Server' });
 });
 
 const PORT = process.env.PORT || 5000;

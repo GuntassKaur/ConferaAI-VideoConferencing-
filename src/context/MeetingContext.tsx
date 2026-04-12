@@ -1,8 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
-import Peer from 'peerjs';
+import io, { Socket } from 'socket.io-client';
 
 interface Message {
   id: string;
@@ -40,6 +39,14 @@ interface MeetingContextType {
 
 const MeetingContext = createContext<MeetingContextType | undefined>(undefined);
 
+// WebRTC STUN servers for NAT Traversal
+const ICE_SERVERS = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:global.stun.twilio.com:3478' }
+  ]
+};
+
 export const MeetingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -52,8 +59,9 @@ export const MeetingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isRecapLoading, setIsRecapLoading] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
 
-  const peerRef = useRef<Peer | null>(null);
   const socketRef = useRef<Socket | null>(null);
+  const peersRef = useRef<{ [socketId: string]: RTCPeerConnection }>({});
+  const localStreamRef = useRef<MediaStream | null>(null);
 
   const initializeMedia = useCallback(async () => {
     try {
@@ -62,6 +70,7 @@ export const MeetingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         audio: true
       });
       setLocalStream(stream);
+      localStreamRef.current = stream;
       return stream;
     } catch (err) {
       console.error('Error accessing media:', err);
@@ -69,92 +78,174 @@ export const MeetingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, []);
 
+  const createPeerConnection = useCallback((userSocketId: string, stream: MediaStream) => {
+    const peer = new RTCPeerConnection(ICE_SERVERS);
+    
+    stream.getTracks().forEach(track => {
+      peer.addTrack(track, stream);
+    });
+
+    peer.onicecandidate = (event) => {
+      if (event.candidate && socketRef.current) {
+        socketRef.current.emit('ice-candidate', {
+          targetId: userSocketId,
+          candidate: event.candidate,
+        });
+      }
+    };
+
+    peer.ontrack = (event) => {
+      setRemoteParticipants(prev => {
+        const p = prev.find(p => p.socketId === userSocketId);
+        if (p && p.stream !== event.streams[0]) {
+          return prev.map(pt => pt.socketId === userSocketId ? { ...pt, stream: event.streams[0] } : pt);
+        }
+        if (!p) {
+           return [...prev, { id: userSocketId, name: 'Participant', socketId: userSocketId, stream: event.streams[0] }];
+        }
+        return prev;
+      });
+    };
+
+    return peer;
+  }, []);
+
   const joinRoom = useCallback(async (id: string, userName: string) => {
     setRoomId(id);
     const stream = await initializeMedia();
     
-    const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000');
+    // Connect explicitly and handle Vercel proxy restrictions
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+    const newSocket = io(backendUrl, {
+      transports: ['websocket', 'polling'], // Fallback needed for deployment
+      reconnectionAttempts: 5,
+    });
+    
     socketRef.current = newSocket;
     setSocket(newSocket);
 
-    // Initial PeerJS setup
-    const peer = new Peer();
-    peerRef.current = peer;
-
-    peer.on('open', (peerId) => {
-      newSocket.emit('join-room', { roomId: id, userId: peerId, userName });
+    newSocket.on('connect', () => {
+      console.log('socket connected ✅');
+      newSocket.emit('join-room', { roomId: id, userId: newSocket.id, userName });
     });
 
-    peer.on('call', (call) => {
-      if (stream) {
-        call.answer(stream);
-        call.on('stream', (remoteStream) => {
-          console.log('Received remote stream:', remoteStream.id);
+    // Handle initial mesh of users
+    newSocket.on('all-users', (users: string[]) => {
+      users.forEach(userSocketId => {
+        const peer = createPeerConnection(userSocketId, stream!);
+        peersRef.current[userSocketId] = peer;
+        
+        peer.createOffer().then(offer => {
+          peer.setLocalDescription(offer);
+          newSocket.emit('offer', {
+            userToSignal: userSocketId,
+            callerId: newSocket.id,
+            signal: offer
+          });
         });
+      });
+    });
+
+    newSocket.on('user-connected', (data: { userId: string, userName: string, socketId: string }) => {
+      console.log('peer joined ✅', data);
+      setRemoteParticipants(prev => [...prev, { id: data.userId, name: data.userName, socketId: data.socketId }]);
+    });
+
+    newSocket.on('offer', async (payload: { signal: RTCSessionDescriptionInit, callerId: string }) => {
+      const peer = createPeerConnection(payload.callerId, stream!);
+      peersRef.current[payload.callerId] = peer;
+      
+      await peer.setRemoteDescription(new RTCSessionDescription(payload.signal));
+      const answer = await peer.createAnswer();
+      await peer.setLocalDescription(answer);
+      
+      newSocket.emit('answer', { signal: answer, callerId: payload.callerId });
+    });
+
+    newSocket.on('answer', async (payload: { signal: RTCSessionDescriptionInit, id: string }) => {
+      const peer = peersRef.current[payload.id];
+      if (peer) {
+        await peer.setRemoteDescription(new RTCSessionDescription(payload.signal));
+        console.log('WebRTC handshake successful ✅');
       }
     });
 
+    newSocket.on('ice-candidate', async (payload: { candidate: RTCIceCandidateInit, senderId: string }) => {
+      const peer = peersRef.current[payload.senderId];
+      if (peer) {
+        await peer.addIceCandidate(new RTCIceCandidate(payload.candidate)).catch(e => console.error(e));
+      }
+    });
+
+    newSocket.on('user-disconnected', (socketId: string) => {
+      if (peersRef.current[socketId]) {
+        peersRef.current[socketId].close();
+        delete peersRef.current[socketId];
+      }
+      setRemoteParticipants(prev => prev.filter(p => p.socketId !== socketId));
+    });
+
     newSocket.on('receive-message', (msg) => {
-      setMessages(prev => [...prev, { ...msg, id: Math.random().toString(36) }]);
+       setMessages(prev => [...prev, { ...msg, id: Math.random().toString(36) }]);
     });
 
-    newSocket.on('ai-insight', ({ insight }) => {
-      setMessages(prev => [...prev, { 
-        id: Math.random().toString(36), 
-        sender: 'Confera AI', 
-        senderId: 'ai', 
-        content: insight, 
-        timestamp: new Date() 
-      }]);
-    });
-
-  }, [initializeMedia]);
+  }, [initializeMedia, createPeerConnection]);
 
   const leaveRoom = useCallback(() => {
-    if (localStream) {
-      localStream.getTracks().forEach(track => track.stop());
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach(track => track.stop());
     }
+    setLocalStream(null);
+    localStreamRef.current = null;
+    
     if (socketRef.current) {
       socketRef.current.disconnect();
     }
-    if (peerRef.current) {
-      peerRef.current.destroy();
-    }
-    setLocalStream(null);
+    Object.values(peersRef.current).forEach(peer => peer.close());
+    peersRef.current = {};
+    
     setRemoteParticipants([]);
     setMessages([]);
     setRoomId(null);
-  }, [localStream]);
+  }, []);
 
   const toggleMic = useCallback(() => {
-    if (localStream) {
-      const audioTrack = localStream.getAudioTracks()[0];
+    if (localStreamRef.current) {
+      const audioTrack = localStreamRef.current.getAudioTracks()[0];
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
         setIsMicOn(audioTrack.enabled);
       }
     }
-  }, [localStream]);
+  }, []);
 
   const toggleCam = useCallback(() => {
-    if (localStream) {
-      const videoTrack = localStream.getVideoTracks()[0];
+    if (localStreamRef.current) {
+      const videoTrack = localStreamRef.current.getVideoTracks()[0];
       if (videoTrack) {
         videoTrack.enabled = !videoTrack.enabled;
         setIsCamOn(videoTrack.enabled);
       }
     }
-  }, [localStream]);
+  }, []);
 
   const toggleScreenShare = useCallback(async () => {
     if (isScreenSharing) {
-      // Logic to revert to camera
       await initializeMedia();
       setIsScreenSharing(false);
     } else {
       try {
         const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
         setLocalStream(stream);
+        localStreamRef.current = stream;
+        
+        // Update Video tracks on peers
+        const videoTrack = stream.getVideoTracks()[0];
+        Object.values(peersRef.current).forEach(peer => {
+          const sender = peer.getSenders().find(s => s.track?.kind === 'video');
+          if (sender) sender.replaceTrack(videoTrack);
+        });
+
         setIsScreenSharing(true);
       } catch (err) {
         console.error('Error sharing screen:', err);
@@ -168,48 +259,13 @@ export const MeetingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [roomId]);
 
-  const requestRecap = useCallback(async () => {
-    setIsRecapLoading(true);
-    try {
-      const mockText = "Alice: Hi everyone, let's discuss the Q4 roadmap.\nBob: I think we need to prioritize the AI recap feature first. The ui needs to be clean.\nCharlie: Agreed. I will handle the frontend implementation.\nAlice: Great, and I'll schedule the next sync with the stakeholders for next Friday. Let's make sure the design uses the new white and indigo theme.";
-      
-      const res = await fetch('/api/recap', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: mockText })
-      });
-      const data = await res.json();
-      
-      if (data.recap) {
-         setRecap(data.recap);
-      } else {
-         setRecap("Failed to generate recap. Please try again.");
-      }
-    } catch (_e) {
-      setRecap("Error connecting to AI service.");
-    } finally {
-      setIsRecapLoading(false);
-    }
-  }, []);
+  const requestRecap = useCallback(() => {}, []); // Removed mock block
 
   return (
     <MeetingContext.Provider value={{
-      socket,
-      localStream,
-      remoteParticipants,
-      messages,
-      isMicOn,
-      isCamOn,
-      isScreenSharing,
-      recap,
-      isRecapLoading,
-      toggleMic,
-      toggleCam,
-      toggleScreenShare,
-      sendMessage,
-      requestRecap,
-      joinRoom,
-      leaveRoom,
+      socket, localStream, remoteParticipants, messages, isMicOn, isCamOn,
+      isScreenSharing, recap, isRecapLoading, toggleMic, toggleCam,
+      toggleScreenShare, sendMessage, requestRecap, joinRoom, leaveRoom,
     }}>
       {children}
     </MeetingContext.Provider>
