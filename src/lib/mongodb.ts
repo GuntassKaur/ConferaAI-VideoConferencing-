@@ -1,16 +1,11 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/confera';
+const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
+if (!MONGODB_URI && process.env.NODE_ENV === 'production') {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
 }
 
-/**
- * Global is used here to maintain a cached connection across hot reloads
- * in development. This prevents connections growing exponentially
- * during API Route usage.
- */
 let cached = (global as any).mongoose;
 
 if (!cached) {
@@ -23,15 +18,33 @@ async function connectDB() {
   }
 
   if (!cached.promise) {
+    if (!MONGODB_URI) {
+       console.warn('MONGODB_URI is not defined. Authentication will fail.');
+       throw new Error('Database connection string missing.');
+    }
+
     const opts = {
       bufferCommands: false,
     };
 
+    console.log('Connecting to MongoDB...');
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      console.log('MongoDB Connected Successfully');
       return mongoose;
+    }).catch(err => {
+      console.error('MongoDB Connection Error:', err);
+      cached.promise = null;
+      throw err;
     });
   }
-  cached.conn = await cached.promise;
+  
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+  
   return cached.conn;
 }
 

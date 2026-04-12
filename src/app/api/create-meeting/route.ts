@@ -1,40 +1,38 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import connectDB from '@/lib/mongodb';
+import Meeting from '@/models/Meeting';
+import mongoose from 'mongoose';
 
 export async function POST(request: Request) {
   try {
+    await connectDB();
     const body = await request.json().catch(() => ({}));
     const { userId, title } = body;
 
-    console.log('Create Meeting Request:', { userId, title });
-
-    if (!userId) {
-      return NextResponse.json({ error: 'Authenticated User ID is required' }, { status: 400 });
-    }
-
-    const meetingId = Math.random().toString(36).substring(2, 11);
+    const meetingId = `mtg-${Math.random().toString(36).substring(2, 8)}`;
     
-    const newMeeting = {
-      id: meetingId,
+    // Create new meeting in MongoDB
+    const newMeeting = await Meeting.create({
+      meetingId,
       title: title || 'New AI Session',
-      hostId: userId,
-      participants: [userId],
-      status: 'live' as const,
-      createdAt: new Date().toISOString(),
-      transcript: []
-    };
+      hostId: userId && mongoose.Types.ObjectId.isValid(userId) ? userId : new mongoose.Types.ObjectId(), // Virtual host for guests
+      participants: userId && mongoose.Types.ObjectId.isValid(userId) ? [userId] : [],
+      status: 'live',
+      startTime: new Date(),
+    });
 
-    db.meetings.push(newMeeting);
-    console.log('Meeting Created:', newMeeting);
+    console.log('Meeting Created in DB:', meetingId);
 
-    return NextResponse.json({ success: true, meeting: newMeeting });
-  } catch (error: unknown) {
-    console.error('Create Meeting Error:', error);
-    const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ 
-      error: 'Failed to create meeting', 
-      details: message 
-    }, { status: 500 });
+      success: true, 
+      meeting: {
+        id: newMeeting.meetingId,
+        title: newMeeting.title,
+        status: newMeeting.status
+      } 
+    });
+  } catch (error: any) {
+    console.error('Create Meeting Error:', error);
+    return NextResponse.json({ error: 'Failed to initialize session' }, { status: 500 });
   }
-
 }

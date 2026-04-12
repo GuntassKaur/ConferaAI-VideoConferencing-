@@ -3,29 +3,58 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Video, LogOut, User as UserIcon, Calendar, Clock, ArrowRight, FileText, CheckCircle2, ChevronRight, Activity, Users, Settings } from 'lucide-react';
+import { Plus, Video, LogOut, User as UserIcon, Calendar, Clock, ArrowRight, FileText, CheckCircle2, ChevronRight, Activity, Users, Settings, Shield, LogIn, Sparkles, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Dashboard() {
   const [meetingId, setMeetingId] = useState('');
   const [isJoinLoading, setIsJoinLoading] = useState(false);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
+  const [realMeetings, setRealMeetings] = useState<any[]>([]);
+  const [isLoadingMeetings, setIsLoadingMeetings] = useState(false);
   const [error, setError] = useState('');
   
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const displayName = user?.name || 'Guest User';
 
+  useEffect(() => {
+    const fetchMeetings = async () => {
+      if (!user?.id) return;
+      setIsLoadingMeetings(true);
+      try {
+        const res = await fetch(`/api/meetings?userId=${user.id}`);
+        const data = await res.json();
+        if (data.success) {
+          setRealMeetings(data.meetings);
+        }
+      } catch (err) {
+        console.error('Failed to fetch sessions:', err);
+      } finally {
+        setIsLoadingMeetings(false);
+      }
+    };
+
+    fetchMeetings();
+  }, [user]);
+
   const handleCreateMeeting = async () => {
     setIsCreateLoading(true);
     setError('');
     
     try {
-      const id = `mtg-${Date.now().toString(36)}`;
-      // Simulate network delay for real feel
-      await new Promise(r => setTimeout(r, 800));
-      router.push(`/meeting/${id}`);
+      const response = await fetch('/api/create-meeting', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user?.id, title: 'New Executive Session' }),
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+
+      router.push(`/meeting/${data.meeting.id}`);
     } catch (err: any) {
-      setError('Failed to initialize meeting session.');
+      setError(err.message || 'Failed to initialize session.');
     } finally {
       setIsCreateLoading(false);
     }
@@ -34,58 +63,59 @@ export default function Dashboard() {
   const handleJoinMeeting = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanId = meetingId.trim();
-    
     if (!cleanId) {
-      setError('Please enter a valid Meeting ID.');
+      setError('Please enter a valid Session ID.');
       return;
     }
-    
     setIsJoinLoading(true);
-    setError('');
-
-    setTimeout(() => {
-      router.push(`/meeting/${cleanId}`);
-      setIsJoinLoading(false);
-    }, 500);
+    router.push(`/meeting/${cleanId}`);
   };
 
   return (
     <div className="min-h-screen bg-[#0F172A] text-slate-100 flex flex-col font-inter">
-      {/* SaaS Navbar */}
-      <nav className="h-16 border-b border-slate-800 bg-slate-900/50 backdrop-blur-xl px-6 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Video className="text-white w-5 h-5" />
-          </div>
-          <span className="text-lg font-bold tracking-tight text-white">Confera <span className="text-blue-500">AI</span></span>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 px-3 py-1.5 bg-slate-800/50 rounded-lg border border-slate-700">
-            <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center">
-              <UserIcon size={14} className="text-slate-300" />
+      {/* Enterprise Top Navigation */}
+      <nav className="border-b border-slate-800 bg-slate-900/50 backdrop-blur-xl sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <Video className="text-white w-4 h-4" />
+              </div>
+              <span className="text-xl font-bold text-white tracking-tight">Confera <span className="text-blue-500">AI</span></span>
             </div>
-            <span className="text-sm font-medium text-slate-200">{displayName}</span>
           </div>
-          {user && (
-            <button 
-              onClick={() => { logout(); router.push('/login'); }}
-              className="p-2 text-slate-400 hover:text-white transition-colors"
-            >
-              <LogOut size={18} />
-            </button>
-          )}
+          
+          <div className="flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">End-to-End Secure</span>
+            </div>
+            <div className="flex items-center gap-3 pl-6 border-l border-slate-800">
+              <div className="text-right hidden sm:block">
+                <p className="text-xs font-bold text-white leading-none">{displayName}</p>
+                <p className="text-[10px] text-slate-500 font-medium mt-1 uppercase tracking-tighter">
+                  {user ? 'Enterprise Access' : 'Guest Mode'}
+                </p>
+              </div>
+              
+              {user ? (
+                <button 
+                  onClick={() => { logout(); router.push('/login'); }}
+                  className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-blue-500 font-bold hover:border-blue-500/50 transition-all group"
+                >
+                  <span className="group-hover:hidden">{displayName.charAt(0).toUpperCase()}</span>
+                  <LogOut size={16} className="hidden group-hover:block" />
+                </button>
+              ) : (
+                <Link href="/login" className="btn-primary px-4 py-2 flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest">
+                  <LogIn size={14} /> Account Access
+                </Link>
+              )}
+            </div>
+          </div>
         </div>
       </nav>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Hero Actions (Left) */}
-        <div className="lg:col-span-4 space-y-6">
-          <div className="enterprise-card p-8 bg-gradient-to-br from-slate-900 to-slate-900/50">
-            <div className="mb-8">
-              <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">Welcome back, {user?.name?.split(' ')[0] || 'Guest'}</h1>
-              <p className="text-sm text-slate-400 font-medium">Start or join your meetings with AI-powered insights</p>
             </div>
 
             <div className="space-y-4">
@@ -182,32 +212,6 @@ export default function Dashboard() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
-                    <h3 className="font-semibold text-white">{m.title}</h3>
-                    <span className={`status-badge ${m.status === 'Live' ? 'status-live' : m.status === 'Completed' ? 'status-completed' : 'status-followup'}`}>
-                      {m.status}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4 text-[10px] font-medium text-slate-500 uppercase tracking-wider">
-                     <span className="flex items-center gap-1.5"><Clock size={12} /> {m.time}</span>
-                     <span className="flex items-center gap-1.5"><Users size={12} /> {m.participants} participants</span>
-                  </div>
-                </div>
-                <ArrowRight size={18} className="text-slate-700 group-hover:text-blue-500 translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-              </motion.div>
-            ))}
-          </div>
-
-          {/* AI Insights Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             <div className="enterprise-card p-6 flex flex-col">
-                <div className="flex items-center gap-3 mb-6">
-                   <FileText size={18} className="text-blue-500" />
-                   <h3 className="text-sm font-bold text-white uppercase tracking-widest">Last Meeting Action Items</h3>
-                </div>
-                <ul className="space-y-4 flex-1">
-                   {[
-                     "Finalize design tokens for enterprise layout",
-                     "Schedule stakeholders review for recap feature",
                      "Audit media stream performance in low bandwidth"
                    ].map((item, i) => (
                      <li key={i} className="flex gap-4 text-sm text-slate-300 font-medium">

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LogIn, Eye, EyeOff, Shield, Sparkles, Loader2, Video, UserPlus, Mail, Lock, User as UserIcon } from 'lucide-react';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -135,7 +136,7 @@ export default function LoginPage() {
             <div className="space-y-1.5">
               <div className="flex justify-between items-center px-1">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Secure Password</label>
-                {isLogin && <button type="button" className="text-[10px] font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest">Forgot?</button>}
+                {isLogin && <Link href="/forgot-password" title="Forgot Password" className="text-[10px] font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest">Forgot?</Link>}
               </div>
               <div className="relative">
                 <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />

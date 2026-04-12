@@ -9,14 +9,9 @@ export default function RootPage() {
   const { user } = useAuthStore();
 
   useEffect(() => {
-    // Check local storage directly for faster initial redirect feedback
-    const savedUser = localStorage.getItem('confera-auth');
-    if (user || savedUser) {
-      router.push('/dashboard');
-    } else {
-      router.push('/login');
-    }
-  }, [user, router]);
+    // Redirect to dashboard by default. Login is now optional.
+    router.push('/dashboard');
+  }, [router]);
 
   return (
     <div className="min-h-screen bg-[#0F172A] flex items-center justify-center font-inter">
