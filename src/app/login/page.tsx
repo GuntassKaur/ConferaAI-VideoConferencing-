@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogIn, Eye, EyeOff, Shield, Sparkles, Loader2 } from 'lucide-react';
+import { LogIn, Eye, EyeOff, Shield, Sparkles, Loader2, Video } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -45,7 +45,6 @@ export default function LoginPage() {
     }
   };
 
-  return (
   return (
     <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-6 font-inter">
       <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-600/5 to-transparent -z-10" />
