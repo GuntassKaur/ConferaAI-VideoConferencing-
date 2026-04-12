@@ -6,11 +6,19 @@ import { motion } from 'framer-motion';
 import { Plus, Video, LogOut, User as UserIcon, Calendar, Clock, ChevronRight, Activity, Users, Shield, LogIn, Sparkles, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
+interface Meeting {
+  meetingId: string;
+  title: string;
+  startTime: string;
+  status: string;
+  participants: string[];
+}
+
 export default function Dashboard() {
   const [meetingId, setMeetingId] = useState('');
   const [isJoinLoading, setIsJoinLoading] = useState(false);
   const [isCreateLoading, setIsCreateLoading] = useState(false);
-  const [realMeetings, setRealMeetings] = useState<any[]>([]);
+  const [realMeetings, setRealMeetings] = useState<Meeting[]>([]);
   const [isLoadingMeetings, setIsLoadingMeetings] = useState(false);
   const [error, setError] = useState('');
   
@@ -36,7 +44,7 @@ export default function Dashboard() {
     };
 
     fetchMeetings();
-  }, [user]);
+  }, [user?.id]);
 
   const handleCreateMeeting = async () => {
     setIsCreateLoading(true);

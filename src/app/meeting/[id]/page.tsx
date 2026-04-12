@@ -9,13 +9,14 @@ import {
   Record, Info, ChevronRight, Activity, FileText
 } from 'lucide-react';
 import AIPanel from '@/components/AIPanel';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function MeetingPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { user } = useAuthStore();
   
   // States
-  const [user, setUser] = useState<{name: string, id: string} | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCamOn, setIsCamOn] = useState(true);
@@ -27,13 +28,12 @@ export default function MeetingPage() {
   // Refs
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Authenticate and Initialize Media
+  // Initialize Media and Auth Check
   useEffect(() => {
-    const savedUser = localStorage.getItem('confera-auth');
-    const parsedUser = savedUser ? JSON.parse(savedUser) : null;
-    const realUser = parsedUser?.state?.user || parsedUser;
-    
-    setUser(realUser || { name: 'Guest User', id: 'guest' });
+    if (!user) {
+      router.push('/login');
+      return;
+    }
 
     let currentStream: MediaStream | null = null;
 
@@ -49,7 +49,7 @@ export default function MeetingPage() {
         if (videoRef.current) {
           videoRef.current.srcObject = mediaStream;
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error("Media failed:", err);
       }
     };
@@ -61,7 +61,7 @@ export default function MeetingPage() {
         currentStream.getTracks().forEach(track => track.stop());
       }
     };
-  }, []);
+  }, [user, router]);
 
   // Sync ref with stream state changes
   useEffect(() => {
@@ -110,25 +110,34 @@ export default function MeetingPage() {
     setInputText('');
   };
 
+  // Copy Link Handler
+  const copyMeetingId = () => {
+    navigator.clipboard.writeText(id as string);
+    // In a real app we'd show a toast here
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#0F172A] text-slate-200 overflow-hidden font-inter">
       {/* SaaS Header */}
       <header className="h-14 border-b border-slate-800 px-6 flex items-center justify-between bg-slate-900/50 backdrop-blur-xl z-50">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-md">
+          <div 
+            onClick={copyMeetingId}
+            className="flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-md cursor-pointer hover:bg-blue-500/20 transition-all"
+          >
             <Shield size={14} className="text-blue-500" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-blue-500">Secure Session: {id}</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-blue-500">SID: {id}</span>
           </div>
           <div className="h-4 w-[1px] bg-slate-800" />
           <div className="flex items-center gap-2 text-slate-400">
              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-             <span className="text-[10px] uppercase font-bold tracking-widest">Recording Active</span>
+             <span className="text-[10px] uppercase font-bold tracking-widest">Secure Cluster Active</span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-           <button className="p-2 text-slate-400 hover:text-white transition-colors"><Info size={18} /></button>
-           <button className="p-2 text-slate-400 hover:text-white transition-colors"><Settings size={18} /></button>
+           <button className="p-2 text-slate-400 hover:text-white transition-colors" title="Session Info"><Info size={18} /></button>
+           <button className="p-2 text-slate-400 hover:text-white transition-colors" title="Settings"><Settings size={18} /></button>
            <button 
              onClick={() => setIsInsightsOpen(!isInsightsOpen)}
              className={`flex items-center gap-2 px-4 py-1.5 rounded-md border transition-all text-[10px] font-bold uppercase tracking-widest ${isInsightsOpen ? 'bg-blue-600 text-white border-blue-500' : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-600'}`}

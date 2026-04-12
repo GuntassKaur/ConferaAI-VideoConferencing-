@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, Sparkles, Loader2, ListTodo, FileText, Target, Zap, ChevronRight } from 'lucide-react';
+import { Brain, Sparkles, Loader2, ListTodo, FileText, Target, Zap, ChevronRight, CheckCircle2 } from 'lucide-react';
 
 interface RecapData {
   summary: string;
