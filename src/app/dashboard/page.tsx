@@ -58,10 +58,14 @@ export default function Dashboard() {
       });
       
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
+      if (!response.ok) {
+        console.error('Session initiation failed:', response.status, data.error);
+        throw new Error(data.error || `Server Error ${response.status}`);
+      }
 
       router.push(`/meeting/${data.meeting.id}`);
     } catch (err: unknown) {
+      console.error('Initiation Error Details:', err);
       setError(err instanceof Error ? err.message : 'Failed to initialize session.');
     } finally {
       setIsCreateLoading(false);
