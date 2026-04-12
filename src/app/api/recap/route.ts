@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No transcript data provided" }, { status: 400 });
     }
 
-    const transcriptText = transcripts.map((t: any) => `${t.speaker}: ${t.text}`).join('\n');
+    const transcriptText = transcripts.map((t: { speaker: string; text: string }) => `${t.speaker}: ${t.text}`).join('\n');
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     if (!content) throw new Error("Empty AI response");
 
     return NextResponse.json(JSON.parse(content));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('AI Recap Error:', error);
     return NextResponse.json({ error: "High-security neural link failed. Fallback to local processing." }, { status: 500 });
   }

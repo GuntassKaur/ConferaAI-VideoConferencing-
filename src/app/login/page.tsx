@@ -45,8 +45,8 @@ export default function LoginPage() {
 
       setUser(data.user);
       router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Calibration failed. Check your data.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Calibration failed. Check your data.');
     } finally {
       setIsLoading(false);
     }

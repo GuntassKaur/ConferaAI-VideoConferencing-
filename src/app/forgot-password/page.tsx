@@ -28,8 +28,8 @@ export default function ForgotPasswordPage() {
       if (!response.ok) throw new Error(data.error || 'Failed to send link');
 
       setMessage(data.message);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to send reset link.');
     } finally {
       setIsLoading(false);
     }

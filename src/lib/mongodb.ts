@@ -1,15 +1,24 @@
 import mongoose from 'mongoose';
 
+interface MongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+}
+
+declare global {
+  var mongoose: MongooseCache | undefined;
+}
+
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI && process.env.NODE_ENV === 'production') {
   console.warn('MONGODB_URI is missing. Database dependent features will fail.');
 }
 
-let cached = (global as any).mongoose;
+const cached: MongooseCache = global.mongoose ?? { conn: null, promise: null };
 
-if (!cached) {
-  cached = (global as any).mongoose = { conn: null, promise: null };
+if (!global.mongoose) {
+  global.mongoose = cached;
 }
 
 async function connectDB() {

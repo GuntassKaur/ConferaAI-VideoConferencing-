@@ -37,8 +37,9 @@ export async function POST(req: Request) {
     await user.save();
 
     return NextResponse.json({ message: 'Password has been reset successfully' });
-  } catch (error: any) {
-    console.error('Error in reset password route:', error);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('Error in reset password route:', msg);
     return NextResponse.json({ error: 'Failed to reset password' }, { status: 500 });
   }
 }

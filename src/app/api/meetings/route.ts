@@ -21,7 +21,11 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: true, meetings: userMeetings });
   } catch (error: unknown) {
     console.error('Fetch meetings error:', error);
-    return NextResponse.json({ error: 'Failed to fetch sessions' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : '';
+    const errorMessage = msg.includes('Database connection string missing') 
+      ? 'Database Configuration Missing' 
+      : 'Session Query Timeout';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 

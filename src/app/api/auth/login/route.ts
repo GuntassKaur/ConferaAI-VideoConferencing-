@@ -33,9 +33,10 @@ export async function POST(request: Request) {
         role: user.role
       } 
     });
-  } catch (error: any) {
-    console.error('Login error:', error);
-    if (error.message.includes('Database connection string missing')) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('Login error:', msg);
+    if (msg.includes('Database connection string missing')) {
       return NextResponse.json({ error: 'Server database connection not configured.' }, { status: 503 });
     }
     return NextResponse.json({ error: 'Login failed. Please try again later.' }, { status: 500 });

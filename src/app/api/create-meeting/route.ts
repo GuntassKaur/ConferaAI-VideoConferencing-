@@ -32,8 +32,17 @@ export async function POST(request: Request) {
         status: newMeeting.status
       } 
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Create Meeting Error:', error);
-    return NextResponse.json({ error: 'Failed to initialize session' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : undefined;
+    const errorMessage = msg.includes('Database connection string missing') 
+      ? 'Database configuration missing (MONGODB_URI)' 
+      : msg || 'Identity link failure';
+    
+    return NextResponse.json({ 
+      error: `Infrastructure Error: ${errorMessage}`,
+      details: process.env.NODE_ENV === 'development' ? stack : undefined
+    }, { status: 500 });
   }
 }

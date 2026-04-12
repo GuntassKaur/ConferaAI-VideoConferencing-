@@ -42,10 +42,10 @@ export async function POST(request: Request) {
         role: newUser.role
       } 
     });
-  } catch (error: any) {
-    console.error('Signup error:', error);
-    // User friendly error for DB connection issues
-    if (error.message.includes('Database connection string missing')) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('Signup error:', msg);
+    if (msg.includes('Database connection string missing')) {
       return NextResponse.json({ error: 'Server database connection not configured.' }, { status: 503 });
     }
     return NextResponse.json({ error: 'Registration failed. Please try again later.' }, { status: 500 });

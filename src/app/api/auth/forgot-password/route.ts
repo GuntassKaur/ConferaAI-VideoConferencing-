@@ -59,9 +59,10 @@ export async function POST(req: Request) {
     await transporter.sendMail(mailOptions);
 
     return NextResponse.json({ message: 'Reset link sent successfully' });
-  } catch (error: any) {
-    console.error('Error in forgot password route:', error);
-    if (error.message.includes('Database connection string missing')) {
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('Error in forgot password route:', msg);
+    if (msg.includes('Database connection string missing')) {
       return NextResponse.json({ error: 'System database not configured.' }, { status: 503 });
     }
     return NextResponse.json({ error: 'Failed to process request. Try again later.' }, { status: 500 });

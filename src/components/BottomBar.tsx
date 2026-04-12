@@ -12,7 +12,7 @@ import { motion } from 'framer-motion';
 
 export const BottomBar = () => {
   const { isMicOn, toggleMic, isCamOn, toggleCam, localStream } = useMeeting();
-  const { focusMode, toggleFocusMode, viewMode, setViewMode } = useRoomStore();
+  const { focusMode, toggleFocusMode } = useRoomStore();
 
   return (
     <div className="flex items-center justify-center w-full px-10 pb-8 pointer-events-none">

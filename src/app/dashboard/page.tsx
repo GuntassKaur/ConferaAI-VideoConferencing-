@@ -61,8 +61,8 @@ export default function Dashboard() {
       if (!response.ok) throw new Error(data.error);
 
       router.push(`/meeting/${data.meeting.id}`);
-    } catch (err: any) {
-      setError(err.message || 'Failed to initialize session.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to initialize session.');
     } finally {
       setIsCreateLoading(false);
     }
