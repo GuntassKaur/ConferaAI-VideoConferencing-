@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion } from 'framer-motion';
-import { Plus, Video, LogOut, User as UserIcon, Calendar, Clock, ChevronRight, Activity, Users, Shield, LogIn, Sparkles, ShieldCheck } from 'lucide-react';
+import { Plus, Video, LogOut, User as UserIcon, Calendar, Clock, ChevronRight, Activity, Users, Shield, LogIn, Sparkles, ShieldCheck, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 interface Meeting {
@@ -65,6 +65,26 @@ export default function Dashboard() {
       setError(err.message || 'Failed to initialize session.');
     } finally {
       setIsCreateLoading(false);
+    }
+  };
+
+  const handleDeleteSession = async (e: React.MouseEvent, meetingId: string) => {
+    e.stopPropagation();
+    if (!confirm('Are you sure you want to purge this session from the high-security cluster?')) return;
+    
+    try {
+      const res = await fetch(`/api/meetings?meetingId=${meetingId}&userId=${user?.id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRealMeetings(prev => prev.filter(m => m.meetingId !== meetingId));
+      } else {
+        setError(data.error || 'Failed to purge session layer.');
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+      setError('Connection failure during session purge.');
     }
   };
 
@@ -142,6 +162,17 @@ export default function Dashboard() {
                </button>
             </div>
           </div>
+          
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-500"
+            >
+              <Shield size={16} />
+              <p className="text-xs font-bold uppercase tracking-widest">{error}</p>
+            </motion.div>
+          )}
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -230,7 +261,7 @@ export default function Dashboard() {
                           <p className="text-[10px] text-slate-500 font-medium uppercase mt-1">SID: {meeting.meetingId} • {new Date(meeting.startTime).toLocaleDateString()}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-8">
+                      <div className="flex items-center gap-6">
                         <div className="text-right hidden sm:block">
                            <p className="text-xs font-bold text-slate-300">{meeting.participants?.length || 0}</p>
                            <p className="text-[10px] text-slate-600 font-bold uppercase tracking-tighter">Authorized</p>
@@ -242,6 +273,13 @@ export default function Dashboard() {
                         }`}>
                           {meeting.status}
                         </span>
+                        <button 
+                          onClick={(e) => handleDeleteSession(e, meeting.meetingId)}
+                          className="p-2 text-slate-600 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
+                          title="Purge Session"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </motion.div>
                   ))

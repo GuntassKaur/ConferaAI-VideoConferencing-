@@ -9,34 +9,41 @@ interface RecapData {
   actionItems: { task: string; priority: 'high' | 'medium' | 'low' }[];
 }
 
+import { useRoomStore } from '@/store/useRoomStore';
+
 export default function AIPanel() {
+  const { transcripts } = useRoomStore();
   const [isGenerating, setIsGenerating] = useState(false);
   const [recap, setRecap] = useState<RecapData | null>(null);
 
   const generateNeuralRecap = async () => {
+    if (transcripts.length === 0) {
+      alert("No transcript data detected yet. Resume conversation to generate insights.");
+      return;
+    }
+    
     setIsGenerating(true);
     setRecap(null);
     
     try {
-      // Simulate real neural processing
-      await new Promise(r => setTimeout(r, 2500));
-      
-      // Real data structure
-      setRecap({
-        summary: "The architectural review focused on the synchronization of neural adapters across distributed clusters. Consensus was reached on moving to an async-await pattern for the core transmission layer to reduce main-thread latency.",
-        keyPoints: [
-          "Identified 200ms bottleneck in global state propagation",
-          "Approved migration to Redis Streams for persistence",
-          "Verified end-to-end encryption protocols for 2026 standards"
-        ],
-        actionItems: [
-          { task: "Refactor transmission hook for async handling", priority: 'high' },
-          { task: "Audit cluster health via Prometheus", priority: 'medium' },
-          { task: "Update neural documentation for the team", priority: 'low' }
-        ]
+      const response = await fetch('/api/recap', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcripts }),
       });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+
+      setRecap(data);
     } catch (err) {
       console.error("Neural fail", err);
+      // Fallback data for demo if API fails
+      setRecap({
+        summary: "The intelligence link could not be established. Please verify your OpenAI configuration.",
+        keyPoints: ["Check API Key", "Ensure Transcript Data exists"],
+        actionItems: [{ task: "Configure process.env.OPENAI_API_KEY", priority: 'high' }]
+      });
     } finally {
       setIsGenerating(false);
     }

@@ -1,42 +1,45 @@
 export const dynamic = 'force-dynamic';
-
 import { NextResponse } from 'next/server';
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function POST(req: Request) {
   try {
-    const { text } = await req.json();
-    const apiKey = process.env.OPENAI_API_KEY;
-
-    // AI AUTO NOTES / RECAP MOCKUP FALLBACK (If no API Key)
-    if (!apiKey) {
-      return NextResponse.json({
-        recap: "### Key Points\n- Q4 roadmap and AI recap prioritized\n- Frontend UI must be clean with neon glassmorphism\n\n### Summary\nThe team aligned on the immediate priorities for Q4, pushing the AI recap feature and the new premium layout update to the forefront of development.\n\n### Action Items\n- Charlie: Implement the frontend for the Smart Chat AI\n- Alice: Schedule sync with stakeholders",
-      });
+    const { transcripts } = await req.json();
+    
+    if (!transcripts || transcripts.length === 0) {
+      return NextResponse.json({ error: "No transcript data provided" }, { status: 400 });
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: "You are an AI meeting assistant. Generate output in markdown with '### Key Points', '### Summary', and '### Action Items' format." },
-          { role: "user", content: `Summarize this meeting transcript and extract the key intelligence: ${text}` }
-        ]
-      })
+    const transcriptText = transcripts.map((t: any) => `${t.speaker}: ${t.text}`).join('\n');
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { 
+          role: "system", 
+          content: `You are an expert AI meeting analyst. Analyze the transcript and provide a structured JSON response.
+          Schema:
+          {
+            "summary": "Full paragraph summary",
+            "keyPoints": ["Point 1", "Point 2"],
+            "actionItems": [{"task": "Do this", "priority": "high" | "medium" | "low"}]
+          }` 
+        },
+        { role: "user", content: `Analyze this transcript:\n${transcriptText}` }
+      ],
+      response_format: { type: "json_object" }
     });
 
-    const data = await response.json();
-    
-    if (data.choices && data.choices.length > 0) {
-       return NextResponse.json({ recap: data.choices[0].message.content });
-    } else {
-       return NextResponse.json({ error: "No response from AI" }, { status: 500 });
-    }
-  } catch (_error) {
-    return NextResponse.json({ error: "Failed to generate recap via OpenAI API" }, { status: 500 });
+    const content = response.choices[0].message.content;
+    if (!content) throw new Error("Empty AI response");
+
+    return NextResponse.json(JSON.parse(content));
+  } catch (error: any) {
+    console.error('AI Recap Error:', error);
+    return NextResponse.json({ error: "High-security neural link failed. Fallback to local processing." }, { status: 500 });
   }
 }

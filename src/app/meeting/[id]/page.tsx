@@ -10,19 +10,27 @@ import {
 } from 'lucide-react';
 import AIPanel from '@/components/AIPanel';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useMeeting } from '@/context/MeetingContext';
 
 export default function MeetingPage() {
   const { id } = useParams();
   const router = useRouter();
   const { user } = useAuthStore();
+  const { 
+    messages, 
+    sendMessage, 
+    joinRoom, 
+    leaveRoom,
+    isMicOn: contextMicOn,
+    isCamOn: contextCamOn,
+    toggleMic: contextToggleMic,
+    toggleCam: contextToggleCam,
+    localStream
+  } = useMeeting();
   
   // States
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const [isMicOn, setIsMicOn] = useState(true);
-  const [isCamOn, setIsCamOn] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isInsightsOpen, setIsInsightsOpen] = useState(true);
-  const [messages, setMessages] = useState<{user: string, text: string, time: string}[]>([]);
   const [inputText, setInputText] = useState('');
   
   // Refs
@@ -35,78 +43,26 @@ export default function MeetingPage() {
       return;
     }
 
-    let currentStream: MediaStream | null = null;
-
-    const initMedia = async () => {
-      try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-          video: true, 
-          audio: true 
-        });
-        currentStream = mediaStream;
-        setStream(mediaStream);
-        
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-        }
-      } catch (err) {
-        console.error("Media failed:", err);
-      }
-    };
-
-    initMedia();
+    if (id && user.name) {
+      joinRoom(id as string, user.name);
+    }
 
     return () => {
-      if (currentStream) {
-        currentStream.getTracks().forEach(track => track.stop());
-      }
+      leaveRoom();
     };
-  }, [user, router]);
+  }, [user, router, id, joinRoom, leaveRoom]);
 
   // Sync ref with stream state changes
   useEffect(() => {
-    if (videoRef.current && stream) {
-      videoRef.current.srcObject = stream;
+    if (videoRef.current && localStream) {
+      videoRef.current.srcObject = localStream;
     }
-  }, [stream]);
-
-  // Working Control Handlers
-  const toggleMic = () => {
-    if (stream) {
-      const audioTrack = stream.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled;
-        setIsMicOn(audioTrack.enabled);
-      }
-    }
-  };
-
-  const toggleCam = () => {
-    if (stream) {
-      const videoTrack = stream.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled;
-        setIsCamOn(videoTrack.enabled);
-      }
-    }
-  };
-
-  const handleEndCall = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-    }
-    router.push('/dashboard');
-  };
+  }, [localStream]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputText.trim() || !user) return;
-    
-    setMessages(prev => [...prev, {
-      user: user.name,
-      text: inputText,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    }]);
+    if (!inputText.trim()) return;
+    sendMessage(inputText);
     setInputText('');
   };
 
@@ -183,7 +139,7 @@ export default function MeetingPage() {
                     <p className="text-xs font-bold text-white leading-none mb-1">{user?.name}</p>
                     <p className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Meeting Host</p>
                  </div>
-                 {!isMicOn && (
+                 {!contextMicOn && (
                    <div className="ml-2 w-6 h-6 rounded-md bg-red-500/20 flex items-center justify-center border border-red-500/30">
                       <MicOff size={12} className="text-red-500" />
                    </div>
@@ -262,16 +218,16 @@ export default function MeetingPage() {
       <footer className="h-20 border-t border-slate-800 px-8 flex items-center justify-center relative bg-slate-950">
          <div className="flex items-center gap-3">
             <button 
-              onClick={toggleMic}
-              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isMicOn ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700' : 'bg-red-500 text-white'}`}
+              onClick={contextToggleMic}
+              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${contextMicOn ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700' : 'bg-red-500 text-white'}`}
             >
-               {isMicOn ? <Mic size={20} /> : <MicOff size={20} />}
+               {contextMicOn ? <Mic size={20} /> : <MicOff size={20} />}
             </button>
             <button 
-              onClick={toggleCam}
-              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isCamOn ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700' : 'bg-red-500 text-white'}`}
+              onClick={contextToggleCam}
+              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${contextCamOn ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700' : 'bg-red-500 text-white'}`}
             >
-               {isCamOn ? <Video size={20} /> : <VideoOff size={20} />}
+               {contextCamOn ? <Video size={20} /> : <VideoOff size={20} />}
             </button>
             
             <div className="h-8 w-[1px] bg-slate-800 mx-2" />
@@ -288,7 +244,7 @@ export default function MeetingPage() {
             <div className="h-8 w-[1px] bg-slate-800 mx-2" />
 
             <button 
-              onClick={handleEndCall}
+              onClick={() => { leaveRoom(); router.push('/dashboard'); }}
               className="px-6 h-12 bg-red-600 hover:bg-red-500 text-white rounded-xl transition-all shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-widest"
             >
                <PhoneOff size={20} />

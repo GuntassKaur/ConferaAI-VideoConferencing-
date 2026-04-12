@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 };
 
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { MeetingProvider } from "@/context/MeetingContext";
 
 export default function RootLayout({
   children,
@@ -28,9 +29,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${outfit.variable} antialiased min-h-screen bg-background text-foreground`}>
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
-          {children}
+          <MeetingProvider>
+            {children}
+          </MeetingProvider>
         </ThemeProvider>
-
       </body>
     </html>
   );

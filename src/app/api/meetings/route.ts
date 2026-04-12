@@ -19,8 +19,39 @@ export async function GET(request: Request) {
     }).sort({ createdAt: -1 });
 
     return NextResponse.json({ success: true, meetings: userMeetings });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Fetch meetings error:', error);
     return NextResponse.json({ error: 'Failed to fetch sessions' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    await connectDB();
+    const { searchParams } = new URL(request.url);
+    const meetingId = searchParams.get('meetingId');
+    const userId = searchParams.get('userId');
+
+    if (!meetingId || !userId) {
+      return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
+    }
+
+    // Security: Only host can delete (or at least check participants)
+    const meeting = await Meeting.findOne({ meetingId });
+    if (!meeting) {
+      return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });
+    }
+
+    // Simple security: check if user is the host
+    if (meeting.hostId.toString() !== userId) {
+      return NextResponse.json({ error: 'Unauthorized: Only the host can delete this session' }, { status: 403 });
+    }
+
+    await Meeting.deleteOne({ meetingId });
+
+    return NextResponse.json({ success: true, message: 'Session successfully purged' });
+  } catch (error: unknown) {
+    console.error('Delete meeting error:', error);
+    return NextResponse.json({ error: 'Failed to purge session layer' }, { status: 500 });
   }
 }
