@@ -4,8 +4,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Send, LogOut, MessageSquare, Users, Video, VideoOff, 
-  Mic, MicOff, Camera, Shield, Settings2, MoreHorizontal, 
-  Monitor, Layout, PhoneOff, User as UserIcon, Brain 
+  Mic, MicOff, Shield, Settings, MoreHorizontal, 
+  Monitor, Layout, PhoneOff, User as UserIcon, Brain, 
+  Record, Info, ChevronRight, Activity, FileText
 } from 'lucide-react';
 import AIPanel from '@/components/AIPanel';
 
@@ -19,7 +20,7 @@ export default function MeetingPage() {
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCamOn, setIsCamOn] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [isAIPanelOpen, setIsAIPanelOpen] = useState(true);
+  const [isInsightsOpen, setIsInsightsOpen] = useState(true);
   const [messages, setMessages] = useState<{user: string, text: string, time: string}[]>([]);
   const [inputText, setInputText] = useState('');
   
@@ -29,20 +30,15 @@ export default function MeetingPage() {
   // Authenticate and Initialize Media
   useEffect(() => {
     const savedUser = localStorage.getItem('confera-auth');
-    if (!savedUser) {
-      router.push('/login');
-      return;
-    }
-    const parsedUser = JSON.parse(savedUser);
-    // zustand persist might store it differently, let's extract the user object correctly
-    const realUser = parsedUser.state?.user || parsedUser;
-    setUser(realUser);
+    const parsedUser = savedUser ? JSON.parse(savedUser) : null;
+    const realUser = parsedUser?.state?.user || parsedUser;
+    
+    setUser(realUser || { name: 'Guest User', id: 'guest' });
 
     let currentStream: MediaStream | null = null;
 
     const initMedia = async () => {
       try {
-        console.log("Requesting neural optics...");
         const mediaStream = await navigator.mediaDevices.getUserMedia({ 
           video: true, 
           audio: true 
@@ -54,24 +50,18 @@ export default function MeetingPage() {
           videoRef.current.srcObject = mediaStream;
         }
       } catch (err: any) {
-        console.error("Neural optics failed:", err);
-        // Fallback or error message could go here
-        alert(`Media Error: ${err.message}. Please ensure camera/mic permissions are granted.`);
+        console.error("Media failed:", err);
       }
     };
 
     initMedia();
 
     return () => {
-      // Clean up on disconnect
       if (currentStream) {
-        currentStream.getTracks().forEach(track => {
-          track.stop();
-          console.log(`Stopped track: ${track.kind}`);
-        });
+        currentStream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [router]);
+  }, []);
 
   // Sync ref with stream state changes
   useEffect(() => {
@@ -120,41 +110,40 @@ export default function MeetingPage() {
     setInputText('');
   };
 
-  if (!user) return null;
-
   return (
-    <div className="flex flex-col h-screen bg-mesh text-slate-200 overflow-hidden font-outfit">
-      {/* Dynamic Header */}
-      <header className="h-20 border-b border-white/5 px-8 flex items-center justify-between bg-slate-950/40 backdrop-blur-3xl z-50">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-xl shadow-inner">
-            <Shield size={16} className="text-indigo-400" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">Node: {id}</span>
+    <div className="flex flex-col h-screen bg-[#0F172A] text-slate-200 overflow-hidden font-inter">
+      {/* SaaS Header */}
+      <header className="h-14 border-b border-slate-800 px-6 flex items-center justify-between bg-slate-900/50 backdrop-blur-xl z-50">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-md">
+            <Shield size={14} className="text-blue-500" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-blue-500">Secure Session: {id}</span>
           </div>
-          <div className="h-6 w-[1px] bg-white/10" />
-          <div className="flex items-center gap-3">
-             <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-             <span className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-400">Secure Link Active</span>
+          <div className="h-4 w-[1px] bg-slate-800" />
+          <div className="flex items-center gap-2 text-slate-400">
+             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+             <span className="text-[10px] uppercase font-bold tracking-widest">Recording Active</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-           <button className="p-3 text-slate-500 hover:text-white hover:bg-white/5 rounded-xl transition-all"><Settings2 size={20} /></button>
+        <div className="flex items-center gap-2">
+           <button className="p-2 text-slate-400 hover:text-white transition-colors"><Info size={18} /></button>
+           <button className="p-2 text-slate-400 hover:text-white transition-colors"><Settings size={18} /></button>
            <button 
-             onClick={() => setIsAIPanelOpen(!isAIPanelOpen)}
-             className={`flex items-center gap-3 px-6 py-2.5 rounded-xl border transition-all text-xs font-black uppercase tracking-widest shadow-lg active:scale-95 ${isAIPanelOpen ? 'bg-indigo-600 text-white border-indigo-500 shadow-indigo-600/20' : 'bg-white/5 text-slate-400 border-white/5 hover:border-white/10'}`}
+             onClick={() => setIsInsightsOpen(!isInsightsOpen)}
+             className={`flex items-center gap-2 px-4 py-1.5 rounded-md border transition-all text-[10px] font-bold uppercase tracking-widest ${isInsightsOpen ? 'bg-blue-600 text-white border-blue-500' : 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-600'}`}
            >
-             <Brain size={16} />
-             <span>Neural Intel</span>
+             <Brain size={14} />
+             <span>AI Insights</span>
            </button>
         </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Main Stage */}
-        <main className="flex-1 p-10 relative flex flex-col items-center justify-center">
-          <div className="w-full h-full max-w-6xl relative group animate-float">
-            <div className={`video-container w-full h-full transition-all duration-700 ring-1 ring-white/10 ${isCamOn ? 'shadow-[0_40px_100px_rgba(79,70,229,0.15)]' : 'shadow-none'}`}>
+        {/* Main Meeting Stage */}
+        <main className="flex-1 p-6 relative flex flex-col items-center justify-center bg-slate-950/30">
+          <div className="w-full h-full max-w-5xl relative group">
+            <div className={`video-container w-full h-full transition-all duration-700 ${isCamOn ? 'ring-2 ring-blue-500/20 shadow-blue-500/10' : 'shadow-none'}`}>
               {isCamOn ? (
                 <video 
                   ref={videoRef}
@@ -164,161 +153,138 @@ export default function MeetingPage() {
                   className="w-full h-full object-cover mirror-mode"
                 />
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/40 backdrop-blur-3xl">
-                   <motion.div 
-                     initial={{ scale: 0.9, opacity: 0 }}
-                     animate={{ scale: 1, opacity: 1 }}
-                     className="w-40 h-40 rounded-[3rem] bg-indigo-600/10 border-2 border-indigo-500/20 flex items-center justify-center mb-8 shadow-2xl relative"
-                   >
-                      <UserIcon size={80} className="text-indigo-400/50" />
-                      <div className="absolute inset-0 bg-indigo-500/5 blur-3xl rounded-full" />
-                   </motion.div>
-                   <h3 className="text-3xl font-black text-white tracking-tighter mb-4">{user.name}</h3>
-                   <div className="flex items-center gap-3 px-4 py-2 bg-red-500/10 rounded-full border border-red-500/20">
-                      <VideoOff size={14} className="text-red-500" />
-                      <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.2em]">Transmission Silenced</span>
+                <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/50">
+                   <div className="w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center mb-6 border-4 border-slate-800 shadow-2xl">
+                      <UserIcon size={48} className="text-slate-600" />
+                   </div>
+                   <h3 className="text-xl font-bold text-slate-300">{user?.name}</h3>
+                   <div className="flex items-center gap-2 mt-4 px-3 py-1 bg-slate-800/80 rounded-full text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                      <VideoOff size={12} className="text-red-500" />
+                      Camera Disabled
                    </div>
                 </div>
               )}
 
               {/* Identity Overlay */}
-              <div className="absolute bottom-10 left-10 p-5 bg-slate-950/60 backdrop-blur-2xl border border-white/10 rounded-3xl flex items-center gap-4 shadow-2xl ring-1 ring-white/5">
-                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-600 flex items-center justify-center shadow-lg">
-                    <UserIcon size={20} className="text-white" />
+              <div className="absolute bottom-6 left-6 p-4 glass-card bg-slate-900/80 rounded-xl flex items-center gap-3 border-slate-800">
+                 <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                    <UserIcon size={16} className="text-white" />
                  </div>
                  <div>
-                    <p className="text-sm font-black tracking-tight mb-0.5 text-white">{user.name}</p>
-                    <p className="text-[9px] uppercase tracking-[0.2em] text-indigo-400 font-black">Session Commander</p>
+                    <p className="text-xs font-bold text-white leading-none mb-1">{user?.name}</p>
+                    <p className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Meeting Host</p>
                  </div>
                  {!isMicOn && (
-                   <motion.div 
-                     initial={{ scale: 0 }}
-                     animate={{ scale: 1 }}
-                     className="ml-2 w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center border border-red-500/30"
-                   >
-                      <MicOff size={14} className="text-red-500" />
-                   </motion.div>
+                   <div className="ml-2 w-6 h-6 rounded-md bg-red-500/20 flex items-center justify-center border border-red-500/30">
+                      <MicOff size={12} className="text-red-500" />
+                   </div>
                  )}
               </div>
             </div>
 
             {/* Float Controls Overlay */}
-            <div className="absolute top-10 right-10 flex flex-col gap-3">
-               <button className="w-14 h-14 rounded-2xl bg-slate-950/40 backdrop-blur-2xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/5 transition-all shadow-2xl active:scale-90"><Monitor size={24} /></button>
-               <button className="w-14 h-14 rounded-2xl bg-slate-950/40 backdrop-blur-2xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/5 transition-all shadow-2xl active:scale-90"><Layout size={24} /></button>
+            <div className="absolute top-6 right-6 flex flex-col gap-2">
+               <button className="w-10 h-10 rounded-lg glass-card flex items-center justify-center text-slate-400 hover:text-white transition-all"><Monitor size={18} /></button>
+               <button className="w-10 h-10 rounded-lg glass-card flex items-center justify-center text-slate-400 hover:text-white transition-all"><Layout size={18} /></button>
             </div>
           </div>
         </main>
 
         {/* AI Sidebar */}
         <AnimatePresence>
-          {isAIPanelOpen && (
+          {isInsightsOpen && (
             <motion.aside 
-              initial={{ x: '100%', opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: '100%', opacity: 0 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="w-[450px] border-l border-white/5 relative z-40 h-full shadow-[-20px_0_50px_rgba(0,0,0,0.5)]"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              className="w-[380px] border-l border-slate-800 relative z-40 h-full bg-slate-900/50 backdrop-blur-3xl"
             >
-              <div className="h-full bg-slate-950/60 backdrop-blur-3xl overflow-hidden">
-                <AIPanel />
-              </div>
+              <AIPanel />
             </motion.aside>
           )}
         </AnimatePresence>
 
-        {/* Chat Sidebar (Mini) */}
+        {/* Chat Drawer */}
         <AnimatePresence>
           {isChatOpen && (
             <motion.aside 
-              initial={{ x: '100%', opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: '100%', opacity: 0 }}
-              className="fixed right-6 top-24 bottom-32 w-[380px] glass-card z-50 flex flex-col p-8 border-white/20 shadow-[0_30px_60px_rgba(0,0,0,0.8)]"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              className="fixed right-0 top-14 bottom-20 w-[320px] bg-slate-900 border-l border-slate-800 z-50 flex flex-col p-6 shadow-2xl"
             >
-              <div className="flex items-center justify-between mb-10">
-                 <div>
-                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-indigo-400 mb-1">Nexus Comms</h3>
-                    <p className="text-[9px] font-medium text-slate-500 uppercase tracking-widest">End-to-End Encrypted</p>
-                 </div>
-                 <button onClick={() => setIsChatOpen(false)} className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-all"><LogOut size={16} /></button>
+              <div className="flex items-center justify-between mb-8">
+                 <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500">Meeting Chat</h3>
+                 <button onClick={() => setIsChatOpen(false)} className="text-slate-500 hover:text-white transition-colors"><LogOut size={16} /></button>
               </div>
-              <div className="flex-1 overflow-y-auto space-y-8 mb-8 custom-scrollbar px-1">
+              <div className="flex-1 overflow-y-auto space-y-6 mb-6 custom-scrollbar">
                 {messages.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-slate-700 py-12">
-                    <MessageSquare size={48} className="opacity-10 mb-6" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.4em]">Awaiting Uplink</p>
-                  </div>
+                  <div className="h-full flex flex-col items-center justify-center text-slate-600 text-[10px] font-bold uppercase tracking-widest">No messages yet</div>
                 ) : (
                   messages.map((m, i) => (
-                    <div key={i} className={`flex flex-col gap-2 ${m.user === user.name ? 'items-end' : 'items-start'}`}>
-                       <div className="flex items-center gap-3 px-1">
-                          <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{m.user}</span>
-                          <span className="text-[9px] text-slate-600 font-bold">{m.time}</span>
+                    <div key={i} className="flex flex-col gap-1.5">
+                       <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-blue-500 uppercase">{m.user}</span>
+                          <span className="text-[9px] text-slate-600">{m.time}</span>
                        </div>
-                       <div className={`p-4 rounded-2x border text-sm max-w-[90%] leading-relaxed ${m.user === user.name ? 'bg-indigo-600/20 border-indigo-500/30 text-indigo-100 rounded-tr-none' : 'bg-white/5 border-white/10 text-slate-300 rounded-tl-none'}`}>
+                       <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-800 text-xs text-slate-300 leading-relaxed font-medium">
                           {m.text}
                        </div>
                     </div>
                   ))
                 )}
               </div>
-              <form onSubmit={handleSendMessage} className="relative mt-auto">
+              <form onSubmit={handleSendMessage} className="relative">
                  <input 
                    type="text" 
                    value={inputText}
                    onChange={(e) => setInputText(e.target.value)}
-                   placeholder="Transmit to nexus..."
-                   className="w-full h-14 bg-white/[0.03] border border-white/10 rounded-2xl px-6 text-sm focus:outline-none focus:border-indigo-500/50 shadow-inner"
+                   placeholder="Type a message..."
+                   className="w-full h-10 bg-slate-800 border border-slate-700 rounded-lg px-4 text-xs focus:outline-none focus:border-blue-500/50"
                  />
-                 <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-indigo-600 hover:bg-indigo-500 rounded-xl flex items-center justify-center text-white transition-all shadow-lg active:scale-90"><Send size={18} /></button>
+                 <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 text-blue-500 hover:text-blue-400 transition-colors"><Send size={16} /></button>
               </form>
             </motion.aside>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Modern Floating Controls */}
-      <footer className="h-28 flex items-center justify-center relative z-50">
-         <div className="control-bar group">
+      {/* Control Bar */}
+      <footer className="h-20 border-t border-slate-800 px-8 flex items-center justify-center relative bg-slate-950">
+         <div className="flex items-center gap-3">
             <button 
               onClick={toggleMic}
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 ${isMicOn ? 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10' : 'bg-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.4)] border-transparent'}`}
+              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isMicOn ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700' : 'bg-red-500 text-white'}`}
             >
-               {isMicOn ? <Mic size={24} /> : <MicOff size={24} />}
+               {isMicOn ? <Mic size={20} /> : <MicOff size={20} />}
             </button>
             <button 
               onClick={toggleCam}
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 ${isCamOn ? 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10' : 'bg-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.4)] border-transparent'}`}
+              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isCamOn ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700' : 'bg-red-500 text-white'}`}
             >
-               {isCamOn ? <Video size={24} /> : <VideoOff size={24} />}
+               {isCamOn ? <Video size={20} /> : <VideoOff size={20} />}
             </button>
             
-            <div className="h-10 w-[1px] bg-white/10 mx-3" />
+            <div className="h-8 w-[1px] bg-slate-800 mx-2" />
 
             <button 
               onClick={() => setIsChatOpen(!isChatOpen)}
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 ${isChatOpen ? 'bg-indigo-600 text-white shadow-indigo-600/30' : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10'}`}
+              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isChatOpen ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'}`}
             >
-               <MessageSquare size={24} />
+               <MessageSquare size={20} />
             </button>
-            <button className="w-16 h-16 rounded-2xl bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-all hover:scale-110"><Users size={24} /></button>
-            <button className="w-16 h-16 rounded-2xl bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-all hover:scale-110"><MoreHorizontal size={24} /></button>
+            <button className="w-12 h-12 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 flex items-center justify-center transition-all"><Users size={20} /></button>
+            <button className="w-12 h-12 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 flex items-center justify-center transition-all"><MoreHorizontal size={20} /></button>
 
-            <div className="h-10 w-[1px] bg-white/10 mx-3" />
+            <div className="h-8 w-[1px] bg-slate-800 mx-2" />
 
             <button 
               onClick={handleEndCall}
-              className="w-20 h-16 bg-red-600 hover:bg-red-500 text-white rounded-[1.25rem] transition-all shadow-[0_15px_30px_rgba(239,68,68,0.4)] flex items-center justify-center group/btn active:scale-90"
+              className="px-6 h-12 bg-red-600 hover:bg-red-500 text-white rounded-xl transition-all shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-widest"
             >
-               <PhoneOff size={28} className="group-hover/btn:rotate-[135deg] transition-all duration-500" />
+               <PhoneOff size={20} />
+               <span>End Session</span>
             </button>
-         </div>
-         
-         <div className="absolute left-10 bottom-10 hidden xl:block">
-            <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 bg-white/[0.03] px-6 py-3 rounded-2xl border border-white/10 shadow-inner">
-               <span className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,1)]" /> Neural Bridge Synchronized
-            </div>
          </div>
       </footer>
 

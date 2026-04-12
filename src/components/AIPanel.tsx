@@ -43,46 +43,39 @@ export default function AIPanel() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#050b18]/60 backdrop-blur-3xl overflow-hidden font-outfit">
-      <div className="p-8 border-b border-white/10 bg-slate-900/40 backdrop-blur-3xl">
+    <div className="flex flex-col h-full bg-slate-900 border-l border-slate-800 font-inter">
+      <div className="p-6 border-b border-slate-800 bg-slate-900/80 backdrop-blur-xl">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-             <motion.div 
-               animate={{ rotate: [0, 10, -10, 0] }}
-               transition={{ duration: 4, repeat: Infinity }}
-               className="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center shadow-[0_0_20px_rgba(79,70,229,0.2)]"
-             >
-                <Brain size={24} className="text-indigo-400" />
-             </motion.div>
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                <Brain size={20} className="text-blue-500" />
+             </div>
              <div>
-                <h3 className="text-lg font-black tracking-tight text-white leading-none mb-1.5">Neural Intelligence</h3>
-                <p className="text-[10px] uppercase tracking-[0.3em] text-indigo-400/70 font-black">Quantum Processor v2.0</p>
+                <h3 className="text-sm font-bold text-white leading-none mb-1">AI Meeting Assistant</h3>
+                <p className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Real-time Analysis</p>
              </div>
           </div>
           <div className="flex items-center gap-1.5">
-             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-             <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Active</span>
+             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+             <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Active</span>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
         <AnimatePresence mode="wait">
           {!recap && !isGenerating && (
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.1 }}
-              className="h-full flex flex-col items-center justify-center text-center px-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="h-full flex flex-col items-center justify-center text-center px-4"
             >
-              <div className="w-24 h-24 rounded-[3rem] bg-indigo-500/5 flex items-center justify-center mb-8 border border-white/5 shadow-inner relative group">
-                <Sparkles className="w-10 h-10 text-indigo-500/40 group-hover:scale-125 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-indigo-500/5 blur-2xl rounded-full" />
+              <div className="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center mb-6 border border-slate-700">
+                <FileText className="w-7 h-7 text-slate-500" />
               </div>
-              <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-500 mb-3">System Standby</p>
-              <h4 className="text-3xl font-black text-white leading-tight mb-6 tracking-tighter">Awaiting Signal<br />Processing.</h4>
-              <p className="text-sm text-slate-400 font-medium leading-relaxed max-w-[280px] mx-auto opacity-70">
-                Synchronize your audio streams to initiate autonomous recap synthesis.
+              <h4 className="text-base font-bold text-slate-200 mb-2 font-inter tracking-tight">Ready for analysis</h4>
+              <p className="text-xs text-slate-500 font-medium leading-relaxed max-w-[220px] mx-auto opacity-80">
+                Start speaking to capture insights. Click below to generate a comprehensive session summary.
               </p>
             </motion.div>
           )}
@@ -91,27 +84,20 @@ export default function AIPanel() {
             <motion.div 
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}
-               className="space-y-12"
+               className="space-y-10 py-10"
             >
-               <div className="flex flex-col items-center justify-center py-20 relative">
-                  <div className="relative z-10">
-                    <Loader2 size={64} className="text-indigo-500 animate-spin mb-8" />
-                    <motion.div 
-                      animate={{ scale: [1, 2, 1], opacity: [0.1, 0.3, 0.1] }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                      className="absolute inset-0 bg-indigo-500 blur-[80px] -z-10"
-                    />
-                  </div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.6em] text-indigo-400 animate-pulse">De-multiplexing Transmissions...</p>
+               <div className="flex flex-col items-center justify-center">
+                  <Loader2 size={40} className="text-blue-500 animate-spin mb-4" />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 animate-pulse">Processing Transcript...</p>
                </div>
                
-               <div className="space-y-8 px-2">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="space-y-4 opacity-20">
-                       <div className="h-2.5 bg-indigo-500/30 rounded-full w-1/3" />
-                       <div className="space-y-3">
-                          <div className="h-4 bg-white/5 rounded-xl w-full" />
-                          <div className="h-4 bg-white/5 rounded-xl w-4/5" />
+               <div className="space-y-6">
+                  {[1, 2].map(i => (
+                    <div key={i} className="space-y-3 opacity-20">
+                       <div className="h-2 bg-slate-700 rounded-full w-1/3" />
+                       <div className="space-y-2">
+                          <div className="h-3 bg-slate-800 rounded-lg w-full" />
+                          <div className="h-3 bg-slate-800 rounded-lg w-4/5" />
                        </div>
                     </div>
                   ))}
@@ -121,63 +107,48 @@ export default function AIPanel() {
 
           {recap && (
             <motion.div 
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="space-y-12"
+              className="space-y-10"
             >
-              <section className="space-y-6">
-                <div className="flex items-center gap-4">
-                   <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-                      <FileText size={16} className="text-indigo-400" />
-                   </div>
-                   <h5 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400">Transmission Abstract</h5>
+              <section className="space-y-4">
+                <div className="flex items-center gap-3">
+                   <Info size={14} className="text-blue-500" />
+                   <h5 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Meeting Abstract</h5>
                 </div>
-                <div className="p-6 rounded-[2rem] bg-indigo-600/5 border border-white/5 text-[15px] text-slate-300 leading-relaxed font-medium shadow-inner ring-1 ring-white/5">
+                <div className="p-4 rounded-xl bg-slate-800/40 border border-slate-800 text-sm text-slate-300 leading-relaxed font-medium">
                   {recap.summary}
                 </div>
               </section>
 
-              <section className="space-y-6">
-                <div className="flex items-center gap-4">
-                   <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                      <Target size={16} className="text-blue-400" />
-                   </div>
-                   <h5 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400">Neutral Keyframes</h5>
+              <section className="space-y-4">
+                <div className="flex items-center gap-3">
+                   <Activity size={14} className="text-emerald-500" />
+                   <h5 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Key Highlights</h5>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {recap.keyPoints.map((p, i) => (
-                    <motion.div 
-                      key={i} 
-                      whileHover={{ x: 10 }}
-                      className="flex gap-5 p-5 rounded-2xl bg-white/[0.02] border border-white/5 text-sm text-slate-200 font-bold group hover:border-indigo-500/40 hover:bg-white/[0.04] transition-all cursor-default shadow-sm ring-1 ring-white/5"
-                    >
-                       <Zap size={18} className="text-indigo-500 shrink-0 group-hover:scale-125 transition-transform" />
-                       <span className="leading-snug">{p}</span>
-                    </motion.div>
+                    <div key={i} className="flex gap-4 p-4 rounded-xl bg-slate-800/20 border border-slate-800 text-xs text-slate-300 font-medium hover:border-slate-700 transition-colors">
+                       <ChevronRight size={14} className="text-blue-500 shrink-0" />
+                       <span>{p}</span>
+                    </div>
                   ))}
                 </div>
               </section>
 
-              <section className="space-y-6 pb-20">
-                <div className="flex items-center gap-4">
-                   <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                      <ListTodo size={16} className="text-emerald-400" />
-                   </div>
-                   <h5 className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400">Matrix Protocols</h5>
+              <section className="space-y-4 pb-12">
+                <div className="flex items-center gap-3">
+                   <CheckCircle2 size={14} className="text-blue-500" />
+                   <h5 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Assigned Action Items</h5>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {recap.actionItems.map((item, i) => (
-                    <motion.div 
-                      key={i} 
-                      whileHover={{ scale: 1.02 }}
-                      className="flex items-center justify-between p-5 rounded-2xl bg-white/[0.03] border border-white/5 group hover:border-emerald-500/30 transition-all shadow-sm ring-1 ring-white/5"
-                    >
-                       <div className="flex items-center gap-4 overflow-hidden">
-                          <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${item.priority === 'high' ? 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.6)]' : item.priority === 'medium' ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.4)]' : 'bg-slate-500'}`} />
-                          <span className="text-sm text-slate-300 font-bold truncate tracking-tight group-hover:text-white transition-colors">{item.task}</span>
+                    <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-slate-800/40 border border-slate-800 group hover:bg-slate-800/60 transition-all">
+                       <div className="flex items-center gap-3 overflow-hidden">
+                          <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${item.priority === 'high' ? 'bg-red-500' : item.priority === 'medium' ? 'bg-amber-500' : 'bg-slate-500'}`} />
+                          <span className="text-xs text-slate-300 font-semibold truncate tracking-tight">{item.task}</span>
                        </div>
-                       <ChevronRight size={16} className="text-slate-700 group-hover:text-emerald-500 transition-colors shrink-0" />
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               </section>
@@ -186,22 +157,21 @@ export default function AIPanel() {
         </AnimatePresence>
       </div>
 
-      <div className="p-8 bg-slate-900/60 border-t border-white/10 backdrop-blur-3xl mt-auto">
+      <div className="p-6 bg-slate-950 border-t border-slate-800 mt-auto">
         {!recap && !isGenerating && (
           <button 
             onClick={generateNeuralRecap}
-            className="w-full h-18 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black rounded-2xl transition-all shadow-[0_15px_30px_rgba(79,70,229,0.3)] active:scale-[0.98] flex items-center justify-center gap-4 uppercase tracking-[0.2em] text-xs py-4"
+            className="w-full h-12 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-600/10 flex items-center justify-center gap-3 uppercase tracking-widest text-[10px]"
           >
-            <Sparkles size={20} className="animate-pulse" />
-            <span>Synthesize Intel</span>
+            <span>Generate Meeting Recap</span>
           </button>
         )}
         {recap && (
            <button 
              onClick={() => setRecap(null)}
-             className="w-full h-18 bg-white/5 hover:bg-white/10 text-slate-400 font-black rounded-2xl transition-all border border-white/5 active:scale-[0.98] uppercase tracking-[0.2em] text-[10px]"
+             className="w-full h-12 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition-all border border-slate-700 uppercase tracking-widest text-[10px]"
            >
-             Purge Insights
+             Dismiss Insights
            </button>
         )}
       </div>

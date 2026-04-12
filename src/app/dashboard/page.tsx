@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Video, LogOut, User as UserIcon, Calendar, Clock, ArrowRight, Brain, Sparkles, Loader2, ShieldCheck } from 'lucide-react';
+import { Plus, Video, LogOut, User as UserIcon, Calendar, Clock, ArrowRight, FileText, CheckCircle2, ChevronRight, Activity, Users, Settings } from 'lucide-react';
 
 export default function Dashboard() {
   const [meetingId, setMeetingId] = useState('');
@@ -13,227 +13,230 @@ export default function Dashboard() {
   
   const router = useRouter();
   const { user, logout } = useAuthStore();
-
-  useEffect(() => {
-    if (!user) {
-      const savedUser = localStorage.getItem('confera-auth');
-      if (!savedUser) router.push('/login');
-    }
-  }, [user, router]);
+  const displayName = user?.name || 'Guest User';
 
   const handleCreateMeeting = async () => {
     setIsCreateLoading(true);
     setError('');
     
     try {
-      // Robust client-side ID generation as requested (Date.now() or similar)
-      const meetingId = `mtg-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 5)}`;
-      
-      // Simulate orchestration delay
+      const id = `mtg-${Date.now().toString(36)}`;
+      // Simulate network delay for real feel
       await new Promise(r => setTimeout(r, 800));
-      
-      router.push(`/meeting/${meetingId}`);
+      router.push(`/meeting/${id}`);
     } catch (err: any) {
-      setError('Failed to orchestrate new session.');
+      setError('Failed to initialize meeting session.');
     } finally {
       setIsCreateLoading(false);
     }
   };
-
 
   const handleJoinMeeting = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanId = meetingId.trim();
     
     if (!cleanId) {
-      setError('Neural Matrix ID cannot be empty.');
+      setError('Please enter a valid Meeting ID.');
       return;
     }
     
     setIsJoinLoading(true);
     setError('');
 
-    // Instant navigation for better UX
     setTimeout(() => {
       router.push(`/meeting/${cleanId}`);
       setIsJoinLoading(false);
     }, 500);
   };
 
-
-  if (!user) return null;
-
   return (
-    <div className="min-h-screen bg-mesh text-white flex flex-col font-outfit">
-      {/* Premium Navbar */}
-      <nav className="h-20 border-b border-white/5 bg-slate-950/40 backdrop-blur-3xl px-8 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-4 group cursor-pointer">
-          <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/30 group-hover:rotate-12 transition-transform">
-            <Video className="text-white w-6 h-6" />
+    <div className="min-h-screen bg-[#0F172A] text-slate-100 flex flex-col font-inter">
+      {/* SaaS Navbar */}
+      <nav className="h-16 border-b border-slate-800 bg-slate-900/50 backdrop-blur-xl px-6 flex items-center justify-between sticky top-0 z-50">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <Video className="text-white w-5 h-5" />
           </div>
-          <span className="text-2xl font-black tracking-tighter">Confera<span className="text-indigo-500">AI</span></span>
+          <span className="text-lg font-bold tracking-tight text-white">Confera <span className="text-blue-500">AI</span></span>
         </div>
         
-        <div className="flex items-center gap-6">
-          <div className="hidden md:flex items-center gap-4 px-5 py-2.5 bg-white/[0.03] rounded-2xl border border-white/5 shadow-inner">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-              <UserIcon size={20} className="text-indigo-400" />
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 px-3 py-1.5 bg-slate-800/50 rounded-lg border border-slate-700">
+            <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center">
+              <UserIcon size={14} className="text-slate-300" />
             </div>
-            <div>
-              <p className="text-sm font-black leading-none mb-1">{user.name}</p>
-              <p className="text-[10px] text-indigo-400 font-black uppercase tracking-[0.2em]">Matrix Commander</p>
-            </div>
+            <span className="text-sm font-medium text-slate-200">{displayName}</span>
           </div>
-          <button 
-            onClick={() => { logout(); router.push('/login'); }}
-            className="w-12 h-12 rounded-2xl bg-red-500/10 hover:bg-red-600 text-red-500 hover:text-white transition-all flex items-center justify-center border border-red-500/10 shadow-lg active:scale-95"
-          >
-            <LogOut size={20} />
-          </button>
+          {user && (
+            <button 
+              onClick={() => { logout(); router.push('/login'); }}
+              className="p-2 text-slate-400 hover:text-white transition-colors"
+            >
+              <LogOut size={18} />
+            </button>
+          )}
         </div>
       </nav>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Left Side: Actions */}
-        <div className="lg:col-span-4 space-y-10">
-          <motion.div 
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="glass-card p-10 space-y-10 border-white/10"
-          >
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                 <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400">Neutral Sync Ready</h2>
-              </div>
-              <h1 className="text-4xl font-black tracking-tight leading-none text-white">Salutations,<br /><span className="text-indigo-500">{user.name.split(' ')[0]}</span>.</h1>
+        {/* Hero Actions (Left) */}
+        <div className="lg:col-span-4 space-y-6">
+          <div className="enterprise-card p-8 bg-gradient-to-br from-slate-900 to-slate-900/50">
+            <div className="mb-8">
+              <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">Welcome back, {user?.name?.split(' ')[0] || 'Guest'}</h1>
+              <p className="text-sm text-slate-400 font-medium">Start or join your meetings with AI-powered insights</p>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
               <button 
                 onClick={handleCreateMeeting}
                 disabled={isCreateLoading}
-                className="w-full h-18 bg-white text-black hover:bg-slate-100 font-black rounded-[1.5rem] transition-all shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-[0.98] flex items-center justify-center gap-4 disabled:opacity-50 text-lg py-4"
+                className="btn-primary w-full text-base py-6"
               >
-                {isCreateLoading ? <Loader2 className="animate-spin" /> : <><Plus size={24} /> Orchestrate Session</>}
+                <Plus size={20} className="mr-1" /> Start New Meeting
               </button>
 
-              <form onSubmit={handleJoinMeeting} className="space-y-4 pt-8 border-t border-white/5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Connect via ID</label>
-                <div className="flex gap-3">
-                  <input 
-                    type="text" 
-                    value={meetingId}
-                    onChange={(e) => setMeetingId(e.target.value)}
-                    placeholder="Nexus Link..."
-                    className="flex-1 h-16 bg-white/[0.03] border border-white/10 rounded-2xl px-6 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-                  />
-                  <button 
-                    type="submit"
-                    disabled={isJoinLoading || !meetingId.trim()}
-                    className="w-16 h-16 bg-indigo-600 hover:bg-indigo-500 rounded-2xl flex items-center justify-center transition-all disabled:opacity-50 shadow-lg shadow-indigo-600/20 active:scale-90"
-                  >
-                    {isJoinLoading ? <Loader2 size={24} className="animate-spin text-white" /> : <ArrowRight size={24} className="text-white" />}
-                  </button>
+              <form onSubmit={handleJoinMeeting} className="space-y-4 pt-6 border-t border-slate-800">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Enter Meeting ID</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      value={meetingId}
+                      onChange={(e) => setMeetingId(e.target.value)}
+                      placeholder="e.g. mtg-k9x2z5"
+                      className="input-field flex-1"
+                    />
+                    <button 
+                      type="submit"
+                      disabled={isJoinLoading || !meetingId.trim()}
+                      className="h-11 px-4 bg-slate-800 hover:bg-slate-700 rounded-lg flex items-center justify-center transition-all disabled:opacity-50 border border-slate-700"
+                    >
+                      <ChevronRight size={20} className="text-slate-300" />
+                    </button>
+                  </div>
                 </div>
               </form>
             </div>
 
             {error && (
-              <motion.p 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-red-400 text-[10px] font-black uppercase tracking-widest text-center bg-red-500/10 p-4 rounded-2xl border border-red-500/20 shadow-lg"
-              >
-                {error}
-              </motion.p>
+              <p className="mt-4 text-red-400 text-xs font-medium bg-red-400/10 p-3 rounded-lg border border-red-400/20 text-center">{error}</p>
             )}
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="p-8 bg-gradient-to-br from-indigo-600 via-indigo-700 to-blue-800 rounded-[2.5rem] space-y-6 shadow-[0_25px_50px_rgba(79,70,229,0.4)] relative overflow-hidden group border border-white/20"
-          >
-            <div className="absolute top-[-20%] right-[-20%] p-4 opacity-10 group-hover:scale-125 group-hover:rotate-12 transition-all duration-700">
-              <Brain size={250} />
-            </div>
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-4">
-                 <Sparkles size={20} className="text-indigo-200" />
-                 <h3 className="text-xs font-black uppercase tracking-[0.4em] text-indigo-100">Neural Core Active</h3>
-              </div>
-              <p className="text-2xl font-black leading-tight text-white mb-2">Integrated Recap Synthesis Enabled</p>
-              <p className="text-sm text-indigo-100/70 font-medium">Capture every transmission with autonomous AI intelligence.</p>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Right Side: Activity/Meetings */}
-        <div className="lg:col-span-8 flex flex-col gap-10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-               <h2 className="text-4xl font-black tracking-tighter text-white">Recent Transmissions</h2>
-               <div className="px-4 py-1.5 bg-indigo-500/10 rounded-full border border-indigo-500/20 text-[10px] font-black text-indigo-400 uppercase tracking-widest">3 Active Nodes</div>
-            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Quick Insights Section */}
+          <div className="enterprise-card p-6 space-y-6">
+            <div className="flex items-center gap-2 mb-2">
+               <Activity size={16} className="text-blue-500" />
+               <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400">Personal Insights</h3>
+            </div>
+            <div className="p-4 bg-slate-800/20 rounded-xl border border-slate-800/50">
+               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Speaking Distribution</p>
+               <div className="flex items-center justify-between text-sm font-semibold mb-3">
+                  <span className="text-blue-400">You 60%</span>
+                  <span className="text-slate-500">Others 40%</span>
+               </div>
+               <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden flex">
+                  <div className="h-full bg-blue-500" style={{ width: '60%' }} />
+               </div>
+            </div>
+            <div className="space-y-3">
+               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Upcoming Syncs</p>
+               <div className="flex items-center gap-3 p-3 bg-slate-800/30 rounded-lg hover:bg-slate-800/50 cursor-pointer transition-colors">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex flex-col items-center justify-center text-emerald-500">
+                     <span className="text-xs font-bold">14</span>
+                     <span className="text-[8px] uppercase">APR</span>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold">Product Strategy Review</p>
+                    <p className="text-[10px] text-slate-500">10:00 AM • 45 mins</p>
+                  </div>
+               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Meeting Logs & Activity (Right) */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-white tracking-tight">Recent Meetings</h2>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
             {[
-              { id: 'x5y-2z8', title: 'Quantum Encryption Standards', time: '14:30', date: 'TODAY' },
-              { id: 'm9w-1p0', title: 'Neural Network Optimization', time: '10:00', date: 'TODAY' },
-              { id: 'b3k-7v4', title: 'Nexus Core Maintenance', time: 'YESTERDAY', date: 'YESTERDAY' },
+              { id: 'mtg-q4str', title: 'Q4 Product Stratagem', time: 'Yesterday, 2:30 PM', participants: 8, status: 'Completed', date: 'apr 11' },
+              { id: 'mtg-sync', title: 'Design Alignment Sync', time: 'Today, 11:00 AM', participants: 4, status: 'Live', date: 'today' },
+              { id: 'mtg-hrb', title: 'Weekly Core Standup', time: 'Today, 9:00 AM', participants: 12, status: 'Follow-up Required', date: 'today' },
             ].map((m, i) => (
               <motion.div 
                 key={m.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 + 0.3 }}
-                className="glass-card hover:bg-white/[0.06] transition-all group p-8 border-white/10 hover:border-indigo-500/50 cursor-pointer relative overflow-hidden"
+                transition={{ delay: i * 0.05 }}
+                className="enterprise-card hover:bg-slate-800/50 transition-all p-5 flex items-center gap-6 cursor-pointer group"
                 onClick={() => router.push(`/meeting/${m.id}`)}
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-[50px] -z-10 group-hover:bg-indigo-500/20 transition-all" />
-                
-                <div className="flex items-start justify-between mb-10">
-                   <div className="w-14 h-14 rounded-2xl bg-slate-900 border border-white/5 flex items-center justify-center group-hover:bg-indigo-600 group-hover:border-indigo-500 group-hover:scale-110 transition-all duration-300 shadow-xl">
-                      <Video size={24} className="text-slate-500 group-hover:text-white" />
-                   </div>
-                   <div className="p-3 bg-white/5 rounded-xl opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                      <ArrowRight size={20} className="text-indigo-400" />
-                   </div>
+                <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+                  <Video size={20} className="text-slate-400 group-hover:text-white" />
                 </div>
-                <h3 className="font-black text-2xl mb-6 leading-tight tracking-tight text-white group-hover:text-indigo-400 transition-colors">{m.title}</h3>
-                <div className="flex items-center gap-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                   <div className="flex items-center gap-2.5">
-                      <Clock size={14} className="text-indigo-500" /> {m.time}
-                   </div>
-                   <div className="flex items-center gap-2.5">
-                      <Calendar size={14} className="text-indigo-500" /> {m.date}
-                   </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="font-semibold text-white">{m.title}</h3>
+                    <span className={`status-badge ${m.status === 'Live' ? 'status-live' : m.status === 'Completed' ? 'status-completed' : 'status-followup'}`}>
+                      {m.status}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4 text-[10px] font-medium text-slate-500 uppercase tracking-wider">
+                     <span className="flex items-center gap-1.5"><Clock size={12} /> {m.time}</span>
+                     <span className="flex items-center gap-1.5"><Users size={12} /> {m.participants} participants</span>
+                  </div>
                 </div>
+                <ArrowRight size={18} className="text-slate-700 group-hover:text-blue-500 translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
               </motion.div>
             ))}
-            
-            <motion.div 
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               transition={{ delay: 0.7 }}
-               className="glass-card flex flex-col items-center justify-center p-8 border-dashed border-2 border-white/10 hover:bg-white/5 hover:border-indigo-500/40 transition-all cursor-pointer group active:scale-95 min-h-[250px]"
-               onClick={handleCreateMeeting}
-            >
-              <div className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center mb-6 group-hover:rotate-90 group-hover:border-indigo-500/50 group-hover:bg-indigo-500/10 transition-all duration-500">
-                <Plus size={32} className="text-slate-500 group-hover:text-indigo-400" />
-              </div>
-              <p className="text-xs font-black uppercase tracking-[0.35em] text-slate-500 group-hover:text-indigo-400">Initialize New Link</p>
-            </motion.div>
+          </div>
+
+          {/* AI Insights Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <div className="enterprise-card p-6 flex flex-col">
+                <div className="flex items-center gap-3 mb-6">
+                   <FileText size={18} className="text-blue-500" />
+                   <h3 className="text-sm font-bold text-white uppercase tracking-widest">Last Meeting Action Items</h3>
+                </div>
+                <ul className="space-y-4 flex-1">
+                   {[
+                     "Finalize design tokens for enterprise layout",
+                     "Schedule stakeholders review for recap feature",
+                     "Audit media stream performance in low bandwidth"
+                   ].map((item, i) => (
+                     <li key={i} className="flex gap-4 text-sm text-slate-300 font-medium">
+                        <CheckCircle2 size={16} className="text-blue-500 shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                     </li>
+                   ))}
+                </ul>
+                <button className="mt-8 text-xs font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest flex items-center gap-2">View Full Board <ChevronRight size={14} /></button>
+             </div>
+
+             <div className="enterprise-card p-6 flex flex-col bg-slate-900/50 border-blue-500/20 ring-1 ring-blue-500/10">
+                <div className="flex items-center gap-3 mb-6">
+                   <Activity size={18} className="text-emerald-500" />
+                   <h3 className="text-sm font-bold text-white uppercase tracking-widest">AI Summary Preview</h3>
+                </div>
+                <p className="text-sm text-slate-400 leading-relaxed font-medium mb-8">
+                  The team reached consensus on prioritizing the enterprise refactor. Speaking time was evenly distributed, though technical hurdles in media sync were highlighted...
+                </p>
+                <div className="mt-auto">
+                   <button className="btn-secondary w-full text-xs uppercase tracking-widest">View Full Recap</button>
+                </div>
+             </div>
           </div>
         </div>
       </main>
 
-      <footer className="p-10 border-t border-white/5 bg-slate-950/20 text-center backdrop-blur-md">
-         <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-600">© 2026 CONFERA NEURAL SYSTEMS • QUANTUM ENCRYPTED TRANSMISSION</p>
+      <footer className="p-8 border-t border-slate-800 text-center bg-slate-900/40">
+         <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-600">Confera Enterprise Platform • Secure Session Protocol</p>
       </footer>
     </div>
   );

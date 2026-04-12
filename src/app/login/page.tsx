@@ -46,100 +46,80 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center bg-mesh overflow-hidden font-outfit">
+  return (
+    <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-6 font-inter">
+      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-600/5 to-transparent -z-10" />
+
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-md p-6 relative z-10"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md"
       >
-        <div className="glass-card p-10 relative overflow-hidden ring-1 ring-white/10">
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
+        <div className="enterprise-card p-10 bg-slate-900 border-slate-800 shadow-2xl relative overflow-hidden">
+          {/* Subtle Accent */}
+          <div className="absolute top-0 left-0 w-full h-1 bg-blue-600" />
           
           <div className="flex flex-col items-center mb-10">
-            <motion.div 
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="w-20 h-20 rounded-[2rem] bg-indigo-600 flex items-center justify-center mb-6 shadow-[0_0_40px_rgba(79,70,229,0.5)]"
-            >
-              <Shield className="text-white w-10 h-10" />
-            </motion.div>
-            <h1 className="text-5xl font-black text-white tracking-tighter mb-2">Confera<span className="text-indigo-500">AI</span></h1>
-            <p className="text-slate-400 font-medium tracking-wide">Next-Gen Video Collaboration</p>
+            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-500/20">
+              <Video className="text-white w-6 h-6" />
+            </div>
+            <h1 className="text-2xl font-bold text-white tracking-tight">Confera <span className="text-blue-500">AI</span></h1>
+            <p className="text-sm text-slate-500 font-medium mt-1">Enterprise Video Conferencing</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
-            <AnimatePresence mode="wait">
-              {error && (
-                <motion.div 
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-[10px] font-black uppercase tracking-widest text-center"
-                >
-                  {error}
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Universal ID</label>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Account Identifier</label>
               <input 
-                type="email" 
+                type="text" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@nexus.ai"
+                placeholder="Name or Email"
+                className="input-field w-full"
                 required
-                className="w-full h-14 bg-white/[0.03] border border-white/5 rounded-2xl px-6 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-medium placeholder:text-slate-600"
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Access Token</label>
-              <div className="relative">
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  className="w-full h-14 bg-white/[0.03] border border-white/5 rounded-2xl px-6 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-medium placeholder:text-slate-600"
-                />
-                <button 
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white transition-colors p-2"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Security Key</label>
+                <button type="button" className="text-[10px] font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest">Forgot?</button>
               </div>
+              <input 
+                type="password" 
+                placeholder="••••••••"
+                className="input-field w-full"
+              />
             </div>
 
+            {error && (
+              <p className="text-red-400 text-xs font-semibold text-center bg-red-400/5 py-3 rounded-lg border border-red-400/10">{error}</p>
+            )}
+
             <button 
-              type="submit" 
+              type="submit"
               disabled={isLoading}
-              className="w-full h-16 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(79,70,229,0.3)] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 mt-4"
+              className="btn-primary w-full py-6 text-sm uppercase tracking-widest"
             >
               {isLoading ? (
-                <Loader2 className="w-6 h-6 animate-spin" />
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                <>
-                  <LogIn size={20} />
-                  <span>Enter Neural Space</span>
-                </>
+                'Sign In to Dashboard'
               )}
             </button>
           </form>
 
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-10 flex items-center justify-center gap-2 text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em]"
-          >
-            <Sparkles size={12} className="text-indigo-500" />
-            <span>Encrypted Quantum Link</span>
-          </motion.div>
+          <p className="mt-8 text-center text-xs text-slate-500 font-medium">
+            New to Confera? <button className="text-blue-500 hover:text-blue-400 font-bold">Request Access</button>
+          </p>
+        </div>
+
+        <div className="mt-8 flex items-center justify-between px-2">
+           <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">v2.4.0 SaaS Edition</p>
+           <div className="flex gap-4">
+              <button className="text-[10px] font-bold text-slate-600 hover:text-slate-400 uppercase tracking-widest">Privacy</button>
+              <button className="text-[10px] font-bold text-slate-600 hover:text-slate-400 uppercase tracking-widest">Terms</button>
+           </div>
         </div>
       </motion.div>
     </div>

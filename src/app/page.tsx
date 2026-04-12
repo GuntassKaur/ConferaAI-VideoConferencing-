@@ -19,13 +19,12 @@ export default function RootPage() {
   }, [user, router]);
 
   return (
-    <div className="min-h-screen bg-[#020617] flex items-center justify-center">
-      <div className="flex flex-col items-center gap-6">
+    <div className="min-h-screen bg-[#0F172A] flex items-center justify-center font-inter">
+      <div className="flex flex-col items-center gap-4">
         <div className="relative">
-          <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
-          <div className="absolute inset-0 bg-indigo-500 blur-2xl opacity-20" />
+          <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
         </div>
-        <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-500 animate-pulse">Initializing Neural Link</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-500">Initializing Secure Session</p>
       </div>
     </div>
   );
