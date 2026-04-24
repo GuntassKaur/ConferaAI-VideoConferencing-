@@ -1,176 +1,114 @@
 'use client';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/useAuthStore';
 import { motion } from 'framer-motion';
-import { 
-  ArrowRight, Shield, Video, Sparkles, Brain, 
-  MessageSquare, Users, Zap, CheckCircle2,
-  Lock, Globe, Activity
-} from 'lucide-react';
+import { Video, ChevronRight, Shield, Brain, Zap, Globe } from 'lucide-react';
 import Link from 'next/link';
 
-export default function RootPage() {
-  const router = useRouter();
-  const { user } = useAuthStore();
-
-  useEffect(() => {
-    // Optional: Auto-redirect if already logged in
-    // if (user) router.push('/dashboard');
-  }, [user, router]);
-
-  const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" }
-    })
-  };
-
+export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#0F172A] text-slate-100 selection:bg-blue-500/30 font-inter overflow-x-hidden">
-      {/* Background Decorative Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full" />
+    <div className="min-h-screen bg-[#09090b] text-white selection:bg-indigo-500/30 overflow-hidden font-inter">
+      {/* Decorative Background */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/10 blur-[150px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[150px] rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(#1e1e1e_1px,transparent_1px)] [background-size:40px_40px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20" />
       </div>
 
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 border-b border-slate-800/50 bg-slate-900/50 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
-              <Video className="text-white w-4 h-4" />
-            </div>
-            <span className="text-xl font-bold tracking-tight">Confera <span className="text-blue-500">AI</span></span>
+      <nav className="relative z-50 h-20 flex items-center justify-between px-8 max-w-7xl mx-auto">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <Video className="text-white w-4 h-4" />
           </div>
-          <div className="flex items-center gap-6">
-            <Link href="/login" className="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Sign In</Link>
-            <Link href="/dashboard" className="btn-primary h-9 px-5 text-[10px] uppercase tracking-widest font-bold">Launch Dashboard</Link>
-          </div>
+          <span className="text-xl font-black tracking-tighter">Confera <span className="text-indigo-500">AI</span></span>
+        </div>
+        <div className="flex items-center gap-6">
+          <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Login</Link>
+          <Link href="/signup" className="px-5 py-2.5 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-all active:scale-95 shadow-lg">Start Free</Link>
         </div>
       </nav>
 
-      <main>
-        {/* Hero Section */}
-        <section className="relative pt-40 pb-20 px-6">
-          <div className="max-w-7xl mx-auto text-center">
-            <motion.div 
-              custom={0} initial="hidden" animate="visible" variants={fadeUp}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-500/20 bg-blue-500/5 mb-8"
-            >
-              <Sparkles size={14} className="text-blue-400" />
-              <span className="text-[10px] font-bold text-blue-300 uppercase tracking-[0.2em]">The Future of Professional Sync</span>
-            </motion.div>
+      {/* Hero Section */}
+      <main className="relative z-10 max-w-7xl mx-auto px-8 pt-32 pb-40 flex flex-col items-center text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-[0.2em] mb-8"
+        >
+          <Zap size={10} className="fill-indigo-400" />
+          <span>Next-Generation Neural Mesh Active</span>
+        </motion.div>
 
-            <motion.h1 
-              custom={1} initial="hidden" animate="visible" variants={fadeUp}
-              className="text-5xl md:text-8xl font-black tracking-tight mb-8 leading-[1.1]"
-            >
-              Intelligence in <br />
-              <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-blue-600 bg-clip-text text-transparent">Every Interaction.</span>
-            </motion.h1>
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-6xl md:text-8xl font-black tracking-tight mb-8 leading-[0.9]"
+        >
+          Meetings Reimagined. <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-blue-400 to-indigo-500 bg-[length:200%_auto] animate-pulse">Intelligence Built-in.</span>
+        </motion.h1>
 
-            <motion.p 
-              custom={2} initial="hidden" animate="visible" variants={fadeUp}
-              className="max-w-2xl mx-auto text-lg md:text-xl text-slate-400 font-medium mb-12 leading-relaxed"
-            >
-              Confera AI orchestrates executive-level video sessions with integrated 
-              neural recap, secure protocols, and real-time collaboration.
-            </motion.p>
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="max-w-2xl text-lg md:text-xl text-slate-400 font-medium leading-relaxed mb-12"
+        >
+          Confera AI utilizes decentralized WebRTC and neural processing to deliver 4K crystal-clear sessions with real-time AI insights, recaps, and tactical support.
+        </motion.p>
 
-            <motion.div 
-              custom={3} initial="hidden" animate="visible" variants={fadeUp}
-              className="flex flex-col sm:flex-row items-center justify-center gap-6"
-            >
-              <Link href="/dashboard" className="w-full sm:w-auto">
-                <button className="btn-primary w-full sm:w-auto px-10 py-5 text-sm uppercase tracking-widest shadow-2xl shadow-blue-600/20">
-                  Join Free Session <ArrowRight size={18} />
-                </button>
-              </Link>
-              <div className="flex items-center gap-4 text-slate-500 text-[10px] font-bold uppercase tracking-widest">
-                <span className="flex items-center gap-1.5"><Shield size={14} className="text-emerald-500" /> SOC2 Ready</span>
-                <span className="flex items-center gap-1.5"><Lock size={14} className="text-emerald-500" /> AES-256</span>
-                <span className="flex items-center gap-1.5"><Globe size={14} className="text-emerald-500" /> Edge Sync</span>
-              </div>
-            </motion.div>
-          </div>
-        </section>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="flex flex-col sm:flex-row items-center gap-4"
+        >
+          <Link 
+            href="/signup" 
+            className="group px-10 py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[12px] uppercase tracking-[0.2em] rounded-2xl transition-all shadow-2xl shadow-indigo-600/20 flex items-center gap-3 active:scale-95"
+          >
+            <span>Initialize Session</span>
+            <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+          <button className="px-10 py-5 bg-[#111113] border border-[#27272a] hover:border-slate-700 text-slate-300 font-black text-[12px] uppercase tracking-[0.2em] rounded-2xl transition-all hover:bg-[#18181b] active:scale-95 shadow-xl">
+             View Protocol
+          </button>
+        </motion.div>
 
-        {/* Features Grid */}
-        <section className="py-32 px-6 border-t border-slate-800/50 bg-slate-900/20">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                { 
-                  title: "Neural Recap", 
-                  desc: "Automated session summaries with action-item extraction powered by Confera Brain.", 
-                  icon: Brain, 
-                  color: "text-blue-400" 
-                },
-                { 
-                  title: "Encryption Matrix", 
-                  desc: "Deep-layer security for executive communications and sensitive corporate assets.", 
-                  icon: Shield, 
-                  color: "text-indigo-400" 
-                },
-                { 
-                  title: "Adaptive HD", 
-                  desc: "Global mesh transmission ensures crystal clear visuals even on variable bandwidth.", 
-                  icon: Zap, 
-                  color: "text-emerald-400" 
-                }
-              ].map((f, i) => (
-                <motion.div 
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="enterprise-card p-10 group hover:border-blue-500/30"
-                >
-                  <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center mb-8 border border-slate-700 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-xl">
-                    <f.icon size={28} className={f.color + " group-hover:text-white"} />
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-4 tracking-tight">{f.title}</h3>
-                  <p className="text-slate-400 text-sm leading-relaxed font-medium">{f.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Social Proof / Stats */}
-        <section className="py-24 px-6 relative">
-          <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { label: "Active Sessions", val: "24.8k+" },
-              { label: "Global Nodes", val: "142" },
-              { label: "Uptime SLA", val: "99.99%" },
-              { label: "Trust Score", val: "10.0" }
-            ].map((s, i) => (
-              <div key={i} className="text-center">
-                <p className="text-3xl md:text-5xl font-black text-white mb-2">{s.val}</p>
-                <p className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Feature Grid */}
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mt-32 grid grid-cols-1 md:grid-cols-3 gap-8 w-full"
+        >
+           {[
+             { icon: Shield, title: 'Neural Encryption', desc: 'End-to-end decentralized security protocol for every byte.' },
+             { icon: Brain, title: 'Tactical AI', desc: 'Real-time session insights powered by Gemini 1.5 Pro.' },
+             { icon: Globe, title: 'Global Mesh', desc: 'Low-latency connectivity via decentralized edge nodes.' }
+           ].map((feature, i) => (
+             <div key={i} className="p-8 bg-[#111113] border border-[#27272a] rounded-[32px] text-left hover:border-indigo-500/50 transition-all group shadow-xl">
+                <div className="w-12 h-12 bg-indigo-600/10 rounded-2xl flex items-center justify-center text-indigo-500 mb-6 group-hover:scale-110 transition-transform">
+                   <feature.icon size={24} />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2">{feature.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">{feature.desc}</p>
+             </div>
+           ))}
+        </motion.div>
       </main>
 
-      <footer className="py-20 border-t border-slate-800 bg-slate-900/40">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-2">
-            <Video className="text-blue-500 w-5 h-5" />
-            <span className="text-lg font-bold">Confera <span className="text-blue-500">AI</span></span>
-          </div>
-          <p className="text-xs text-slate-500 font-medium">© 2026 Confera Enterprise Platform. All rights reserved.</p>
-          <div className="flex gap-8">
-            <Link href="#" className="text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors">Privacy</Link>
-            <Link href="#" className="text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-white transition-colors">Security</Link>
-          </div>
-        </div>
+      {/* Footer */}
+      <footer className="relative z-10 py-20 border-t border-[#27272a] bg-[#09090b]/50 backdrop-blur-xl">
+         <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <Video className="text-white w-3 h-3" />
+              </div>
+              <span className="text-lg font-black tracking-tighter">Confera <span className="text-indigo-500 text-sm">AI</span></span>
+            </div>
+            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.4em]">© 2024 Confera Neural Network • Secure Protocol v4.1</p>
+         </div>
       </footer>
     </div>
   );

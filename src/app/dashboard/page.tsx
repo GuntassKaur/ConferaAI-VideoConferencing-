@@ -23,7 +23,7 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   
   const router = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user, logout, setPendingSession } = useAuthStore();
   const displayName = user?.name || 'Guest User';
 
   useEffect(() => {
@@ -51,19 +51,9 @@ export default function Dashboard() {
     setError('');
     
     try {
-      const response = await fetch('/api/create-meeting', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user?.id, title: 'New Executive Session' }),
-      });
-      
-      const data = await response.json();
-      if (!response.ok) {
-        console.error('Session initiation failed:', response.status, data.error);
-        throw new Error(data.error || `Server Error ${response.status}`);
-      }
-
-      router.push(`/meeting/${data.meeting.id}`);
+      const newRoomId = crypto.randomUUID();
+      setPendingSession({ roomId: newRoomId, timestamp: Date.now() });
+      router.push(`/session/${newRoomId}`);
     } catch (err: unknown) {
       console.error('Initiation Error Details:', err);
       setError(err instanceof Error ? err.message : 'Failed to initialize session.');
@@ -100,7 +90,7 @@ export default function Dashboard() {
       return;
     }
     setIsJoinLoading(true);
-    router.push(`/meeting/${cleanId}`);
+    router.push(`/session/${cleanId}`);
   };
 
   return (
@@ -254,7 +244,7 @@ export default function Dashboard() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.05 }}
                       className="enterprise-card p-5 bg-slate-900 border-slate-800 hover:border-slate-700 transition-all group flex items-center justify-between cursor-pointer"
-                      onClick={() => router.push(`/meeting/${meeting.meetingId}`)}
+                      onClick={() => router.push(`/session/${meeting.meetingId}`)}
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all">

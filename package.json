@@ -9,6 +9,7 @@
     "lint": "eslint src"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@livekit/components-react": "^2.9.20",
     "@livekit/components-styles": "^1.2.0",
     "@types/bcryptjs": "^2.4.6",

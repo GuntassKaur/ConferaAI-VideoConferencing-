@@ -7,9 +7,16 @@ interface User {
   email: string;
 }
 
+interface PendingSession {
+  roomId: string;
+  timestamp: number;
+}
+
 interface AuthState {
   user: User | null;
+  pendingSession: PendingSession | null;
   setUser: (user: User | null) => void;
+  setPendingSession: (session: PendingSession | null) => void;
   logout: () => void;
 }
 
@@ -17,8 +24,12 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
+      pendingSession: null,
       setUser: (user) => set({ user }),
-      logout: () => set({ user: null }),
+      setPendingSession: (pendingSession) => set({ pendingSession }),
+      logout: () => {
+        set({ user: null, pendingSession: null });
+      },
     }),
     {
       name: 'confera-auth',

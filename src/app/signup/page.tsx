@@ -1,37 +1,58 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Mail, Lock, Eye, EyeOff, Activity, Video, ChevronRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Activity, Video, ChevronRight, User } from 'lucide-react';
 import Link from 'next/link';
 
-export default function LoginPage() {
+export default function SignupPage() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [strength, setStrength] = useState(0);
   
   const router = useRouter();
   const setUser = useAuthStore((state) => state.setUser);
 
+  // Password strength logic
+  useEffect(() => {
+    let s = 0;
+    if (password.length >= 6) s++;
+    if (/[A-Z]/.test(password)) s++;
+    if (/[0-9]/.test(password)) s++;
+    if (/[^A-Za-z0-9]/.test(password)) s++;
+    setStrength(s);
+  }, [password]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setError(true);
+      setErrorMessage('Access keys do not match.');
+      // Shake animation trigger
+      setTimeout(() => setError(false), 500);
+      return;
+    }
+
     setIsLoading(true);
     setError(false);
     setErrorMessage('');
     
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ name, email, password }),
       });
       const data = await res.json();
       
-      if (!res.ok) throw new Error(data.error || 'Authentication failed');
+      if (!res.ok) throw new Error(data.error || 'Identity registration failed');
       
       setUser({ id: data.user.id, name: data.user.name, email: data.user.email });
       router.push('/dashboard');
@@ -82,17 +103,32 @@ export default function LoginPage() {
         <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-50" />
         
         <div className="flex gap-4 mb-8 p-1 bg-[#09090b] rounded-xl border border-[#27272a]">
-           <button className="flex-1 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] bg-[#111113] text-white rounded-lg border border-[#27272a] shadow-lg">Login</button>
-           <Link href="/signup" className="flex-1 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-slate-300 text-center flex items-center justify-center transition-colors">Sign Up</Link>
+           <Link href="/login" className="flex-1 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-slate-300 text-center flex items-center justify-center transition-colors">Login</Link>
+           <button className="flex-1 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] bg-[#111113] text-white rounded-lg border border-[#27272a] shadow-lg transition-all">Sign Up</button>
         </div>
 
         <div className="mb-8">
-           <h2 className="text-xl font-bold text-white tracking-tight">Access Dashboard</h2>
-           <p className="text-xs text-slate-500 mt-1">Re-establish secure neural link to Confera Cluster.</p>
+           <h2 className="text-xl font-bold text-white tracking-tight">Register Identity</h2>
+           <p className="text-xs text-slate-500 mt-1">Initialize your secure profile on the Confera mesh.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Identity</label>
+            <div className="relative">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4" />
+              <input 
+                type="text" 
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Commander Name"
+                className="w-full bg-[#09090b] border border-[#27272a] rounded-xl px-12 py-3.5 text-xs text-white focus:outline-none focus:border-indigo-500/50 transition-all placeholder:text-slate-700 shadow-inner"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
             <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Node</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4" />
@@ -107,11 +143,8 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex justify-between items-center ml-1">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Access Key</label>
-              <Link href="/forgot-password" className="text-[9px] font-bold text-indigo-500 hover:underline uppercase tracking-tighter">Reset Protocol</Link>
-            </div>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Access Key</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4" />
               <input 
@@ -129,6 +162,38 @@ export default function LoginPage() {
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
+            </div>
+            
+            {/* Password Strength Indicator */}
+            <div className="flex gap-1.5 mt-2 px-1">
+               {[1, 2, 3, 4].map((i) => (
+                 <div 
+                   key={i} 
+                   className={`h-1 flex-1 rounded-full transition-all duration-500 ${
+                     strength >= i 
+                      ? strength === 1 ? 'bg-rose-500' 
+                      : strength === 2 ? 'bg-amber-500' 
+                      : strength === 3 ? 'bg-blue-500' 
+                      : 'bg-emerald-500'
+                      : 'bg-slate-800'
+                   }`} 
+                 />
+               ))}
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Confirm Key</label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4" />
+              <input 
+                type={showPassword ? 'text' : 'password'} 
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full bg-[#09090b] border border-[#27272a] rounded-xl px-12 py-3.5 text-xs text-white focus:outline-none focus:border-indigo-500/50 transition-all placeholder:text-slate-700 shadow-inner"
+              />
             </div>
           </div>
 
@@ -152,7 +217,7 @@ export default function LoginPage() {
           >
             {isLoading ? <Activity className="animate-spin" size={18} /> : (
               <>
-                <span>Establish Link</span>
+                <span>Initialize Identity</span>
                 <ChevronRight size={14} />
               </>
             )}
@@ -166,7 +231,7 @@ export default function LoginPage() {
         transition={{ delay: 0.8 }}
         className="mt-8 text-[10px] font-bold text-slate-600 uppercase tracking-widest relative z-10"
       >
-        Secure Neural Channel • Ver 3.0.4
+        Confera Network Protocols Active • Node v4.1
       </motion.p>
     </div>
   );
