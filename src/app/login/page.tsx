@@ -1,173 +1,97 @@
 'use client';
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Mail, Lock, Eye, EyeOff, Activity, Video, ChevronRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Loader2, Video } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
   
   const router = useRouter();
-  const setUser = useAuthStore((state) => state.setUser);
+  const { login, isLoading } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError(false);
-    setErrorMessage('');
     
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      
-      if (!res.ok) throw new Error(data.error || 'Authentication failed');
-      
-      setUser({ id: data.user.id, name: data.user.name, email: data.user.email });
+      await login(email, password);
       router.push('/dashboard');
-    } catch (err: any) {
+    } catch {
       setError(true);
-      setErrorMessage(err.message);
-      // Shake animation trigger
       setTimeout(() => setError(false), 500);
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center p-6 font-inter overflow-hidden relative">
-      {/* Background Decorative Gradients */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full" />
-        <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
-      </div>
-
-      {/* Branding */}
-      <motion.div 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="mb-8 flex items-center gap-3 relative z-10"
-      >
-        <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-          <Video className="text-white w-5 h-5" />
-        </div>
-        <span className="text-2xl font-black text-white tracking-tighter">Confera <span className="text-indigo-500">AI</span></span>
-      </motion.div>
-
+    <div className="min-h-screen bg-[#08080a] flex flex-col items-center justify-center p-6 text-white font-inter">
       <motion.div
-        initial={{ y: 20, opacity: 0 }}
+        initial={{ scale: 0.97, opacity: 0 }}
         animate={{ 
-          y: 0, 
+          scale: 1, 
           opacity: 1,
-          x: error ? [0, -8, 8, -4, 4, 0] : 0
+          x: error ? [0, -10, 10, -6, 6, 0] : 0
         }}
-        transition={{ 
-          duration: error ? 0.4 : 0.6,
-          ease: "easeOut"
-        }}
-        className="w-full max-w-md bg-[#111113] border border-[#27272a] rounded-[24px] p-8 shadow-2xl relative overflow-hidden z-10"
+        transition={{ duration: error ? 0.4 : 0.3 }}
+        className="w-full max-w-sm bg-[#0f0f13] border border-[#1e1e27] rounded-2xl p-8 flex flex-col items-center"
       >
-        {/* Futuristic Accent */}
-        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-50" />
-        
-        <div className="flex gap-4 mb-8 p-1 bg-[#09090b] rounded-xl border border-[#27272a]">
-           <button className="flex-1 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] bg-[#111113] text-white rounded-lg border border-[#27272a] shadow-lg">Login</button>
-           <Link href="/signup" className="flex-1 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-slate-300 text-center flex items-center justify-center transition-colors">Sign Up</Link>
+        <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/20">
+          <Video className="text-white w-6 h-6" />
         </div>
+        <h1 className="text-2xl font-bold mb-2">Welcome back</h1>
+        <p className="text-sm text-slate-400 mb-8 text-center">Sign in to continue to Confera AI</p>
 
-        <div className="mb-8">
-           <h2 className="text-xl font-bold text-white tracking-tight">Access Dashboard</h2>
-           <p className="text-xs text-slate-500 mt-1">Re-establish secure neural link to Confera Cluster.</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Email Node</label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4" />
-              <input 
-                type="email" 
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="commander@confera.ai"
-                className="w-full bg-[#09090b] border border-[#27272a] rounded-xl px-12 py-3.5 text-xs text-white focus:outline-none focus:border-indigo-500/50 transition-all placeholder:text-slate-700 shadow-inner"
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="w-full space-y-4">
+          <div className="relative">
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
+            <input 
+              type="email" 
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email address"
+              className="w-full bg-[#0f0f13] border border-[#1e1e27] rounded-xl pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600"
+            />
           </div>
 
-          <div className="space-y-2">
-            <div className="flex justify-between items-center ml-1">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Access Key</label>
-              <Link href="/forgot-password" className="text-[9px] font-bold text-indigo-500 hover:underline uppercase tracking-tighter">Reset Protocol</Link>
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 w-4 h-4" />
-              <input 
-                type={showPassword ? 'text' : 'password'} 
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-[#09090b] border border-[#27272a] rounded-xl px-12 py-3.5 text-xs text-white focus:outline-none focus:border-indigo-500/50 transition-all placeholder:text-slate-700 shadow-inner"
-              />
-              <button 
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400 transition-colors"
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
+          <div className="relative">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
+            <input 
+              type={showPassword ? 'text' : 'password'} 
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              className="w-full bg-[#0f0f13] border border-[#1e1e27] rounded-xl pl-11 pr-12 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600"
+            />
+            <button 
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
           </div>
 
-          <AnimatePresence>
-            {errorMessage && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="overflow-hidden"
-              >
-                <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest text-center bg-rose-500/5 border border-rose-500/10 py-2 rounded-lg">{errorMessage}</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <button 
+          <motion.button 
+            whileTap={{ scale: 0.97 }}
             type="submit"
             disabled={isLoading}
-            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[11px] uppercase tracking-[0.2em] py-4 rounded-xl transition-all shadow-lg shadow-indigo-600/20 active:scale-[0.99] flex items-center justify-center gap-2 mt-4"
+            className="w-full bg-[#6366f1] hover:bg-indigo-500 text-white font-medium text-sm py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center mt-2 disabled:opacity-70"
           >
-            {isLoading ? <Activity className="animate-spin" size={18} /> : (
-              <>
-                <span>Establish Link</span>
-                <ChevronRight size={14} />
-              </>
-            )}
-          </button>
+            {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Sign in'}
+          </motion.button>
         </form>
+
+        <p className="mt-6 text-sm text-slate-500">
+          Don't have an account? <Link href="/signup" className="text-indigo-400 hover:text-indigo-300 font-medium">Sign up</Link>
+        </p>
       </motion.div>
-      
-      <motion.p 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="mt-8 text-[10px] font-bold text-slate-600 uppercase tracking-widest relative z-10"
-      >
-        Secure Neural Channel • Ver 3.0.4
-      </motion.p>
     </div>
   );
 }

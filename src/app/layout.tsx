@@ -1,24 +1,14 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import ToastContainer from "@/components/ui/Toast";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Confera AI | Enterprise Video Conferencing",
-  description: "Next-generation AI-powered video conferencing for modern enterprises.",
+  title: "Confera AI",
+  description: "Next-generation communication platform.",
 };
-
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { MeetingProvider } from "@/context/MeetingContext";
 
 export default function RootLayout({
   children,
@@ -26,13 +16,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${outfit.variable} antialiased min-h-screen bg-background text-foreground`}>
-        <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
-          <MeetingProvider>
-            {children}
-          </MeetingProvider>
-        </ThemeProvider>
+    <html lang="en" suppressHydrationWarning className="bg-[#08080a]">
+      <body className={`${inter.variable} font-sans antialiased bg-[#08080a] text-white overflow-x-hidden min-h-screen`}>
+        {children}
+        <ToastContainer />
       </body>
     </html>
   );

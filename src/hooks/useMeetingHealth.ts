@@ -13,7 +13,7 @@ export interface HealthData {
 
 // Per-participant speaking tracker component helper
 function useSpeakingTracker(
-  participants: any[],
+  participants: { isSpeaking: boolean, identity: string }[],
   talkTimeRef: React.MutableRefObject<Record<string, number>>,
   silenceRef: React.MutableRefObject<number>
 ) {
@@ -45,7 +45,8 @@ export function useMeetingHealth(roomId: string, reactionCount: number) {
 
   const talkTimeRef = useRef<Record<string, number>>({});
   const silenceRef = useRef(0);
-  const startTimeRef = useRef(Date.now());
+  const [startTime] = useState(() => Date.now());
+  const startTimeRef = useRef(startTime);
 
   const tracks = useTracks([{ source: Track.Source.Camera, withPlaceholder: true }]);
   const participants = tracks.map(t => t.participant);

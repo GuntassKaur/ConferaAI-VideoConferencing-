@@ -215,6 +215,7 @@ export default function DynamicVideoGrid() {
 }
 
 // ── Custom Participant Tile ────────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomParticipantTile({ track, isLarge = false }: { track: any; isLarge?: boolean }) {
   const participant = track.participant;
   const isSpeaking = useIsSpeaking(participant);

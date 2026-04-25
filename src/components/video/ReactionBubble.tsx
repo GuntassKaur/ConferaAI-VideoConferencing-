@@ -1,13 +1,15 @@
 'use client';
 import { motion } from 'framer-motion';
 
+import { useState } from 'react';
+
 interface ReactionBubbleProps {
   emoji: string;
 }
 
 export default function ReactionBubble({ emoji }: ReactionBubbleProps) {
   // Randomize horizontal position so reactions don't all stack
-  const randomX = Math.random() * 60 + 20; // 20% to 80% from left
+  const [randomX] = useState(() => Math.random() * 60 + 20); // 20% to 80% from left
 
   return (
     <motion.div

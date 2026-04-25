@@ -51,9 +51,9 @@ export async function POST(req: NextRequest) {
       },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Gemini Neural Stream Error:', error);
-    return new Response(JSON.stringify({ error: error.message }), { 
+    return new Response(JSON.stringify({ error: (error as Error).message }), { 
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });

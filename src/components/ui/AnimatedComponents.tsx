@@ -3,6 +3,7 @@ import { motion, useMotionValue, useTransform, animate, AnimatePresence } from '
 import { useState, useEffect, ReactNode, useRef } from 'react';
 
 // 1. AnimatedButton with Ripple Effect
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const AnimatedButton = ({ children, className, onClick, ...props }: any) => {
   const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
 
@@ -55,6 +56,7 @@ export const AnimatedButton = ({ children, className, onClick, ...props }: any) 
 };
 
 // 2. GlowCard
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const GlowCard = ({ children, className, ...props }: any) => {
   return (
     <motion.div

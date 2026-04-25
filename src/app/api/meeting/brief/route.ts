@@ -72,8 +72,8 @@ Meeting Status: ${meeting?.status || 'waiting'}
     }
 
     return NextResponse.json(brief);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Pre-Meeting Brief Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

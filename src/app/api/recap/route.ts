@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     
     // First, promote existing recap → previousRecap for historical brief context
     const existingMeeting = await Meeting.findOne({ roomId });
-    const updatePayload: any = {
+    const updatePayload: Record<string, unknown> = {
       $set: { recap, status: 'ended' }
     };
     if (existingMeeting?.recap?.tldr) {
@@ -52,10 +52,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(recap, { status: 200 });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Recap API Error:', error);
     return NextResponse.json(
-      { error: error.message || 'Internal Server Error during recap generation' }, 
+      { error: (error as Error).message || 'Internal Server Error during recap generation' }, 
       { status: 500 }
     );
   }
