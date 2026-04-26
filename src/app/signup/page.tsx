@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Mail, Lock, Eye, EyeOff, Loader2, Video, User } from 'lucide-react';
+import { useProductStore } from '@/store/productStore';
+import { Mail, Lock, Eye, EyeOff, Loader2, Video, User, ArrowRight, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SignupPage() {
@@ -17,6 +18,7 @@ export default function SignupPage() {
   
   const router = useRouter();
   const { signup, isLoading } = useAuthStore();
+  const { login: legacyLogin } = useProductStore();
 
   useEffect(() => {
     let s = 0;
@@ -39,6 +41,8 @@ export default function SignupPage() {
     
     try {
       await signup(name, email, password);
+      // Synchronize with legacy store for session name compatibility
+      legacyLogin(name);
       router.push('/dashboard');
     } catch {
       setError(true);
@@ -47,111 +51,141 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#08080a] flex flex-col items-center justify-center p-6 text-white font-inter">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans relative overflow-hidden">
+      {/* Background Gradients */}
+      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-indigo-50/50 rounded-full blur-3xl -z-10 translate-x-1/4 -translate-y-1/4" />
+      <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-blue-50/50 rounded-full blur-3xl -z-10 -translate-x-1/4 translate-y-1/4" />
+
       <motion.div
-        initial={{ scale: 0.97, opacity: 0 }}
+        initial={{ scale: 0.98, opacity: 0 }}
         animate={{ 
           scale: 1, 
           opacity: 1,
-          x: error ? [0, -10, 10, -6, 6, 0] : 0
+          x: error ? [0, -5, 5, -3, 3, 0] : 0
         }}
-        transition={{ duration: error ? 0.4 : 0.3 }}
-        className="w-full max-w-sm bg-[#0f0f13] border border-[#1e1e27] rounded-2xl p-8 flex flex-col items-center"
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-md bg-white border border-slate-200 rounded-[2.5rem] p-10 shadow-xl relative z-10"
       >
-        <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/20">
-          <Video className="text-white w-6 h-6" />
+        <div className="flex items-center gap-3 mb-8 justify-center">
+          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
+            <Video size={20} />
+          </div>
+          <span className="font-bold text-2xl text-slate-900 tracking-tight">Confera</span>
         </div>
-        <h1 className="text-2xl font-bold mb-2">Create an account</h1>
-        <p className="text-sm text-slate-400 mb-8 text-center">Join Confera AI and redefine your meetings.</p>
+
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Create your account</h1>
+          <p className="text-slate-500 text-sm">Join the next generation of AI-powered conferencing.</p>
+        </div>
 
         <form onSubmit={handleSubmit} className="w-full space-y-4">
-          <div className="relative">
-            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-            <input 
-              type="text" 
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Full name"
-              className="w-full bg-[#0f0f13] border border-[#1e1e27] rounded-xl pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600"
-            />
+          <div className="space-y-1.5">
+             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+             <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <input 
+                  type="text" 
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Guntass Kaur"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium"
+                />
+             </div>
           </div>
 
-          <div className="relative">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-            <input 
-              type="email" 
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email address"
-              className="w-full bg-[#0f0f13] border border-[#1e1e27] rounded-xl pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600"
-            />
+          <div className="space-y-1.5">
+             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+             <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <input 
+                  type="email" 
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@company.com"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium"
+                />
+             </div>
           </div>
 
-          <div>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-              <input 
-                type={showPassword ? 'text' : 'password'} 
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="w-full bg-[#0f0f13] border border-[#1e1e27] rounded-xl pl-11 pr-12 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600"
-              />
-              <button 
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            {/* Password Strength Indicator */}
-            {password.length > 0 && (
-              <div className="flex gap-1.5 mt-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <div 
-                    key={i} 
-                    className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                      strength >= i 
-                        ? strength <= 2 ? 'bg-red-500' 
-                        : strength === 3 ? 'bg-amber-500' 
-                        : 'bg-green-500'
-                        : 'bg-[#1e1e27]'
-                    }`} 
-                  />
-                ))}
-              </div>
-            )}
+          <div className="space-y-1.5">
+             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Password</label>
+             <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Min. 8 characters"
+                  className="w-full pl-11 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium"
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+             </div>
+             {/* Strength Indicator */}
+             {password.length > 0 && (
+                <div className="flex gap-1.5 mt-3 px-1">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div 
+                      key={i} 
+                      className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                        strength >= i 
+                          ? strength <= 2 ? 'bg-rose-500' 
+                          : strength === 3 ? 'bg-amber-500' 
+                          : 'bg-emerald-500'
+                          : 'bg-slate-100'
+                      }`} 
+                    />
+                  ))}
+                </div>
+              )}
           </div>
 
-          <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-            <input 
-              type={showPassword ? 'text' : 'password'} 
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm password"
-              className="w-full bg-[#0f0f13] border border-[#1e1e27] rounded-xl pl-11 pr-12 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600"
-            />
+          <div className="space-y-1.5 pb-4">
+             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Confirm Password</label>
+             <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <input 
+                  type={showPassword ? 'text' : 'password'} 
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Repeat password"
+                  className="w-full pl-11 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium"
+                />
+             </div>
           </div>
 
-          <motion.button 
-            whileTap={{ scale: 0.97 }}
+          <button 
             type="submit"
             disabled={isLoading}
-            className="w-full bg-[#6366f1] hover:bg-indigo-500 text-white font-medium text-sm py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center mt-4 disabled:opacity-70"
+            className="w-full py-3.5 bg-indigo-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 group"
           >
-            {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Sign up'}
-          </motion.button>
+            {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : (
+              <>
+                Create account
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              </>
+            )}
+          </button>
         </form>
 
-        <p className="mt-6 text-sm text-slate-500">
-          Already have an account? <Link href="/login" className="text-indigo-400 hover:text-indigo-300 font-medium">Sign in</Link>
+        <p className="mt-8 text-center text-sm text-slate-500 font-medium">
+          Already have an account? <Link href="/login" className="text-indigo-600 hover:underline font-bold">Sign in</Link>
         </p>
+
+        <div className="mt-10 pt-8 border-t border-slate-100 flex items-center justify-center gap-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+           <div className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-indigo-400/50" /> Secure Encryption</div>
+           <div className="w-1 h-1 bg-slate-200 rounded-full" />
+           <span className="text-slate-300">v2.1.0</span>
+        </div>
       </motion.div>
     </div>
   );
