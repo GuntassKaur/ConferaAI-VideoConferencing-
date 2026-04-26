@@ -1,96 +1,76 @@
 'use client';
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { useProductStore } from '@/store/productStore';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/useAuthStore';
-import { Mail, Lock, Eye, EyeOff, Loader2, Video } from 'lucide-react';
-import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Video, ShieldCheck, Zap, ArrowRight, User } from 'lucide-react';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(false);
-  
+  const [name, setName] = useState('');
+  const { login, currentUser } = useProductStore();
   const router = useRouter();
-  const { login, isLoading } = useAuthStore();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (currentUser) router.push('/dashboard');
+  }, [currentUser]);
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(false);
-    
-    try {
-      await login(email, password);
-      router.push('/dashboard');
-    } catch {
-      setError(true);
-      setTimeout(() => setError(false), 500);
+    if (name.trim()) {
+      login(name.trim());
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#08080a] flex flex-col items-center justify-center p-6 text-white font-inter">
-      <motion.div
-        initial={{ scale: 0.97, opacity: 0 }}
-        animate={{ 
-          scale: 1, 
-          opacity: 1,
-          x: error ? [0, -10, 10, -6, 6, 0] : 0
-        }}
-        transition={{ duration: error ? 0.4 : 0.3 }}
-        className="w-full max-w-sm bg-[#0f0f13] border border-[#1e1e27] rounded-2xl p-8 flex flex-col items-center"
+    <div className="min-h-screen bg-[#050507] flex items-center justify-center p-6 font-sans relative overflow-hidden">
+      {/* Background Decorative Elements */}
+      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full animate-pulse" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[30%] h-[30%] bg-violet-600/10 blur-[100px] rounded-full" />
+      
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md bg-[#0a0a0c] border border-white/5 rounded-[3rem] p-12 shadow-2xl relative z-10"
       >
-        <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/20">
-          <Video className="text-white w-6 h-6" />
+        <div className="flex items-center gap-4 mb-12">
+          <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-600/20">
+            <Video size={24} />
+          </div>
+          <span className="font-bold text-3xl text-white tracking-tighter uppercase">Confera</span>
         </div>
-        <h1 className="text-2xl font-bold mb-2">Welcome back</h1>
-        <p className="text-sm text-slate-400 mb-8 text-center">Sign in to continue to Confera AI</p>
 
-        <form onSubmit={handleSubmit} className="w-full space-y-4">
-          <div className="relative">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-            <input 
-              type="email" 
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email address"
-              className="w-full bg-[#0f0f13] border border-[#1e1e27] rounded-xl pl-11 pr-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600"
-            />
+        <h1 className="text-3xl font-black text-white mb-3 tracking-tight">Enter Workspace</h1>
+        <p className="text-slate-500 text-base mb-10 font-medium">Access your personalized neural communication hub.</p>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2 group">
+             <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-2 group-focus-within:text-indigo-400 transition-colors">Access Name</label>
+             <div className="relative">
+                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600" size={18} />
+                <input 
+                  type="text" 
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Guntass Kaur"
+                  className="w-full pl-14 pr-6 py-5 bg-white/[0.02] border border-white/5 rounded-[1.8rem] text-sm text-white focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/5 transition-all placeholder:text-slate-700"
+                />
+             </div>
           </div>
-
-          <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
-            <input 
-              type={showPassword ? 'text' : 'password'} 
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              className="w-full bg-[#0f0f13] border border-[#1e1e27] rounded-xl pl-11 pr-12 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-600"
-            />
-            <button 
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-            >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </div>
-
-          <motion.button 
-            whileTap={{ scale: 0.97 }}
+          
+          <button 
             type="submit"
-            disabled={isLoading}
-            className="w-full bg-[#6366f1] hover:bg-indigo-500 text-white font-medium text-sm py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center mt-2 disabled:opacity-70"
+            className="w-full py-5 bg-white text-black font-black text-xs uppercase tracking-widest rounded-[1.8rem] shadow-xl hover:bg-indigo-500 hover:text-white transition-all active:scale-[0.98] mt-6 flex items-center justify-center gap-2 group"
           >
-            {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Sign in'}
-          </motion.button>
+            Authenticate <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </button>
         </form>
 
-        <p className="mt-6 text-sm text-slate-500">
-          Don't have an account? <Link href="/signup" className="text-indigo-400 hover:text-indigo-300 font-medium">Sign up</Link>
-        </p>
+        <div className="mt-16 pt-10 border-t border-white/[0.03] flex items-center justify-between text-[10px] font-black text-slate-600 uppercase tracking-widest">
+           <div className="flex items-center gap-2"><ShieldCheck size={14} className="text-indigo-500/40" /> Neural Lock</div>
+           <div className="flex items-center gap-2"><Zap size={14} className="text-amber-500/40" /> Edge Node</div>
+           <div className="font-bold text-white/40 tracking-tighter">CONFERA v2.1</div>
+        </div>
       </motion.div>
     </div>
   );

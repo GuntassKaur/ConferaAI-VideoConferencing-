@@ -32,6 +32,12 @@ export interface IMeeting extends Document {
   };
   // Scheduled agenda items for Pre-Meeting Brief
   agenda?: string[];
+  joinRequests: {
+    userId: string;
+    name: string;
+    status: 'pending' | 'accepted' | 'rejected';
+    requestedAt: Date;
+  }[];
 }
 
 const MeetingSchema: Schema<IMeeting> = new Schema({
@@ -60,6 +66,19 @@ const MeetingSchema: Schema<IMeeting> = new Schema({
     default: 'waiting',
   },
   agenda: [{ type: String }],
+  joinRequests: [{
+    userId: String,
+    name: String,
+    status: {
+      type: String,
+      enum: ['pending', 'accepted', 'rejected'],
+      default: 'pending'
+    },
+    requestedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   recap: {
     title: String,
     tldr: String,
