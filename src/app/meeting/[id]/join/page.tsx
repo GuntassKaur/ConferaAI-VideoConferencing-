@@ -3,7 +3,11 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useProductStore } from '@/store/productStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Video, Shield, Loader2, ArrowLeft, User, CheckCircle2, XCircle } from 'lucide-react';
+import { 
+  Video, Shield, Loader2, ArrowLeft, 
+  User, CheckCircle2, XCircle, ChevronRight,
+  Clock, ShieldCheck
+} from 'lucide-react';
 
 export default function JoinPage() {
   const params = useParams();
@@ -40,7 +44,6 @@ export default function JoinPage() {
       if (res.ok) {
         const data = await res.json();
         setMeetingName(data.name);
-        // If user is host, redirect immediately
         if (data.hostId === currentUser?.id) {
             router.push(`/meeting/${meetingId}`);
         }
@@ -82,117 +85,111 @@ export default function JoinPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050507] flex items-center justify-center p-6 relative overflow-hidden">
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/10 blur-[150px] rounded-full" />
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-indigo-50/50 rounded-full blur-3xl -z-10 translate-x-1/4 -translate-y-1/4" />
+      <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-blue-50/50 rounded-full blur-3xl -z-10 -translate-x-1/4 translate-y-1/4" />
       
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-xl bg-[#0a0a0c] border border-white/5 rounded-[4rem] p-12 lg:p-16 shadow-2xl relative z-10"
-      >
-        <header className="mb-12">
-          <button 
-            onClick={() => router.push('/dashboard')}
-            className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors mb-8 group"
-          >
-            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-[10px] font-black uppercase tracking-widest">Back to Hub</span>
-          </button>
+      <div className="w-full max-w-md">
+        <button 
+          onClick={() => router.push('/dashboard')}
+          className="flex items-center gap-2 text-slate-400 hover:text-slate-600 transition-colors mb-8 group"
+        >
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+          <span className="text-xs font-bold uppercase tracking-wider">Back to dashboard</span>
+        </button>
+
+        <div className="bg-white border border-slate-200 rounded-[2rem] p-10 shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 to-blue-500" />
           
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-indigo-500 border border-white/10">
-              <Video size={24} />
+          <div className="text-center mb-10">
+            <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 mx-auto mb-6 shadow-sm">
+               <Video size={32} />
             </div>
-            <div>
-               <h1 className="text-3xl font-black text-white tracking-tight leading-none mb-1">Join Session</h1>
-               <p className="text-slate-500 text-sm font-medium">Node: {meetingId}</p>
-            </div>
+            <h1 className="text-2xl font-bold text-slate-900 mb-2">
+              {meetingName || 'Connecting...'}
+            </h1>
+            <p className="text-slate-500 text-sm">
+              Wait for the host to let you in.
+            </p>
           </div>
-        </header>
 
-        <div className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-10 mb-10 text-center relative overflow-hidden">
-           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
-           <h2 className="text-xl font-bold text-white mb-2">{meetingName || 'Connecting...'}</h2>
-           <p className="text-slate-500 text-sm mb-10">This session requires host authorization to enter.</p>
-           
-           <AnimatePresence mode="wait">
-             {status === 'idle' && (
-               <motion.button
-                 key="idle"
-                 initial={{ opacity: 0, y: 10 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 exit={{ opacity: 0, y: -10 }}
-                 onClick={requestJoin}
-                 className="w-full py-6 bg-white text-black font-black text-xs uppercase tracking-widest rounded-3xl hover:bg-indigo-600 hover:text-white transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-3 group"
-               >
-                 <User size={18} className="group-hover:scale-110 transition-transform" />
-                 Request Authorization
-               </motion.button>
-             )}
+          <div className="bg-slate-50 rounded-2xl p-6 mb-10 border border-slate-100">
+             <div className="flex items-center gap-4 mb-4">
+                <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400">
+                   <User size={20} />
+                </div>
+                <div>
+                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Signed in as</p>
+                   <p className="text-sm font-bold text-slate-800">{currentUser?.name}</p>
+                </div>
+             </div>
+             <div className="h-px bg-slate-200/50 mb-4" />
+             <div className="flex items-center gap-3 text-slate-500">
+                <ShieldCheck size={16} className="text-emerald-500" />
+                <span className="text-xs font-medium">Encryption active for this session</span>
+             </div>
+          </div>
 
-             {(status === 'requesting' || status === 'waiting') && (
-               <motion.div
-                 key="waiting"
-                 initial={{ opacity: 0, scale: 0.9 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 exit={{ opacity: 0, scale: 0.9 }}
-                 className="flex flex-col items-center"
-               >
-                 <div className="relative mb-6">
-                    <Loader2 className="w-16 h-16 text-indigo-500 animate-spin" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                       <Shield className="text-indigo-500/50" size={24} />
-                    </div>
-                 </div>
-                 <p className="text-indigo-400 font-black text-[10px] uppercase tracking-[0.2em] animate-pulse">Waiting for host approval...</p>
-               </motion.div>
-             )}
+          <div className="min-h-[64px] flex items-center justify-center">
+            {status === 'idle' && (
+              <button
+                onClick={requestJoin}
+                className="w-full py-4 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 group"
+              >
+                Ask to join
+                <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              </button>
+            )}
 
-             {status === 'accepted' && (
-               <motion.div
-                 key="accepted"
-                 initial={{ opacity: 0, scale: 0.9 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 className="flex flex-col items-center"
-               >
-                 <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-500 mb-6 border border-emerald-500/20">
-                    <CheckCircle2 size={32} />
-                 </div>
-                 <h3 className="text-xl font-bold text-white mb-1">Access Granted</h3>
-                 <p className="text-slate-500 text-sm">Entering neural workspace...</p>
-               </motion.div>
-             )}
+            {(status === 'requesting' || status === 'waiting') && (
+              <div className="flex flex-col items-center">
+                <div className="flex items-center gap-3 text-indigo-600 font-bold mb-2">
+                   <Loader2 className="w-5 h-5 animate-spin" />
+                   <span className="text-sm">Waiting for approval...</span>
+                </div>
+                <p className="text-xs text-slate-400">The host will see your request shortly.</p>
+              </div>
+            )}
 
-             {status === 'rejected' && (
-               <motion.div
-                 key="rejected"
-                 initial={{ opacity: 0, scale: 0.9 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 className="flex flex-col items-center"
-               >
-                 <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center text-rose-500 mb-6 border border-rose-500/20">
-                    <XCircle size={32} />
-                 </div>
-                 <h3 className="text-xl font-bold text-white mb-2">Access Denied</h3>
-                 <button 
+            {status === 'accepted' && (
+              <div className="flex flex-col items-center text-emerald-600">
+                <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-4 border border-emerald-100">
+                   <CheckCircle2 size={24} />
+                </div>
+                <h3 className="font-bold">Entry Granted</h3>
+                <p className="text-xs text-slate-400">Redirecting to call...</p>
+              </div>
+            )}
+
+            {status === 'rejected' && (
+              <div className="flex flex-col items-center text-rose-600 text-center">
+                <div className="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center mb-4 border border-rose-100">
+                   <XCircle size={24} />
+                </div>
+                <h3 className="font-bold">Entry Denied</h3>
+                <button 
                   onClick={() => setStatus('idle')}
-                  className="text-xs font-black text-indigo-500 uppercase tracking-widest hover:text-white transition-colors"
-                 >
-                   Try Again
-                 </button>
-               </motion.div>
-             )}
-           </AnimatePresence>
+                  className="mt-4 text-xs font-bold text-indigo-600 hover:underline"
+                >
+                  Try again
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center justify-between text-[10px] font-black text-slate-600 uppercase tracking-widest pt-8 border-t border-white/5">
-           <div className="flex items-center gap-2">
-              <Shield size={14} className="text-indigo-500/40" />
-              Neural Encryption Active
+        <div className="mt-8 flex items-center justify-center gap-6 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+           <div className="flex items-center gap-1.5">
+              <Shield size={12} />
+              <span>E2EE Secure</span>
            </div>
-           <span className="text-white/20">CONFERA v2.1</span>
+           <div className="w-1 h-1 bg-slate-300 rounded-full" />
+           <div className="flex items-center gap-1.5">
+              <Clock size={12} />
+              <span>Low Latency</span>
+           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

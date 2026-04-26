@@ -4,7 +4,8 @@ import { useProductStore } from '@/store/productStore';
 import { useRouter } from 'next/navigation';
 import { 
   Plus, LogIn, Video, ArrowRight,
-  History, Settings, Shield, Clock
+  History, Settings, Shield, Clock,
+  Calendar, Users, Share2, Copy, Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -13,6 +14,7 @@ export default function DashboardContent() {
   const { currentUser, addMeeting } = useProductStore();
   const [meetingId, setMeetingId] = useState('');
   const [isStarting, setIsStarting] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -25,7 +27,7 @@ export default function DashboardContent() {
     if (!currentUser) return;
     setIsStarting(true);
     
-    const realId = `confera-${Math.random().toString(36).substring(7)}`;
+    const realId = `meet-${Math.random().toString(36).substring(7)}`;
     
     try {
       const response = await fetch('/api/livekit/room', {
@@ -65,158 +67,152 @@ export default function DashboardContent() {
 
   if (!currentUser) return null;
 
-  return (
-    <div className="max-w-7xl mx-auto px-8 py-12 lg:py-24">
-      {/* Premium Header */}
-      <header className="mb-20 flex flex-col md:flex-row md:items-center justify-between gap-8">
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          <h1 className="text-5xl lg:text-6xl font-black text-white tracking-tight mb-4">
-            Welcome back, <span className="text-indigo-500">{currentUser.name.split(' ')[0]}</span>
-          </h1>
-          <p className="text-slate-500 text-xl font-medium max-w-xl leading-relaxed">
-            Your intelligence-first communication platform. Start a session or join an active node.
-          </p>
-        </motion.div>
+  const upcomingMeetings = currentUser.meetings || [];
 
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-4 bg-[#0a0a0c] border border-white/5 p-2 rounded-3xl"
-        >
-           <div className="flex -space-x-2 px-4">
+  return (
+    <div className="max-w-6xl mx-auto px-6 py-12">
+      {/* Modern Header */}
+      <header className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-4xl font-bold text-slate-900 tracking-tight mb-2">
+            Good afternoon, {currentUser.name.split(' ')[0]}
+          </h1>
+          <p className="text-slate-500 text-lg">
+            Ready to start your next collaboration?
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 bg-white border border-slate-200 p-1.5 rounded-2xl shadow-sm">
+           <div className="flex -space-x-2 px-2">
               {[1, 2, 3].map(i => (
-                <div key={i} className="w-8 h-8 rounded-full bg-slate-800 border-2 border-[#0a0a0c] flex items-center justify-center text-[10px] font-bold">U{i}</div>
+                <div key={i} className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-semibold text-slate-600">
+                  {String.fromCharCode(64 + i)}
+                </div>
               ))}
            </div>
-           <div className="h-8 w-px bg-white/5" />
-           <div className="px-4 py-2 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Network Online</span>
+           <div className="h-6 w-px bg-slate-200" />
+           <div className="px-3 py-1.5 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">System Ready</span>
            </div>
-        </motion.div>
+        </div>
       </header>
 
-      {/* Main Actions Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-24">
-        {/* Start Meeting Card - Highlighted */}
+      {/* Primary Action Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
         <motion.button
-          whileHover={{ y: -8, scale: 1.01 }}
+          whileHover={{ y: -4 }}
           whileTap={{ scale: 0.98 }}
           onClick={startMeeting}
           disabled={isStarting}
-          className="relative group p-1 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-[3rem] overflow-hidden shadow-2xl shadow-indigo-500/20"
+          className="relative group p-8 bg-indigo-600 rounded-3xl text-left overflow-hidden shadow-lg shadow-indigo-200"
         >
-          <div className="bg-[#0a0a0c] h-full w-full rounded-[2.9rem] p-12 flex flex-col items-start text-left relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-12 text-white/5 rotate-12 group-hover:scale-125 transition-transform duration-700">
-               <Video size={240} />
+          <div className="relative z-10">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-6 backdrop-blur-md">
+               <Video className="text-white" size={24} />
             </div>
-            
-            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-12 shadow-xl group-hover:rotate-12 transition-transform">
-               <Plus className="text-indigo-600" size={32} />
-            </div>
-            
-            <h3 className="text-4xl font-black text-white mb-4">Start Session</h3>
-            <p className="text-slate-400 text-lg max-w-sm leading-relaxed mb-12">
-              Initialize a high-fidelity workspace with real-time AI transcription and spatial audio.
+            <h3 className="text-2xl font-bold text-white mb-2">New Meeting</h3>
+            <p className="text-indigo-100 text-sm mb-8 max-w-[240px]">
+              Start an instant meeting and invite others to join your workspace.
             </p>
-            
-            <div className="mt-auto flex items-center gap-3 font-black text-sm uppercase tracking-[0.2em] text-white">
-              {isStarting ? 'Initializing Neural Node...' : 'Launch Instant Meeting'} 
-              <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+            <div className="flex items-center gap-2 text-white font-semibold text-sm">
+              {isStarting ? 'Starting...' : 'Start now'} 
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </div>
+          </div>
+          <div className="absolute top-0 right-0 p-4 text-white/5 group-hover:scale-110 transition-transform duration-500">
+             <Video size={160} />
           </div>
         </motion.button>
 
-        {/* Join Meeting Card */}
         <motion.div 
-          whileHover={{ y: -8 }}
-          className="p-12 bg-[#0a0a0c] border border-white/5 rounded-[3rem] flex flex-col items-start relative group"
+          whileHover={{ y: -4 }}
+          className="p-8 bg-white border border-slate-200 rounded-3xl shadow-sm group"
         >
-          <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-12 text-slate-300">
-             <LogIn size={32} />
+          <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center mb-6 text-slate-600">
+             <Plus size={24} />
           </div>
-          
-          <h3 className="text-4xl font-black text-white mb-4">Join Hub</h3>
-          <p className="text-slate-500 text-lg max-w-sm leading-relaxed mb-12">
-            Connect to an existing workspace via unique room identifier.
+          <h3 className="text-2xl font-bold text-slate-900 mb-2">Join Meeting</h3>
+          <p className="text-slate-500 text-sm mb-8">
+            Enter a meeting ID or link to join an existing session.
           </p>
           
-          <form onSubmit={handleJoin} className="w-full relative mt-auto">
+          <form onSubmit={handleJoin} className="flex gap-2">
             <input 
               type="text" 
               value={meetingId}
               onChange={(e) => setMeetingId(e.target.value)}
-              placeholder="Enter Session ID"
-              className="w-full bg-white/[0.02] border border-white/10 rounded-[2rem] px-8 py-6 text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/5 transition-all pr-40 text-lg font-medium"
+              placeholder="Meeting ID"
+              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm font-medium"
             />
             <button 
               type="submit"
               disabled={!meetingId}
-              className="absolute right-3 top-3 bottom-3 px-10 bg-white text-black font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-indigo-500 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-xl active:scale-95"
+              className="px-6 bg-slate-900 text-white font-semibold text-sm rounded-xl hover:bg-slate-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Join Node
+              Join
             </button>
           </form>
         </motion.div>
       </div>
 
-      {/* Activity Section */}
+      {/* Recent Activity */}
       <section>
-        <div className="flex items-center justify-between mb-12 px-4">
-           <h4 className="text-2xl font-black text-white flex items-center gap-4">
-             <div className="w-2 h-10 bg-indigo-500 rounded-full" />
-             Neural Archives
+        <div className="flex items-center justify-between mb-8">
+           <h4 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+             <History size={20} className="text-slate-400" />
+             Recent Meetings
            </h4>
-           {currentUser.meetings.length > 0 && (
-             <button className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-indigo-400 transition-colors">Clear All Records</button>
+           {upcomingMeetings.length > 0 && (
+             <button className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">View all</button>
            )}
         </div>
 
         <AnimatePresence mode="wait">
-          {currentUser.meetings.length === 0 ? (
+          {upcomingMeetings.length === 0 ? (
             <motion.div 
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex flex-col items-center justify-center p-32 bg-white/[0.01] border border-dashed border-white/5 rounded-[4rem] text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center py-20 bg-slate-50 border border-dashed border-slate-200 rounded-3xl text-center"
             >
-               <div className="w-24 h-24 bg-white/5 rounded-[2.5rem] flex items-center justify-center mb-8 text-slate-800">
-                  <Video size={48} />
+               <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-sm text-slate-300">
+                  <Video size={32} />
                </div>
-               <h5 className="text-2xl font-bold text-white mb-3">No sessions indexed</h5>
-               <p className="text-slate-500 text-lg max-w-sm leading-relaxed mb-10 font-medium">
-                 Once you conclude your first session, it will be automatically archived here with its AI summary.
+               <h5 className="text-lg font-semibold text-slate-900 mb-1">No recent meetings</h5>
+               <p className="text-slate-500 text-sm max-w-[280px] mb-6">
+                 Meetings you host or join will appear here for quick access.
                </p>
-               <button onClick={startMeeting} className="px-10 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-2xl hover:bg-white/10 transition-all">
-                  Create First Session
+               <button onClick={startMeeting} className="text-sm font-bold text-indigo-600 flex items-center gap-1 hover:gap-2 transition-all">
+                  Create your first meeting <ArrowRight size={14} />
                </button>
             </motion.div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {currentUser.meetings.map((m, i) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {upcomingMeetings.map((m, i) => (
                 <motion.div 
                   key={m.id}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="p-10 bg-[#0a0a0c] border border-white/5 rounded-[3rem] group cursor-pointer hover:border-indigo-500/30 transition-all relative overflow-hidden shadow-xl"
+                  className="p-5 bg-white border border-slate-200 rounded-2xl group cursor-pointer hover:border-indigo-200 hover:shadow-md transition-all relative"
                   onClick={() => router.push(`/meeting/${m.id}`)}
                 >
-                  <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <ArrowRight size={24} className="text-indigo-400" />
-                  </div>
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                      <Clock size={24} />
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                      <Calendar size={18} />
                     </div>
-                    <div className="px-3 py-1 bg-white/5 rounded-full text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                       Archived
-                    </div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Completed</span>
                   </div>
-                  <h6 className="text-2xl font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors leading-tight">{m.title}</h6>
-                  <p className="text-sm text-slate-500 font-medium">{m.createdAt}</p>
+                  <h6 className="font-bold text-slate-900 mb-1 truncate">{m.title}</h6>
+                  <p className="text-xs text-slate-500 font-medium">{m.createdAt}</p>
+                  
+                  <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
+                     <div className="flex -space-x-1.5">
+                        <div className="w-6 h-6 rounded-full bg-slate-100 border border-white" />
+                        <div className="w-6 h-6 rounded-full bg-slate-200 border border-white" />
+                     </div>
+                     <ArrowRight size={14} className="text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-1 transition-all" />
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -224,22 +220,26 @@ export default function DashboardContent() {
         </AnimatePresence>
       </section>
 
-      {/* Security Banner */}
-      <div className="mt-24 p-12 bg-gradient-to-br from-indigo-500/5 to-transparent border border-white/5 rounded-[3.5rem] flex flex-col md:flex-row items-center justify-between gap-10">
-        <div className="flex items-center gap-8">
-          <div className="w-16 h-16 bg-indigo-500/10 rounded-[1.5rem] flex items-center justify-center text-indigo-400">
-             <Shield size={32} />
+      {/* Feature Promo */}
+      <div className="mt-16 p-8 bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-8 text-white relative overflow-hidden">
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse" />
+            <span className="text-xs font-bold text-indigo-300 uppercase tracking-widest">New</span>
           </div>
-          <div>
-            <h5 className="text-xl font-bold text-white mb-1 tracking-tight">Enterprise Privacy Guaranteed</h5>
-            <p className="text-slate-500 text-lg font-medium">All sessions are end-to-end encrypted and hosted on isolated nodes.</p>
-          </div>
+          <h5 className="text-xl font-bold mb-2">AI Post-Meeting Recaps</h5>
+          <p className="text-slate-300 text-sm max-w-md">
+            Get automated summaries, key action items, and transcripts delivered right to your dashboard after every call.
+          </p>
         </div>
-        <button className="px-10 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 hover:bg-white/10 transition-all">
-          View Protocol
+        <button className="relative z-10 px-6 py-3 bg-white text-slate-900 font-bold text-sm rounded-xl hover:bg-slate-100 transition-all shadow-lg whitespace-nowrap">
+          Learn more
         </button>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-3xl -mr-32 -mt-32" />
       </div>
     </div>
+  );
+}
   );
 }
 
