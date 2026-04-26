@@ -13,7 +13,8 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [shake, setShake] = useState(false);
   const [strength, setStrength] = useState(0);
   
   const router = useRouter();
@@ -31,22 +32,31 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg('');
+    
     if (password !== confirmPassword) {
-      setError(true);
-      setTimeout(() => setError(false), 500);
+      setErrorMsg('Passwords do not match');
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
       return;
     }
     
-    setError(false);
+    if (password.length < 8) {
+      setErrorMsg('Password must be at least 8 characters long');
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      return;
+    }
     
     try {
       await signup(name, email, password);
       // Synchronize with legacy store for session name compatibility
       legacyLogin(name);
       router.push('/dashboard');
-    } catch {
-      setError(true);
-      setTimeout(() => setError(false), 500);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Registration failed. Please try again.');
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
     }
   };
 
@@ -61,7 +71,7 @@ export default function SignupPage() {
         animate={{ 
           scale: 1, 
           opacity: 1,
-          x: error ? [0, -5, 5, -3, 3, 0] : 0
+          x: shake ? [0, -5, 5, -3, 3, 0] : 0
         }}
         transition={{ duration: 0.3 }}
         className="w-full max-w-md bg-white border border-slate-200 rounded-[2.5rem] p-10 shadow-xl relative z-10"
@@ -77,6 +87,13 @@ export default function SignupPage() {
           <h1 className="text-2xl font-bold text-slate-900 mb-2">Create your account</h1>
           <p className="text-slate-500 text-sm">Join the next generation of AI-powered conferencing.</p>
         </div>
+
+        {errorMsg && (
+          <div className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-xl flex items-start gap-3">
+            <ShieldCheck className="text-rose-500 shrink-0 mt-0.5" size={16} />
+            <p className="text-sm font-semibold text-rose-600 leading-snug">{errorMsg}</p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="w-full space-y-4">
           <div className="space-y-1.5">
