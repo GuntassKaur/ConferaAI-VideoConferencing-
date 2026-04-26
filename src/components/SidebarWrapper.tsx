@@ -18,6 +18,9 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
   const { logout: productLogout } = useProductStore();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // ✅ Hydration guard — Zustand persist needs a tick to rehydrate from localStorage
+  const [isHydrated, setIsHydrated] = useState(false);
+  useEffect(() => { setIsHydrated(true); }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -44,12 +47,30 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
     return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
   };
 
-  // If not logged in, just show children (e.g. login/signup pages)
-  if (!currentUser && (pathname === '/login' || pathname === '/signup')) {
-    return <div className="min-h-screen bg-white">{children}</div>;
-  }
+  const Spinner = () => (
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+      <div className="flex flex-col items-center gap-5">
+        <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-200">
+          <Video size={22} className="text-white" />
+        </div>
+        <div className="w-6 h-6 border-[3px] border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em]">Loading...</p>
+      </div>
+    </div>
+  );
 
-  if (!currentUser) return null;
+  // Show spinner while store rehydrates from localStorage (prevents blank screen flash)
+  if (!isHydrated) return <Spinner />;
+
+  // Auth pages render without sidebar
+  const isAuthPage = ['/login', '/signup', '/forgot-password', '/reset-password'].includes(pathname);
+  if (isAuthPage) return <div className="min-h-screen bg-white">{children}</div>;
+
+  // Redirect unauthenticated users — show spinner, not blank screen
+  if (!currentUser) {
+    router.push('/login');
+    return <Spinner />;
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#111827] font-sans selection:bg-indigo-100 selection:text-indigo-700">
