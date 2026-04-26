@@ -80,7 +80,7 @@ export default function SignupPage() {
           <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
             <Video size={20} />
           </div>
-          <span className="font-bold text-2xl text-slate-900 tracking-tight">Confera</span>
+          <span className="font-bold text-2xl text-slate-900 tracking-tight">Confera AI</span>
         </div>
 
         <div className="text-center mb-8">
