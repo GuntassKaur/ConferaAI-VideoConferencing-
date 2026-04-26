@@ -4,10 +4,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { useProductStore } from '@/store/productStore';
 import { 
   Mic, MicOff, Video as VideoIcon, VideoOff, 
-  PhoneOff, Brain, Sparkles, CheckCircle2,
-  Settings, Maximize2, Activity, ShieldAlert,
-  Copy, Check, UserPlus, X, UserCheck, 
-  MessageSquare, Users, Layout, ChevronRight
+  Brain, Sparkles, Check,
+  Copy, UserPlus, X, User,
+  MessageSquare, Users, Layout, ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
