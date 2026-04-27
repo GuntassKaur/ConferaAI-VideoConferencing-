@@ -3,11 +3,27 @@ import SidebarWrapper from '@/components/SidebarWrapper';
 import { Video, Search, Plus, Clock, Users, Calendar, Filter, ChevronRight, MoreVertical } from 'lucide-react';
 import { useProductStore } from '@/store/productStore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'next/navigation';
 
 export default function MeetingsPage() {
-  const { meetings } = useProductStore();
+  const { user: currentUser } = useAuthStore();
+  const [meetings, setMeetings] = useState<any[]>([]);
   const router = useRouter();
+
+  useEffect(() => {
+    if (currentUser) {
+      fetch(`/api/meetings?userId=${currentUser.id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setMeetings(data.meetings);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [currentUser]);
 
   return (
     <SidebarWrapper>
@@ -66,7 +82,7 @@ export default function MeetingsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.05 }}
                       className="group hover:bg-background-sub transition-colors cursor-pointer"
-                      onClick={() => router.push(`/meeting/${m.id}`)}
+                      onClick={() => router.push(`/meeting/${m.roomId || m.id}`)}
                     >
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-4">
@@ -74,15 +90,17 @@ export default function MeetingsPage() {
                               <Calendar size={18} />
                            </div>
                            <div>
-                             <span className="block font-medium text-text-primary text-sm transition-colors">{m.title}</span>
-                             <span className="text-xs text-text-secondary">ID: {m.id}</span>
+                             <span className="block font-medium text-text-primary text-sm transition-colors">{m.name || m.id}</span>
+                             <span className="text-xs text-text-secondary">ID: {m.roomId || m.id}</span>
                            </div>
                         </div>
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-2 text-text-secondary">
                           <Clock size={14} />
-                          <span className="text-sm">{m.createdAt}</span>
+                          <span className="text-sm">
+                            {new Date(m.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </span>
                         </div>
                       </td>
                       <td className="px-6 py-5">

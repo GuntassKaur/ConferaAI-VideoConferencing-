@@ -14,3 +14,7 @@ build/
 
 # Logs
 build_log*.txt
+*.log
+
+# Firebase
+.firebase/

@@ -58,6 +58,7 @@ export const useAuthStore = create<AuthState>()(
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Signup failed');
+          if (data.token) localStorage.setItem('token', data.token);
           set({ user: { id: data.user.id, name: data.user.name, email: data.user.email }, isLoading: false });
         } catch (error) {
           set({ isLoading: false });

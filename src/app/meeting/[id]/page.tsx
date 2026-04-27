@@ -131,9 +131,9 @@ export default function MeetingPage() {
             initial={{ y: -100, x: '-50%', opacity: 0 }}
             animate={{ y: 20, x: '-50%', opacity: 1 }}
             exit={{ y: -100, x: '-50%', opacity: 0 }}
-            className="fixed top-4 left-1/2 z-[100] px-6 py-3 bg-white text-slate-900 rounded-full shadow-2xl flex items-center gap-3 border border-slate-100"
+            className="fixed top-4 left-1/2 z-[100] px-6 py-3 bg-[#111827] text-white rounded-full shadow-2xl flex items-center gap-3 border border-[#1F2937]"
           >
-            <div className="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
+            <div className="w-6 h-6 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400">
                <Check size={14} />
             </div>
             <span className="text-sm font-bold tracking-tight">Meeting link copied to clipboard!</span>
@@ -227,11 +227,11 @@ export default function MeetingPage() {
                 initial={{ x: 100, opacity: 0, scale: 0.9 }}
                 animate={{ x: 0, opacity: 1, scale: 1 }}
                 exit={{ x: 100, opacity: 0, scale: 0.9 }}
-                className="pointer-events-auto bg-white p-6 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex flex-col gap-6 border border-slate-100 relative overflow-hidden"
+                className="pointer-events-auto bg-[#111827] p-6 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col gap-6 border border-[#1F2937] relative overflow-hidden"
               >
-                <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500" />
+                <div className="absolute top-0 left-0 w-full h-1 bg-[#6366F1]" />
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-inner">
+                  <div className="w-14 h-14 bg-[#6366F1]/20 rounded-2xl flex items-center justify-center text-[#6366F1] shadow-inner">
                      <User size={28} />
                   </div>
                   <div className="flex-1">
@@ -268,10 +268,10 @@ export default function MeetingPage() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="w-[440px] bg-white border-l border-slate-200 flex flex-col shadow-2xl z-40 relative text-slate-900"
+            className="w-[440px] bg-[#111827] border-l border-[#1F2937] flex flex-col shadow-2xl z-40 relative text-white"
           >
             {/* Panel Header */}
-            <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10">
+            <div className="p-8 border-b border-[#1F2937] flex justify-between items-center bg-[#111827] sticky top-0 z-10">
               <div className="flex items-center gap-4">
                  <div className="w-10 h-10 bg-indigo-600 rounded-[14px] flex items-center justify-center text-white shadow-lg shadow-indigo-200">
                     <Sparkles size={20} />
@@ -287,19 +287,19 @@ export default function MeetingPage() {
             </div>
 
             {/* Panel Content (Scrollable) */}
-            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-white">
+            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-[#111827]">
               {!recap && !isGenerating && (
                 <div className="h-full flex flex-col items-center justify-center text-center">
-                  <div className="w-16 h-16 bg-slate-50 rounded-[2rem] flex items-center justify-center mb-6 text-indigo-400 shadow-inner">
+                  <div className="w-16 h-16 bg-[#1F2937] rounded-[2rem] flex items-center justify-center mb-6 text-[#6366F1] shadow-inner">
                      <Brain size={32} />
                   </div>
-                  <h4 className="text-xl font-bold text-slate-900 mb-3 tracking-tight">Ready to Recap?</h4>
-                  <p className="text-sm text-slate-500 max-w-[280px] leading-relaxed mb-10">
+                  <h4 className="text-xl font-bold text-white mb-3 tracking-tight">Ready to Recap?</h4>
+                  <p className="text-sm text-slate-400 max-w-[280px] leading-relaxed mb-10">
                     Let Confera analyze the current session and generate a comprehensive summary.
                   </p>
                   <button 
                     onClick={generateRecap}
-                    className="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold text-sm shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center gap-3 active:scale-95 group"
+                    className="px-8 py-4 bg-[#6366F1] text-white rounded-2xl font-bold text-sm shadow-xl hover:bg-[#4F46E5] transition-all flex items-center gap-3 active:scale-95 group"
                   >
                     Generate AI Recap
                     <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -323,9 +323,9 @@ export default function MeetingPage() {
                 >
                    {/* TLDR Card */}
                    <section>
-                      <label className="text-[10px] font-bold text-indigo-500 uppercase tracking-[0.2em] mb-4 block">Summary</label>
-                      <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 shadow-inner">
-                         <p className="text-base text-slate-700 leading-relaxed font-medium italic">
+                      <label className="text-[10px] font-bold text-[#6366F1] uppercase tracking-[0.2em] mb-4 block">Summary</label>
+                      <div className="p-6 bg-[#0F172A] rounded-[2rem] border border-[#1F2937] shadow-inner">
+                         <p className="text-base text-slate-300 leading-relaxed font-medium italic">
                            "{recap.tldr}"
                          </p>
                       </div>
@@ -343,10 +343,10 @@ export default function MeetingPage() {
                              transition={{ delay: i * 0.1 }}
                              className="flex gap-4 items-start"
                            >
-                              <div className="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                                 <Check size={14} className="text-emerald-600" />
+                              <div className="w-6 h-6 bg-emerald-500/20 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                                 <Check size={14} className="text-emerald-400" />
                               </div>
-                              <span className="text-sm font-semibold text-slate-700 leading-snug">{p}</span>
+                              <span className="text-sm font-semibold text-slate-300 leading-snug">{p}</span>
                            </motion.div>
                          ))}
                       </div>
@@ -362,17 +362,17 @@ export default function MeetingPage() {
                              initial={{ opacity: 0, scale: 0.95 }}
                              animate={{ opacity: 1, scale: 1 }}
                              transition={{ delay: i * 0.15 }}
-                             className="p-5 bg-white border border-slate-100 rounded-2xl hover:border-indigo-200 hover:shadow-lg transition-all group cursor-pointer"
+                             className="p-5 bg-[#0F172A] border border-[#1F2937] rounded-2xl hover:border-[#6366F1]/50 hover:shadow-lg transition-all group cursor-pointer"
                            >
-                              <p className="text-[13px] font-bold text-slate-800 mb-2 leading-tight">{item.task}</p>
+                              <p className="text-[13px] font-bold text-white mb-2 leading-tight">{item.task}</p>
                               <div className="flex items-center justify-between">
                                  <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[8px] font-bold text-slate-500 uppercase">
+                                    <div className="w-5 h-5 rounded-full bg-[#1F2937] flex items-center justify-center text-[8px] font-bold text-slate-400 uppercase">
                                        {item.owner.charAt(0)}
                                     </div>
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.owner}</span>
                                  </div>
-                                 <ArrowRight size={14} className="text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-1 transition-all" />
+                                 <ArrowRight size={14} className="text-slate-500 group-hover:text-[#6366F1] group-hover:translate-x-1 transition-all" />
                               </div>
                            </motion.div>
                          ))}
@@ -383,10 +383,10 @@ export default function MeetingPage() {
             </div>
             
             {/* Panel Footer */}
-            <div className="p-8 border-t border-slate-100 bg-slate-50/50">
+            <div className="p-8 border-t border-[#1F2937] bg-[#0F172A]">
                <button 
                 onClick={endCall}
-                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200 active:scale-95"
+                className="w-full py-4 bg-[#111827] border border-[#1F2937] text-white rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-[#1F2937] transition-all shadow-xl active:scale-95"
                >
                  Close & Save Session
                </button>

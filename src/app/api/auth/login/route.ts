@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
-      return NextResponse.json({ error: 'Wrong password' }, { status: 400 });
+      return NextResponse.json({ error: 'Password incorrect' }, { status: 400 });
     }
 
     const token = jwt.sign({ id: user._id, email: user.email }, finalSecret, {

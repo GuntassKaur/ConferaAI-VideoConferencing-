@@ -13,15 +13,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function DashboardContent() {
   const router = useRouter();
   const { user: currentUser } = useAuthStore();
-  const { meetings, addMeeting } = useProductStore();
+  const [meetings, setMeetings] = useState<any[]>([]);
   const [meetingId, setMeetingId] = useState('');
   const [isStarting, setIsStarting] = useState(false);
-  const [copied, setCopied] = useState(false);
 
-  // Guest mode allowed
+  // Fetch recent meetings
   useEffect(() => {
-    // We no longer redirect to login here to allow guest access
-  }, [currentUser, router]);
+    if (currentUser) {
+      fetch(`/api/meetings?userId=${currentUser.id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setMeetings(data.meetings);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [currentUser]);
 
   const startMeeting = async () => {
     if (!currentUser) return;
@@ -46,13 +54,13 @@ export default function DashboardContent() {
       
       const newMeeting = {
         id: realId,
-        title: data.meeting.name,
+        roomId: realId,
+        name: data.meeting.name,
         createdAt: new Date().toLocaleString('en-US', { 
           month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
         }),
       };
       
-      addMeeting(newMeeting);
       router.push(`/meeting/${realId}`);
     } catch (error) {
       console.error(error);
@@ -157,12 +165,14 @@ export default function DashboardContent() {
                       <Video size={18} />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-text-primary mb-0.5">{m.id}</p>
-                      <p className="text-xs text-text-secondary">{m.createdAt}</p>
+                      <p className="text-sm font-medium text-text-primary mb-0.5">{m.roomId || m.id}</p>
+                      <p className="text-xs text-text-secondary">
+                        {new Date(m.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </p>
                     </div>
                   </div>
                   <button 
-                    onClick={() => router.push(`/meeting/${m.id}`)}
+                    onClick={() => router.push(`/meeting/${m.roomId || m.id}`)}
                     className="px-4 py-1.5 bg-background-base border border-background-border text-text-primary text-sm font-medium rounded-lg hover:bg-background-border transition-colors"
                   >
                     Join

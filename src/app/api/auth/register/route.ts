@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'confera-ai-secret-key-2026';
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
-      return NextResponse.json({ error: 'Email already exists' }, { status: 400 });
+      return NextResponse.json({ error: 'User already exists' }, { status: 400 });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -31,7 +34,11 @@ export async function POST(req: NextRequest) {
       passwordHash,
     });
 
-    return NextResponse.json({ message: 'User created', user: { id: newUser._id, name: newUser.name, email: newUser.email } }, { status: 201 });
+    const token = jwt.sign({ id: newUser._id, email: newUser.email }, JWT_SECRET, {
+      expiresIn: '7d',
+    });
+
+    return NextResponse.json({ message: 'User created', token, user: { id: newUser._id, name: newUser.name, email: newUser.email } }, { status: 201 });
 
   } catch (error: any) {
     console.error('Registration error:', error);

@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       name,
       hostId,
       status: 'waiting',
-      participants: [],
+      participants: [hostId],
     });
 
     return NextResponse.json(
