@@ -128,10 +128,10 @@ function ResetPasswordForm() {
         </form>
       )}
     </>
-    </>
   );
 }
 
+export default function ResetPasswordPage() {
   return (
     <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-6 font-sans relative overflow-hidden">
       {/* Subtle Background Blobs */}
@@ -143,11 +143,12 @@ function ResetPasswordForm() {
         animate={{ 
           opacity: 1, 
           y: 0,
-          x: error ? [0, -5, 5, -3, 3, 0] : 0
         }}
         className="w-full max-w-md bg-[#111827] border border-[#1F2937] rounded-[2.5rem] p-12 shadow-2xl relative z-10"
       >
-        <ResetPasswordForm />
+        <Suspense fallback={<div className="flex justify-center p-12"><Loader2 className="animate-spin text-[#6366F1]" size={32} /></div>}>
+          <ResetPasswordForm />
+        </Suspense>
       </motion.div>
     </div>
   );
