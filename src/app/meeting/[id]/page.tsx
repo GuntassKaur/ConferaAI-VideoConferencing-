@@ -7,7 +7,7 @@ import {
   Brain, Sparkles, Check, X, User,
   MessageSquare, Users, PhoneOff,
   Monitor, Smile, Copy, FileText, Send,
-  Loader2, Trash2
+  Loader2, Trash2, Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -423,6 +423,4 @@ export default function MeetingPage() {
   );
 }
 
-function Settings({ size }: { size?: number }) {
-  return <Loader2 size={size} />;
-}
+

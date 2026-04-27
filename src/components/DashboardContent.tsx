@@ -92,7 +92,7 @@ export default function DashboardContent() {
           <button 
             onClick={startMeeting}
             disabled={isStarting}
-            className="w-full py-3.5 bg-[#6366F1] text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-[#4F46E5] transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50"
+            className="w-full py-3.5 bg-[#6366F1] text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-[#4F46E5] transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 relative z-10"
           >
             {isStarting ? 'Initializing...' : 'Start Session'}
             <ArrowRight size={14} />
@@ -151,18 +151,18 @@ export default function DashboardContent() {
             <div className="divide-y divide-[#1F2937]">
               {meetings.slice(0, 5).map((m: any, i: number) => (
                 <div 
-                  key={m.id} 
-                  className="flex items-center justify-between p-5 hover:bg-[#0F172A]/50 transition-all group cursor-pointer"
-                  onClick={() => router.push(`/meeting/${m.roomId || m.id}`)}
+                  key={m.meetingId || m._id} 
+                  className="flex items-center justify-between p-5 hover:bg-[#0F172A]/50 transition-all group cursor-pointer relative z-10"
+                  onClick={() => router.push(`/meeting/${m.meetingId}`)}
                 >
                   <div className="flex items-center gap-6">
                     <div className="w-10 h-10 bg-[#0F172A] rounded-lg flex items-center justify-center text-slate-500 border border-[#1F2937] group-hover:text-[#6366F1] group-hover:border-[#6366F1]/30 transition-all">
                       <Video size={18} />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-white group-hover:text-[#6366F1] transition-colors">{m.name || m.roomId || m.id}</p>
+                      <p className="text-sm font-bold text-white group-hover:text-[#6366F1] transition-colors">{m.name || m.meetingId}</p>
                       <div className="flex items-center gap-3 mt-1">
-                         <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">ID: {m.roomId || m.id}</span>
+                         <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">ID: {m.meetingId}</span>
                          <div className="w-1 h-1 bg-slate-700 rounded-full" />
                          <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                            {new Date(m.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}

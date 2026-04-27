@@ -85,7 +85,7 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
         </div>
       </nav>
 
-      <div className="flex pt-16 h-screen max-w-[1200px] mx-auto overflow-hidden">
+      <div className="flex pt-16 h-screen overflow-hidden">
         
         {/* 📌 SIDEBAR (220px) */}
         <aside className="w-[220px] bg-[#0F172A] border-r border-[#1F2937] hidden lg:flex flex-col flex-shrink-0">
