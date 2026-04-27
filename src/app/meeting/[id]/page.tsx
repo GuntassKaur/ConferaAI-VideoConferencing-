@@ -2,75 +2,49 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useProductStore } from '@/store/productStore';
 import { 
   Mic, MicOff, Video as VideoIcon, VideoOff, 
-  Brain, Sparkles, Check,
-  Copy, UserPlus, X, User,
-  MessageSquare, Users, Layout, ArrowRight
+  Brain, Sparkles, Check, X, User,
+  MessageSquare, Users, Layout, PhoneOff,
+  Maximize2, Settings, Shield, Copy
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-import ControlBar from '@/components/ControlBar';
 
 export default function MeetingPage() {
   const params = useParams();
   const router = useRouter();
   const { user: currentUser } = useAuthStore();
-  const { saveRecording } = useProductStore();
   const meetingId = params.id as string;
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCamOn, setIsCamOn] = useState(true);
-  const [isAiOpen, setIsAiOpen] = useState(false);
+  const [isRightPanelOpen, setIsRightPanelOpen] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [recap, setRecap] = useState<any>(null);
   const [meetingData, setMeetingData] = useState<any>(null);
   const [copied, setCopied] = useState(false);
-  const [isHost, setIsHost] = useState(false);
-  const [requests, setRequests] = useState<any[]>([]);
 
   const fetchMeetingData = useCallback(async () => {
     try {
       const res = await fetch(`/api/meeting/${meetingId}`);
-      if (!res.ok) return;
-      const data = await res.json();
-      setMeetingData(data);
-      setIsHost(currentUser ? data.hostId === currentUser.id : false);
-      
-      if (currentUser && data.hostId === currentUser.id) {
-        setRequests(data.joinRequests?.filter((r: any) => r.status === 'pending') || []);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, [meetingId, currentUser]);
+      if (res.ok) setMeetingData(await res.json());
+    } catch (e) { console.error(e); }
+  }, [meetingId]);
 
   useEffect(() => {
     fetchMeetingData();
-    const interval = setInterval(fetchMeetingData, 5000);
-    return () => clearInterval(interval);
-  }, [fetchMeetingData]);
-
-  const initMedia = useCallback(async () => {
-    try {
-      const s = await navigator.mediaDevices.getUserMedia({ 
-        video: { width: 1280, height: 720 }, 
-        audio: true 
-      });
-      setStream(s);
-      if (videoRef.current) videoRef.current.srcObject = s;
-    } catch (e) {
-      console.error("Hardware denied", e);
-    }
-  }, []);
-
-  useEffect(() => {
+    const initMedia = async () => {
+      try {
+        const s = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        setStream(s);
+        if (videoRef.current) videoRef.current.srcObject = s;
+      } catch (e) { console.error(e); }
+    };
     initMedia();
     return () => stream?.getTracks().forEach(t => t.stop());
-  }, [initMedia]);
+  }, [fetchMeetingData]);
 
   const toggleMic = () => {
     stream?.getAudioTracks().forEach(t => t.enabled = !isMicOn);
@@ -83,314 +57,189 @@ export default function MeetingPage() {
   };
 
   const copyLink = () => {
-    const link = `${window.location.origin}/meeting/${meetingId}`;
-    navigator.clipboard.writeText(link);
+    navigator.clipboard.writeText(window.location.href);
     setCopied(true);
-    setTimeout(() => setCopied(false), 3000);
-  };
-
-  const approveUser = async (userId: string, approve: boolean) => {
-    try {
-      await fetch(`/api/meeting/${meetingId}/approve`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, approve })
-      });
-      fetchMeetingData();
-    } catch (e) {
-      console.error(e);
-    }
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const generateRecap = async () => {
     setIsGenerating(true);
     try {
       const res = await fetch(`/api/meeting/${meetingId}/end`, { method: 'POST' });
-      if (res.ok) {
-        const data = await res.json();
-        setRecap(data.recap);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const endCall = async () => {
-    if (recap) saveRecording(meetingId, recap);
-    router.push(currentUser ? '/dashboard' : '/login');
+      if (res.ok) setRecap((await res.json()).recap);
+    } catch (e) { console.error(e); } finally { setIsGenerating(false); }
   };
 
   return (
-    <div className="h-screen bg-[#020617] flex overflow-hidden font-sans selection:bg-indigo-500/30 text-white">
-      {/* 🧩 PREMIUM TOAST NOTIFICATION */}
-      <AnimatePresence>
-        {copied && (
-          <motion.div 
-            initial={{ y: -100, x: '-50%', opacity: 0 }}
-            animate={{ y: 20, x: '-50%', opacity: 1 }}
-            exit={{ y: -100, x: '-50%', opacity: 0 }}
-            className="fixed top-4 left-1/2 z-[100] px-6 py-3 bg-[#111827] text-white rounded-full shadow-2xl flex items-center gap-3 border border-[#1F2937]"
-          >
-            <div className="w-6 h-6 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400">
-               <Check size={14} />
-            </div>
-            <span className="text-sm font-bold tracking-tight">Meeting link copied to clipboard!</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className="flex-1 flex flex-col relative overflow-hidden">
-        {/* Top Header Overlay */}
-        <div className="absolute top-0 left-0 right-0 z-20 p-8 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
-          <div className="flex items-center gap-5 pointer-events-auto">
-             <div className="bg-indigo-600 p-2.5 rounded-[14px] shadow-2xl shadow-indigo-500/20">
-                <VideoIcon size={22} className="text-white" />
+    <div className="h-screen bg-[#020617] flex overflow-hidden font-sans text-white">
+      {/* 📹 VIDEO AREA */}
+      <div className="flex-1 flex flex-col relative">
+        {/* Top Header */}
+        <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-20 bg-gradient-to-b from-black/60 to-transparent">
+          <div className="flex items-center gap-4">
+             <div className="w-10 h-10 bg-[#6366F1] rounded-xl flex items-center justify-center shadow-lg shadow-[#6366F1]/20">
+                <VideoIcon size={20} className="text-white" />
              </div>
              <div>
-                <h2 className="text-lg font-bold tracking-tight">{meetingData?.name || 'Session in Progress'}</h2>
-                <div className="flex items-center gap-2.5 mt-1">
-                   <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">End-to-End Encrypted</span>
+                <h2 className="text-sm font-bold tracking-tight">{meetingData?.name || 'Secure Session'}</h2>
+                <div className="flex items-center gap-2 mt-0.5">
+                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">E2E Encrypted</span>
                 </div>
              </div>
           </div>
           
-          <div className="flex items-center gap-4 pointer-events-auto">
-             <div className="flex items-center gap-2.5 px-4 py-2 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 text-[11px] font-bold uppercase tracking-widest text-slate-300">
-                <Users size={16} className="text-indigo-400" />
-                <span>{meetingData?.joinRequests?.length || 1} Active Participants</span>
-             </div>
-             <button 
-              onClick={copyLink}
-              className="flex items-center gap-2.5 px-5 py-2.5 bg-white text-slate-900 rounded-full font-bold text-[11px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-black/20"
-             >
-                <Copy size={16} />
-                Share Link
+          <div className="flex items-center gap-2">
+             <button onClick={copyLink} className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all">
+                {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                {copied ? 'Copied' : 'Copy ID'}
+             </button>
+             <button className="p-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all">
+                <Users size={16} />
              </button>
           </div>
         </div>
 
-        {/* Video Stage */}
-        <div className="flex-1 p-6 lg:p-10 flex items-center justify-center bg-[#020617]">
-          <div className="w-full h-full max-w-6xl relative rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/5">
-             <video 
+        {/* Main Stage */}
+        <div className="flex-1 flex items-center justify-center p-8">
+           <div className="w-full h-full max-w-5xl aspect-video bg-[#0F172A] rounded-[2rem] overflow-hidden shadow-2xl relative border border-white/5">
+              <video 
                 ref={videoRef} 
                 autoPlay 
                 playsInline 
                 muted 
-                className={`w-full h-full object-cover transition-all duration-1000 ${isCamOn ? 'opacity-100' : 'opacity-0 scale-105 blur-lg'}`}
+                className={`w-full h-full object-cover transition-all duration-700 ${isCamOn ? 'opacity-100' : 'opacity-0 scale-105 blur-2xl'}`}
               />
-              
-              <AnimatePresence>
-                {!isCamOn && (
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute inset-0 flex items-center justify-center bg-[#0F172A]"
-                  >
-                    <div className="w-40 h-40 rounded-full bg-indigo-600/10 border-2 border-indigo-500/20 flex items-center justify-center text-6xl font-bold relative group">
-                      <span className="text-indigo-100 group-hover:scale-110 transition-transform duration-500">{(currentUser?.name || 'Guest').charAt(0)}</span>
-                      <div className="absolute -inset-10 bg-indigo-600/10 blur-[80px] rounded-full -z-10 animate-pulse" />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Local Tag */}
-              <div className="absolute bottom-8 left-8 flex items-center gap-3 bg-black/60 backdrop-blur-xl px-5 py-2.5 rounded-2xl border border-white/10">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full" />
-                <span className="text-xs font-bold uppercase tracking-widest text-white/90">{currentUser?.name || 'Guest User'} (You)</span>
+              {!isCamOn && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                   <div className="w-32 h-32 rounded-full bg-[#6366F1]/10 border-2 border-[#6366F1]/20 flex items-center justify-center text-4xl font-bold text-white shadow-2xl">
+                      {currentUser?.name?.charAt(0) || 'G'}
+                   </div>
+                </div>
+              )}
+              {/* Overlay Name */}
+              <div className="absolute bottom-6 left-6 px-4 py-2 bg-black/40 backdrop-blur-md border border-white/10 rounded-xl flex items-center gap-3">
+                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                 <span className="text-[10px] font-bold uppercase tracking-widest">{currentUser?.name || 'Guest User'} (You)</span>
               </div>
-          </div>
+           </div>
         </div>
 
-        {/* 🧩 NEW PREMIUM CONTROL BAR */}
-        <ControlBar 
-           isMicOn={isMicOn}
-           onToggleMic={toggleMic}
-           isCamOn={isCamOn}
-           onToggleCam={toggleCam}
-           isAiOpen={isAiOpen}
-           onToggleAi={() => setIsAiOpen(!isAiOpen)}
-           onEndCall={endCall}
-        />
-
-        {/* 👥 HOST APPROVAL POPUP (MODERN) */}
-        <div className="absolute top-32 right-10 z-[60] space-y-4 pointer-events-none w-80">
-          <AnimatePresence>
-            {isHost && requests.map((req: any) => (
-              <motion.div 
-                key={req.userId}
-                initial={{ x: 100, opacity: 0, scale: 0.9 }}
-                animate={{ x: 0, opacity: 1, scale: 1 }}
-                exit={{ x: 100, opacity: 0, scale: 0.9 }}
-                className="pointer-events-auto bg-[#111827] p-6 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col gap-6 border border-[#1F2937] relative overflow-hidden"
-              >
-                <div className="absolute top-0 left-0 w-full h-1 bg-[#6366F1]" />
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-[#6366F1]/20 rounded-2xl flex items-center justify-center text-[#6366F1] shadow-inner">
-                     <User size={28} />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[10px] font-bold text-[#6366F1] uppercase tracking-widest mb-1">Waiting in Lobby</p>
-                    <h4 className="text-base font-bold text-white truncate">{req.name}</h4>
-                  </div>
-                </div>
-                
-                <div className="flex gap-3">
-                   <button 
-                    onClick={() => approveUser(req.userId, true)}
-                    className="flex-1 py-3 bg-[#6366F1] text-white rounded-2xl font-bold text-sm hover:bg-[#4F46E5] transition-all shadow-lg shadow-[#6366F1]/10 active:scale-95"
-                   >
-                      Accept
-                   </button>
-                   <button 
-                    onClick={() => approveUser(req.userId, false)}
-                    className="flex-1 py-3 bg-[#0F172A] text-slate-400 rounded-2xl font-bold text-sm hover:bg-rose-500 hover:text-white transition-all active:scale-95 border border-[#1F2937]"
-                   >
-                      Reject
-                   </button>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+        {/* 🎛️ CONTROL BAR (Floating) */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-[#111827]/90 backdrop-blur-2xl px-8 py-4 rounded-[2.5rem] border border-white/10 shadow-2xl">
+           <button onClick={toggleMic} className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${isMicOn ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-rose-500 text-white shadow-lg shadow-rose-500/20'}`}>
+              {isMicOn ? <Mic size={20} /> : <MicOff size={20} />}
+           </button>
+           <button onClick={toggleCam} className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${isCamOn ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-rose-500 text-white shadow-lg shadow-rose-500/20'}`}>
+              {isCamOn ? <VideoIcon size={20} /> : <VideoOff size={20} />}
+           </button>
+           
+           <div className="w-px h-6 bg-white/10 mx-2" />
+           
+           <button onClick={() => setIsRightPanelOpen(!isRightPanelOpen)} className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${isRightPanelOpen ? 'bg-[#6366F1] text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+              <Brain size={20} />
+           </button>
+           
+           <button onClick={() => router.push('/dashboard')} className="px-8 h-12 bg-rose-600 text-white font-bold text-[10px] uppercase tracking-widest rounded-full hover:bg-rose-700 transition-all flex items-center gap-3 shadow-lg shadow-rose-600/20">
+              <PhoneOff size={18} />
+              End Session
+           </button>
         </div>
       </div>
 
-      {/* 🤖 PREMIUM AI PANEL (CHATGPT STYLE) */}
+      {/* 🧩 RIGHT PANEL (AI & Chat) */}
       <AnimatePresence>
-        {isAiOpen && (
+        {isRightPanelOpen && (
           <motion.div 
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="w-[440px] bg-[#111827] border-l border-[#1F2937] flex flex-col shadow-2xl z-40 relative text-white"
+            className="w-[380px] bg-[#111827] border-l border-[#1F2937] flex flex-col shadow-2xl relative z-40"
           >
-            {/* Panel Header */}
-            <div className="p-8 border-b border-[#1F2937] flex justify-between items-center bg-[#111827] sticky top-0 z-10">
-              <div className="flex items-center gap-4">
-                 <div className="w-10 h-10 bg-[#6366F1] rounded-[14px] flex items-center justify-center text-white shadow-lg shadow-[#6366F1]/20">
-                    <Sparkles size={20} />
-                 </div>
-                 <div>
-                    <h3 className="font-bold text-lg tracking-tight text-white">AI Workspace</h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">AI Assistant</p>
-                 </div>
-              </div>
-              <button onClick={() => setIsAiOpen(false)} className="p-2.5 hover:bg-[#1F2937] rounded-xl text-slate-400 transition-colors">
-                <X size={22} />
-              </button>
-            </div>
-
-            {/* Panel Content (Scrollable) */}
-            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-[#111827]">
-              {!recap && !isGenerating && (
-                <div className="h-full flex flex-col items-center justify-center text-center">
-                  <div className="w-16 h-16 bg-[#1F2937] rounded-[2rem] flex items-center justify-center mb-6 text-[#6366F1] shadow-inner">
-                     <Brain size={32} />
-                  </div>
-                  <h4 className="text-xl font-bold text-white mb-3 tracking-tight">Ready to Recap?</h4>
-                  <p className="text-sm text-slate-400 max-w-[280px] leading-relaxed mb-10">
-                    Let Confera analyze the current session and generate a comprehensive summary.
-                  </p>
-                  <button 
-                    onClick={generateRecap}
-                    className="px-8 py-4 bg-[#6366F1] text-white rounded-2xl font-bold text-sm shadow-xl hover:bg-[#4F46E5] transition-all flex items-center gap-3 active:scale-95 group"
-                  >
-                    Generate AI Recap
-                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                  </button>
+             {/* Header */}
+             <div className="p-6 border-b border-[#1F2937] flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                   <div className="w-8 h-8 bg-[#6366F1]/10 rounded-lg flex items-center justify-center text-[#6366F1]">
+                      <Sparkles size={16} />
+                   </div>
+                   <h3 className="font-bold text-sm tracking-tight">Intelligence Panel</h3>
                 </div>
-              )}
+                <button onClick={() => setIsRightPanelOpen(false)} className="p-2 text-slate-500 hover:text-white transition-colors">
+                   <X size={20} />
+                </button>
+             </div>
 
-              {isGenerating && (
-                 <div className="h-full flex flex-col items-center justify-center text-center">
-                    <div className="w-12 h-12 border-[3px] border-[#6366F1]/20 border-t-[#6366F1] rounded-full animate-spin mb-6" />
-                    <h4 className="text-lg font-bold text-white mb-2">Analyzing Session...</h4>
-                    <p className="text-xs text-slate-400 tracking-wider font-bold uppercase">Generating Recap</p>
-                 </div>
-              )}
-
-              {recap && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="space-y-12"
-                >
-                   {/* TLDR Card */}
-                   <section>
-                      <label className="text-[10px] font-bold text-[#6366F1] uppercase tracking-[0.2em] mb-4 block">Summary</label>
-                      <div className="p-6 bg-[#0F172A] rounded-[2rem] border border-[#1F2937] shadow-inner">
-                         <p className="text-base text-slate-300 leading-relaxed font-medium italic">
+             {/* Content */}
+             <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                {!recap ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center">
+                     <div className="w-16 h-16 bg-[#0F172A] rounded-2xl flex items-center justify-center mb-6 text-slate-700 border border-[#1F2937]">
+                        <Brain size={32} />
+                     </div>
+                     <h4 className="text-lg font-bold text-white mb-2">AI Summary</h4>
+                     <p className="text-xs text-slate-500 font-medium leading-relaxed mb-8 max-w-[240px]">
+                        Confera is monitoring the transmission. Generate a recap when ready.
+                     </p>
+                     <button 
+                       onClick={generateRecap}
+                       disabled={isGenerating}
+                       className="w-full py-4 bg-[#6366F1] text-white font-bold text-[10px] uppercase tracking-widest rounded-xl hover:bg-[#4F46E5] transition-all flex items-center justify-center gap-3 shadow-lg shadow-[#6366F1]/10 active:scale-95"
+                     >
+                        {isGenerating ? <Loader2 className="animate-spin" size={14} /> : <Sparkles size={14} />}
+                        {isGenerating ? 'Processing...' : 'Generate Insights'}
+                     </button>
+                  </div>
+                ) : (
+                  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                     <section>
+                        <label className="text-[10px] font-bold text-[#6366F1] uppercase tracking-[0.2em] block mb-4">Strategic Summary</label>
+                        <div className="p-5 bg-[#0F172A] rounded-2xl border border-[#1F2937] leading-relaxed italic text-sm text-slate-300">
                            "{recap.tldr}"
-                         </p>
-                      </div>
-                   </section>
+                        </div>
+                     </section>
+                     
+                     <section>
+                        <label className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.2em] block mb-4">Key Takeaways</label>
+                        <div className="space-y-3">
+                           {recap.keyPoints?.map((p: string, i: number) => (
+                             <div key={i} className="flex gap-3 text-sm text-slate-400 group">
+                                <div className="w-5 h-5 bg-emerald-500/10 rounded-full flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-emerald-500/20 transition-colors">
+                                   <Check size={12} className="text-emerald-500" />
+                                </div>
+                                <span className="font-medium">{p}</span>
+                             </div>
+                           ))}
+                        </div>
+                     </section>
 
-                   {/* Key Points */}
-                   <section>
-                      <label className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.2em] mb-5 block">Key Points</label>
-                      <div className="space-y-4">
-                         {recap.keyPoints?.map((p: string, i: number) => (
-                           <motion.div 
-                             key={i}
-                             initial={{ opacity: 0, x: -10 }}
-                             animate={{ opacity: 1, x: 0 }}
-                             transition={{ delay: i * 0.1 }}
-                             className="flex gap-4 items-start"
-                           >
-                              <div className="w-6 h-6 bg-emerald-500/20 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                                 <Check size={14} className="text-emerald-400" />
-                              </div>
-                              <span className="text-sm font-semibold text-slate-300 leading-snug">{p}</span>
-                           </motion.div>
-                         ))}
-                      </div>
-                   </section>
+                     <section>
+                        <label className="text-[10px] font-bold text-amber-500 uppercase tracking-[0.2em] block mb-4">Action Pipeline</label>
+                        <div className="space-y-3">
+                           {recap.actionItems?.map((item: any, i: number) => (
+                             <div key={i} className="p-4 bg-[#0F172A] border border-[#1F2937] rounded-xl hover:border-[#6366F1]/30 transition-all group">
+                                <p className="text-[13px] font-bold text-white mb-2">{item.task}</p>
+                                <div className="flex items-center gap-2">
+                                   <div className="w-4 h-4 bg-slate-800 rounded-full flex items-center justify-center text-[8px] font-bold text-slate-400 uppercase">{item.owner.charAt(0)}</div>
+                                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.owner}</span>
+                                </div>
+                             </div>
+                           ))}
+                        </div>
+                     </section>
+                  </div>
+                )}
+             </div>
 
-                   {/* Action Items */}
-                   <section>
-                      <label className="text-[10px] font-bold text-amber-500 uppercase tracking-[0.2em] mb-5 block">Action Items</label>
-                      <div className="grid grid-cols-1 gap-3">
-                         {recap.actionItems?.map((item: any, i: number) => (
-                           <motion.div 
-                             key={i}
-                             initial={{ opacity: 0, scale: 0.95 }}
-                             animate={{ opacity: 1, scale: 1 }}
-                             transition={{ delay: i * 0.15 }}
-                             className="p-5 bg-[#0F172A] border border-[#1F2937] rounded-2xl hover:border-[#6366F1]/50 hover:shadow-lg transition-all group cursor-pointer"
-                           >
-                              <p className="text-[13px] font-bold text-white mb-2 leading-tight">{item.task}</p>
-                              <div className="flex items-center justify-between">
-                                 <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-full bg-[#1F2937] flex items-center justify-center text-[8px] font-bold text-slate-400 uppercase">
-                                       {item.owner.charAt(0)}
-                                    </div>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.owner}</span>
-                                 </div>
-                                 <ArrowRight size={14} className="text-slate-500 group-hover:text-[#6366F1] group-hover:translate-x-1 transition-all" />
-                              </div>
-                           </motion.div>
-                         ))}
-                      </div>
-                   </section>
-                </motion.div>
-              )}
-            </div>
-            
-            {/* Panel Footer */}
-            <div className="p-8 border-t border-[#1F2937] bg-[#0F172A]">
-               <button 
-                onClick={endCall}
-                className="w-full py-4 bg-[#111827] border border-[#1F2937] text-white rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-[#1F2937] transition-all shadow-xl active:scale-95"
-               >
-                 Close & Save Session
-               </button>
-            </div>
+             {/* Footer */}
+             <div className="p-6 border-t border-[#1F2937] bg-[#111827]">
+                <div className="relative group">
+                   <input 
+                     type="text" 
+                     placeholder="Message transmission..."
+                     className="w-full bg-[#0F172A] border border-[#1F2937] rounded-xl px-4 py-3 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-[#6366F1] transition-all"
+                   />
+                </div>
+             </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -398,3 +247,6 @@ export default function MeetingPage() {
   );
 }
 
+function Loader2({ className, size }: { className?: string, size?: number }) {
+  return <Sparkles className={`${className} animate-pulse`} size={size} />;
+}

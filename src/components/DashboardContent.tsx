@@ -3,11 +3,12 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'next/navigation';
 import { 
-  Plus, Video, History, Settings, 
-  Shield, Clock, Calendar, Users, 
-  ArrowRight, Search, Zap, Layout
+  Plus, Video, Clock, 
+  Search, Shield, Zap, 
+  ArrowRight, MoreVertical,
+  Calendar, CheckCircle2
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export default function DashboardContent() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function DashboardContent() {
     const userId = currentUser?.id || `guest_${Math.random().toString(36).substring(2, 9)}`;
     
     try {
-      const response = await fetch('/api/livekit/room', {
+      await fetch('/api/livekit/room', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -44,8 +45,6 @@ export default function DashboardContent() {
           hostId: userId
         })
       });
-
-      if (!response.ok) throw new Error('Failed to create meeting');
       router.push(`/meeting/${realId}`);
     } catch (error) {
       console.error(error);
@@ -59,167 +58,127 @@ export default function DashboardContent() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12 font-inter">
-      {/* 🚀 PREMIUM HEADER */}
-      <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
-            {currentUser ? `Welcome back, ${currentUser.name.split(' ')[0]}` : 'Terminal Access'}
-          </h1>
-          <p className="text-slate-400 text-sm font-medium">
-            {currentUser ? 'Your collaboration dashboard is live and operational.' : 'Authorized guest access enabled for this session.'}
-          </p>
-        </motion.div>
-        <div className="hidden md:flex items-center gap-3">
-           <div className="px-4 py-2 bg-[#111827] border border-[#1F2937] rounded-xl flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-              <Zap size={14} className="text-[#6366F1]" />
-              Lat: 12ms
-           </div>
-           <div className="px-4 py-2 bg-[#111827] border border-[#1F2937] rounded-xl flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-              <Shield size={14} className="text-emerald-500" />
-              Secure
+    <div className="px-8 py-10">
+      {/* 🚀 HEADER SECTION */}
+      <header className="flex items-center justify-between mb-12">
+        <div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
+          <p className="text-slate-400 text-sm font-medium mt-1">Manage your meetings and sessions</p>
+        </div>
+        <div className="flex items-center gap-3">
+           <div className="px-3 py-1.5 bg-[#111827] border border-[#1F2937] rounded-lg text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              System Online
            </div>
         </div>
       </header>
 
-      {/* 🧩 PRIMARY ACTION CARDS */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
-        {/* Start Meeting */}
+      {/* 🧱 MAIN GRID (Start | Join) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        {/* Start Meeting Card */}
         <motion.div 
-          whileHover={{ y: -4 }}
-          className="lg:col-span-7 p-8 bg-[#111827] border border-[#1F2937] rounded-[2.5rem] shadow-2xl relative overflow-hidden group"
+          whileHover={{ y: -2 }}
+          className="p-8 bg-[#111827] border border-[#1F2937] rounded-2xl shadow-sm flex flex-col relative overflow-hidden group"
         >
-          <div className="absolute top-0 left-0 w-full h-1.5 bg-[#6366F1]" />
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 h-full">
-            <div className="flex-1">
-              <div className="w-14 h-14 bg-[#6366F1]/10 rounded-2xl flex items-center justify-center text-[#6366F1] mb-6 border border-[#6366F1]/20 shadow-lg shadow-[#6366F1]/5">
-                 <Video size={28} />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">Launch Instant Session</h3>
-              <p className="text-slate-400 text-sm font-medium mb-8 max-w-xs leading-relaxed">
-                Start a high-definition, end-to-end encrypted video meeting in one click.
-              </p>
-              <button 
-                onClick={startMeeting}
-                disabled={isStarting}
-                className="w-full md:w-auto px-10 py-4 bg-[#6366F1] text-white font-bold text-sm rounded-xl hover:bg-[#4F46E5] transition-all shadow-xl shadow-[#6366F1]/20 flex items-center justify-center gap-3 active:scale-[0.98] disabled:opacity-50"
-              >
-                {isStarting ? (
-                  <><Zap className="animate-pulse" size={18} /> Initializing...</>
-                ) : (
-                  <><Plus size={18} /> Create Room</>
-                )}
-              </button>
-            </div>
-            <div className="hidden md:flex flex-col gap-3 shrink-0">
-               <div className="p-4 bg-[#0F172A] border border-[#1F2937] rounded-2xl flex flex-col items-center gap-1 group-hover:border-[#6366F1]/30 transition-all">
-                  <Layout size={20} className="text-slate-500" />
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Grid View</span>
-               </div>
-               <div className="p-4 bg-[#0F172A] border border-[#1F2937] rounded-2xl flex flex-col items-center gap-1 group-hover:border-[#6366F1]/30 transition-all">
-                  <Shield size={20} className="text-slate-500" />
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">E2EE</span>
-               </div>
-            </div>
+          <div className="absolute top-0 left-0 w-full h-1 bg-[#6366F1]" />
+          <div className="w-12 h-12 bg-[#6366F1]/10 rounded-xl flex items-center justify-center text-[#6366F1] mb-6 border border-[#6366F1]/20 group-hover:scale-110 transition-transform">
+             <Video size={24} />
           </div>
+          <h3 className="text-lg font-bold text-white mb-2">Start Meeting</h3>
+          <p className="text-slate-400 text-sm font-medium mb-8 leading-relaxed">
+            Launch a secure, high-definition instant session.
+          </p>
+          <button 
+            onClick={startMeeting}
+            disabled={isStarting}
+            className="w-full py-3.5 bg-[#6366F1] text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-[#4F46E5] transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50"
+          >
+            {isStarting ? 'Initializing...' : 'Start Session'}
+            <ArrowRight size={14} />
+          </button>
         </motion.div>
 
-        {/* Join Meeting */}
+        {/* Join Meeting Card */}
         <motion.div 
-          whileHover={{ y: -4 }}
-          className="lg:col-span-5 p-8 bg-[#111827] border border-[#1F2937] rounded-[2.5rem] shadow-2xl relative overflow-hidden"
+          whileHover={{ y: -2 }}
+          className="p-8 bg-[#111827] border border-[#1F2937] rounded-2xl shadow-sm flex flex-col group"
         >
-          <div className="flex flex-col h-full">
-            <div className="w-14 h-14 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400 mb-6 border border-slate-700">
-               <Zap size={28} />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">Join Existing</h3>
-            <p className="text-slate-400 text-sm font-medium mb-8 leading-relaxed">
-              Enter a secure access code to connect to an ongoing transmission.
-            </p>
-            <form onSubmit={handleJoin} className="mt-auto space-y-4">
-              <div className="relative group">
-                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#6366F1] transition-colors" />
-                <input 
-                  type="text" 
-                  value={meetingId}
-                  onChange={(e) => setMeetingId(e.target.value)}
-                  placeholder="Enter access code"
-                  className="w-full bg-[#0F172A] border border-[#1F2937] rounded-xl pl-12 pr-4 py-4 text-sm font-bold text-white placeholder:text-slate-600 focus:outline-none focus:border-[#6366F1] transition-all shadow-inner"
-                />
-              </div>
-              <button 
-                type="submit"
-                disabled={!meetingId}
-                className="w-full py-4 bg-[#0F172A] border border-[#1F2937] text-white font-bold text-sm rounded-xl hover:bg-[#1F2937] transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-[0.98]"
-              >
-                Join Transmission
-              </button>
-            </form>
+          <div className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 mb-6 border border-slate-700 group-hover:scale-110 transition-transform">
+             <Zap size={24} />
           </div>
+          <h3 className="text-lg font-bold text-white mb-2">Join Meeting</h3>
+          <p className="text-slate-400 text-sm font-medium mb-8 leading-relaxed">
+            Connect to an existing session via access code.
+          </p>
+          <form onSubmit={handleJoin} className="mt-auto flex gap-3">
+            <input 
+              type="text" 
+              value={meetingId}
+              onChange={(e) => setMeetingId(e.target.value)}
+              placeholder="Access code"
+              className="flex-1 bg-[#0F172A] border border-[#1F2937] rounded-xl px-4 py-3 text-sm font-bold text-white placeholder:text-slate-600 focus:outline-none focus:border-[#6366F1] transition-all"
+            />
+            <button 
+              type="submit"
+              disabled={!meetingId}
+              className="px-6 py-3.5 bg-[#1F2937] border border-[#1F2937] text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:border-slate-500 transition-all disabled:opacity-30 active:scale-[0.98]"
+            >
+              Join
+            </button>
+          </form>
         </motion.div>
       </div>
 
-      {/* 🕒 RECENT ACTIVITY SECTION */}
+      {/* 📋 RECENT MEETINGS (List View) */}
       <section>
-        <div className="flex items-center justify-between mb-8 px-4">
-           <h4 className="text-lg font-bold text-white tracking-tight flex items-center gap-3">
-             <History size={20} className="text-[#6366F1]" />
+        <div className="flex items-center justify-between mb-6 px-1">
+           <h4 className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] flex items-center gap-3">
+             <Clock size={16} className="text-[#6366F1]" />
              Recent Transmissions
            </h4>
-           <button 
-            onClick={() => router.push('/meetings')}
-            className="text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-white transition-colors"
-           >
-             View full archive
-           </button>
         </div>
 
-        <div className="bg-[#111827] border border-[#1F2937] rounded-[2rem] overflow-hidden shadow-2xl">
+        <div className="bg-[#111827] border border-[#1F2937] rounded-2xl overflow-hidden shadow-sm">
           {meetings.length === 0 ? (
             <div className="py-20 flex flex-col items-center justify-center text-center">
-               <div className="w-16 h-16 bg-[#0F172A] rounded-full flex items-center justify-center mb-6 text-slate-700 border border-[#1F2937]">
-                  <Clock size={32} />
+               <div className="w-12 h-12 bg-[#0F172A] rounded-xl flex items-center justify-center mb-4 text-slate-700 border border-[#1F2937]">
+                  <Calendar size={24} />
                </div>
-               <p className="text-sm text-slate-500 font-bold uppercase tracking-[0.2em]">Zero activity detected</p>
+               <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">No activity history detected</p>
             </div>
           ) : (
             <div className="divide-y divide-[#1F2937]">
-              {meetings.slice(0, 4).map((m: any, i: number) => (
-                <motion.div 
+              {meetings.slice(0, 5).map((m: any, i: number) => (
+                <div 
                   key={m.id} 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="flex items-center justify-between p-6 hover:bg-[#0F172A] transition-all group cursor-pointer"
+                  className="flex items-center justify-between p-5 hover:bg-[#0F172A]/50 transition-all group cursor-pointer"
                   onClick={() => router.push(`/meeting/${m.roomId || m.id}`)}
                 >
                   <div className="flex items-center gap-6">
-                    <div className="w-12 h-12 bg-[#0F172A] rounded-2xl flex items-center justify-center text-slate-500 group-hover:text-[#6366F1] group-hover:border-[#6366F1]/30 border border-[#1F2937] transition-all shadow-inner">
-                      <Video size={20} />
+                    <div className="w-10 h-10 bg-[#0F172A] rounded-lg flex items-center justify-center text-slate-500 border border-[#1F2937] group-hover:text-[#6366F1] group-hover:border-[#6366F1]/30 transition-all">
+                      <Video size={18} />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-white mb-1 group-hover:text-[#6366F1] transition-colors">{m.name || m.roomId || m.id}</p>
-                      <div className="flex items-center gap-3">
-                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">ID: {m.roomId || m.id}</span>
+                      <p className="text-sm font-bold text-white group-hover:text-[#6366F1] transition-colors">{m.name || m.roomId || m.id}</p>
+                      <div className="flex items-center gap-3 mt-1">
+                         <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">ID: {m.roomId || m.id}</span>
                          <div className="w-1 h-1 bg-slate-700 rounded-full" />
-                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                           {new Date(m.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                         <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+                           {new Date(m.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                          </span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <button 
-                      className="px-6 py-2 bg-[#0F172A] border border-[#1F2937] text-white text-[10px] font-bold uppercase tracking-widest rounded-lg group-hover:border-[#6366F1]/50 group-hover:text-[#6366F1] transition-all"
-                    >
-                      Re-enter
+                  <div className="flex items-center gap-3">
+                    <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[10px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1.5">
+                       <CheckCircle2 size={10} />
+                       Secured
+                    </div>
+                    <button className="p-2 text-slate-600 hover:text-white rounded-lg transition-colors">
+                       <MoreVertical size={16} />
                     </button>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           )}
