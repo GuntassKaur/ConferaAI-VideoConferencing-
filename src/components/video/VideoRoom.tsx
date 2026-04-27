@@ -290,7 +290,7 @@ export default function VideoRoom({ roomId }: { roomId: string }) {
 }
 
 function ParticipantTile({ participant }: { participant: any }) {
-  const tracks = useTracks([Track.Source.Camera], { participant });
+  const tracks = useTracks([Track.Source.Camera], { onlyParticipants: [participant] });
   const isSpeaking = useIsSpeaking(participant);
 
   return (

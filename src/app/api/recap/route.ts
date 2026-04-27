@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     
     // First, promote existing recap → previousRecap for historical brief context
     const existingMeeting = await Meeting.findOne({ roomId });
-    const updatePayload: Record<string, unknown> = {
+    const updatePayload: any = {
       $set: { recap, status: 'ended' }
     };
     if (existingMeeting?.recap?.tldr) {
