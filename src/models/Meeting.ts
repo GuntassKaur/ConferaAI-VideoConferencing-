@@ -1,12 +1,21 @@
 import mongoose from "mongoose";
 
 const MeetingSchema = new mongoose.Schema({
-  meetingId: String,
+  meetingId: { type: String, unique: true, required: true },
   name: String,
   hostId: String,
   participants: [String],
-  status: { type: String, default: 'idle' },
-  recap: mongoose.Schema.Types.Mixed,
+  status: { type: String, enum: ['active', 'ended', 'idle'], default: 'idle' },
+  notes: { type: String, default: "" },
+  notesLastEditedBy: String,
+  notesUpdatedAt: Date,
+  recap: {
+    tldr: String,
+    keyPoints: [String],
+    actionItems: [{ task: String, owner: String }],
+    sentiment: String,
+    engagementScore: Number
+  },
   joinRequests: [{
     userId: String,
     name: String,

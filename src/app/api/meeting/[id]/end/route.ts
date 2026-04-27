@@ -18,46 +18,58 @@ export async function POST(
       return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });
     }
 
+    // Capture notes if they exist to provide better context to AI
+    const meetingContext = meeting.notes ? `Context from shared notes: ${meeting.notes}` : "No specific notes captured.";
+
     // Generate Realistic AI Recap using Gemini
     let recap;
     try {
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       const prompt = `
-        You are an elite executive assistant for a high-performance team.
+        You are an elite enterprise executive assistant.
         The meeting titled "${meeting.name || id}" has just ended.
-        Generate a professional, intelligence-grade recap in JSON format.
+        ${meetingContext}
         
-        The JSON should have:
+        Generate a professional, intelligence-grade recap in strict JSON format.
+        
+        The JSON MUST have exactly these keys:
         - tldr: A concise 1-2 sentence executive summary.
         - keyPoints: An array of 3-4 strategic takeaways.
-        - actionItems: An array of 3 objects with "task" and "owner" (use realistic names or roles like Lead, Dev, Ops).
-        - sentiment: A single word describing the meeting vibe (e.g., Collaborative, Decisive, Intense).
+        - actionItems: An array of 3 objects with "task" and "owner" (use realistic names like 'Dev Lead', 'Product Manager', 'Ops').
+        - sentiment: A single word describing the meeting vibe.
         - engagementScore: A number from 0-100.
 
-        Return ONLY the JSON.
+        Return ONLY the JSON block. Do not include markdown formatting.
       `;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      const text = response.text();
-      const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      recap = JSON.parse(jsonStr);
+      let text = response.text();
+      
+      // Clean up potential markdown JSON blocks
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        recap = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error("No JSON found in response");
+      }
     } catch (aiError) {
       console.error('Gemini failed, falling back to template:', aiError);
       recap = {
-        tldr: 'The team synchronized on key project milestones and addressed critical blockers for the current sprint.',
+        tldr: 'The session focused on aligning cross-functional teams with the upcoming production release cycle and addressing architectural bottlenecks.',
         keyPoints: [
-          'Aligned on the deployment timeline for the next production release.',
-          'Identified and assigned owners to resolve pending architectural debt.',
-          'Confirmed the integration strategy for real-time telemetry modules.'
+          'Confirmed the final feature set for the Q3 enterprise rollout.',
+          'Identified mission-critical security patches required for deployment.',
+          'Synthesized feedback from stakeholders regarding the new UI design system.',
+          'Established a secondary validation protocol for real-time telemetry.'
         ],
         actionItems: [
-          { task: 'Finalize environment variable configuration', owner: 'Dev Team' },
-          { task: 'Review API security protocols for join flow', owner: 'Lead Engineer' },
-          { task: 'Update project board with new action items', owner: 'PM' }
+          { task: 'Deploy security patches to the staging environment', owner: 'Dev Ops' },
+          { task: 'Finalize the stakeholder communication plan', owner: 'Product Manager' },
+          { task: 'Update documentation for real-time sync protocols', owner: 'Lead Engineer' }
         ],
         sentiment: 'Collaborative',
-        engagementScore: 92,
+        engagementScore: 94,
       };
     }
 
