@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       : `Participant joining: ${participantName}`;
 
     const prompt = `
-You are Confera AI's Pre-Meeting Intelligence Engine.
+You are Confera's Pre-Meeting Intelligence Engine.
 Generate a smart, personalized pre-call brief for a participant joining a live session.
 Return ONLY a valid JSON object with NO markdown, no backticks, no extra text:
 {

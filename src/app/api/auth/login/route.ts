@@ -1,44 +1,51 @@
-import { NextResponse } from 'next/server';
-export const dynamic = 'force-dynamic';
-import connectDB from '@/lib/mongodb';
+import { NextRequest, NextResponse } from 'next/server';
+import connectToDatabase from '@/lib/mongodb';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
-export async function POST(request: Request) {
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  console.warn('Warning: JWT_SECRET is not defined. Using a default secret for development.');
+}
+
+const finalSecret = JWT_SECRET || 'confera-ai-secret-key-2026';
+
+export async function POST(req: NextRequest) {
   try {
-    await connectDB();
-    const { email, password } = await request.json();
+    const { email, password } = await req.json();
 
     if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
     }
+
+    await connectToDatabase();
 
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
     }
 
-    // Secure password comparison
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+      return NextResponse.json({ error: 'Wrong password' }, { status: 400 });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      } 
+    const token = jwt.sign({ id: user._id, email: user.email }, finalSecret, {
+      expiresIn: '7d',
     });
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error('Login error:', msg);
-    if (msg.includes('Database connection string missing')) {
-      return NextResponse.json({ error: 'Server database connection not configured.' }, { status: 503 });
-    }
-    return NextResponse.json({ error: 'Login failed. Please try again later.' }, { status: 500 });
+
+    return NextResponse.json(
+      { 
+        token, 
+        user: { id: user._id, name: user.name, email: user.email } 
+      }, 
+      { status: 200 }
+    );
+
+  } catch (error) {
+    console.error('Login error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -206,7 +206,7 @@ export default function VideoRoom({ roomId }: { roomId: string }) {
                   <div className="flex-1 overflow-y-auto p-4 space-y-4">
                     {aiHistory.map((m, i) => (
                       <div key={i} className={`flex flex-col ${m.type === 'user' ? 'items-end' : 'items-start'}`}>
-                        {m.type === 'ai' && <div className="flex items-center gap-1 text-[10px] text-indigo-400 font-bold mb-1"><Brain size={10} /> CONFERA AI</div>}
+                        {m.type === 'ai' && <div className="flex items-center gap-1 text-[10px] text-indigo-400 font-bold mb-1"><Brain size={10} /> CONFERA</div>}
                         <div className={`px-3 py-2 rounded-xl text-sm max-w-[90%] shadow-sm ${m.type === 'user' ? 'bg-[#17171d] text-white border border-[#1e1e27] rounded-tr-sm' : 'bg-indigo-600/10 text-indigo-100 border border-indigo-500/20 rounded-tl-sm'}`}>
                           {m.text}
                         </div>

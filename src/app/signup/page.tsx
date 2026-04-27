@@ -19,7 +19,6 @@ export default function SignupPage() {
   
   const router = useRouter();
   const { signup, isLoading } = useAuthStore();
-  const { login: legacyLogin } = useProductStore();
 
   useEffect(() => {
     let s = 0;
@@ -41,8 +40,8 @@ export default function SignupPage() {
       return;
     }
     
-    if (password.length < 8) {
-      setErrorMsg('Password must be at least 8 characters long');
+    if (password.length < 6) {
+      setErrorMsg('Password too short');
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
@@ -50,11 +49,10 @@ export default function SignupPage() {
     
     try {
       await signup(name, email, password);
-      // Synchronize with legacy store for session name compatibility
-      legacyLogin(name);
       router.push('/dashboard');
     } catch (err: any) {
-      setErrorMsg(err.message || 'Registration failed. Please try again.');
+      const message = err.message || 'Registration failed. Please try again.';
+      setErrorMsg(message);
       setShake(true);
       setTimeout(() => setShake(false), 500);
     }
@@ -80,7 +78,7 @@ export default function SignupPage() {
           <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
             <Video size={20} />
           </div>
-          <span className="font-bold text-2xl text-slate-900 tracking-tight">Confera AI</span>
+          <span className="font-bold text-2xl text-slate-900 tracking-tight">Confera</span>
         </div>
 
         <div className="text-center mb-8">
@@ -121,9 +119,11 @@ export default function SignupPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium"
+                  className={`w-full pl-11 pr-4 py-3 bg-slate-50 border ${errorMsg === 'Email already exists' ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : 'border-slate-200 focus:ring-indigo-500/20 focus:border-indigo-500'} rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 transition-all font-medium`}
                 />
              </div>
+             {errorMsg === 'Email already exists' && <p className="text-red-500 text-sm mt-1">User already exists</p>}
+             {errorMsg === 'Invalid email' && <p className="text-red-500 text-sm mt-1">Invalid email</p>}
           </div>
 
           <div className="space-y-1.5">
@@ -135,8 +135,8 @@ export default function SignupPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Min. 8 characters"
-                  className="w-full pl-11 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium"
+                  placeholder="Min. 6 characters"
+                  className={`w-full pl-11 pr-12 py-3 bg-slate-50 border ${errorMsg === 'Password too short' ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : 'border-slate-200 focus:ring-indigo-500/20 focus:border-indigo-500'} rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 transition-all font-medium`}
                 />
                 <button 
                   type="button"
@@ -146,6 +146,7 @@ export default function SignupPage() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
              </div>
+             {errorMsg === 'Password too short' && <p className="text-red-500 text-sm mt-1">Password too short</p>}
              {/* Strength Indicator */}
              {password.length > 0 && (
                 <div className="flex gap-1.5 mt-3 px-1">
@@ -187,7 +188,7 @@ export default function SignupPage() {
           >
             {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : (
               <>
-                Create account
+                {isLoading ? 'Registering...' : 'Create account'}
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </>
             )}

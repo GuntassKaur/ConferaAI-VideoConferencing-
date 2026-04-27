@@ -7,12 +7,13 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { roomId: string } }
+  { params }: any
 ) {
   try {
     await connectToDatabase();
 
-    const meeting = await Meeting.findOne({ roomId: params.roomId });
+    const { roomId } = await Promise.resolve(params);
+    const meeting = await Meeting.findOne({ roomId });
     if (!meeting) {
       return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });
     }

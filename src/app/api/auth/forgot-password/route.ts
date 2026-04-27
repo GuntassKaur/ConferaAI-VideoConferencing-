@@ -40,13 +40,13 @@ export async function POST(req: Request) {
     const resetLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
 
     const mailOptions = {
-      from: `"Confera AI Security" <${process.env.EMAIL_USER}>`,
+      from: `"Confera Security" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: 'Confera AI - Secure Password Reset Request',
+      subject: 'Confera - Secure Password Reset Request',
       html: `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
           <h2 style="color: #2563eb; margin-bottom: 24px;">Password Reset Request</h2>
-          <p style="color: #475569; line-height: 1.6;">A password reset for your Confera AI account was requested. This link will expire in 60 minutes.</p>
+          <p style="color: #475569; line-height: 1.6;">A password reset for your Confera account was requested. This link will expire in 60 minutes.</p>
           <div style="margin: 32px 0;">
             <a href="${resetLink}" style="background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">Reset My Password</a>
           </div>

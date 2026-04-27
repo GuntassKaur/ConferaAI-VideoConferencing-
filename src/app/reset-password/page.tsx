@@ -65,7 +65,7 @@ function ResetPasswordForm() {
           {message ? <CheckCircle2 className="text-emerald-500 w-6 h-6" /> : <Lock className="text-blue-500 w-6 h-6" />}
         </div>
         <h1 className="text-2xl font-bold text-white tracking-tight">{message ? 'Security Updated' : 'Reset Password'}</h1>
-        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Confera AI Account Recovery</p>
+        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Confera Account Recovery</p>
       </div>
 
       {message ? (

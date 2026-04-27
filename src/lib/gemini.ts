@@ -10,7 +10,7 @@ export async function generateMeetingSummary(
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const prompt = `
-    You are Confera AI's Neural Recap engine. Analyze this meeting transcript and return ONLY a JSON object (no markdown, no backticks) with the following structure:
+    You are Confera's Neural Recap engine. Analyze this meeting transcript and return ONLY a JSON object (no markdown, no backticks) with the following structure:
     {
       "title": "string",
       "tldr": "string (2 sentences maximum)",

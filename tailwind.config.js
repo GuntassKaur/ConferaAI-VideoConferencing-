@@ -7,24 +7,19 @@ module.exports = {
     extend: {
       colors: {
         background: { 
-          base: '#08080a', 
-          sub: '#0f0f13', 
-          elevated: '#17171d', 
-          border: '#1e1e27', 
-          deep: '#050507' 
+          base: '#0F172A', 
+          sub: '#111827', 
+          elevated: '#1F2937', 
+          border: '#374151', 
         },
         accent: { 
-          DEFAULT: '#6366f1', 
-          light: '#818cf8', 
-          dark: '#4f46e5', 
-          muted: '#312e81', 
-          glow: 'rgba(99,102,241,0.15)' 
+          DEFAULT: '#6366F1', 
+          light: '#818CF8', 
+          dark: '#4F46E5', 
         },
         text: { 
-          primary: '#f8fafc', 
-          secondary: '#94a3b8', 
-          muted: '#475569', 
-          hint: '#334155' 
+          primary: '#E5E7EB', 
+          secondary: '#9CA3AF', 
         },
         success: '#10b981', 
         warning: '#f59e0b', 

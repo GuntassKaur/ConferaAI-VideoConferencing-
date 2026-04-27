@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useProductStore } from '@/store/productStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Video, Shield, Loader2, ArrowLeft, 
@@ -12,7 +12,7 @@ import {
 export default function JoinPage() {
   const params = useParams();
   const router = useRouter();
-  const { currentUser } = useProductStore();
+  const { user: currentUser } = useAuthStore();
   const meetingId = params.id as string;
   
   const [status, setStatus] = useState<'idle' | 'requesting' | 'waiting' | 'accepted' | 'rejected'>('idle');

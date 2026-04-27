@@ -17,17 +17,9 @@ export interface Meeting {
   };
 }
 
-export interface User {
-  id: string;
-  name: string;
+interface ProductState {
   meetings: Meeting[];
   recordings: Meeting[];
-}
-
-interface ProductState {
-  currentUser: User | null;
-  login: (name: string) => void;
-  logout: () => void;
   addMeeting: (meeting: Meeting) => void;
   saveRecording: (meetingId: string, recap: Meeting['aiRecap']) => void;
 }
@@ -35,30 +27,17 @@ interface ProductState {
 export const useProductStore = create<ProductState>()(
   persist(
     (set) => ({
-      currentUser: null,
-      login: (name) => set({ 
-        currentUser: { id: Math.random().toString(36).substring(7), name, meetings: [], recordings: [] } 
-      }),
-      logout: () => set({ currentUser: null }),
-      addMeeting: (meeting) => set((state) => {
-        if (!state.currentUser) return state;
-        return {
-          currentUser: {
-            ...state.currentUser,
-            meetings: [meeting, ...state.currentUser.meetings]
-          }
-        };
-      }),
+      meetings: [],
+      recordings: [],
+      addMeeting: (meeting) => set((state) => ({
+        meetings: [meeting, ...state.meetings]
+      })),
       saveRecording: (meetingId, recap) => set((state) => {
-        if (!state.currentUser) return state;
-        const meeting = state.currentUser.meetings.find(m => m.id === meetingId);
+        const meeting = state.meetings.find(m => m.id === meetingId);
         if (!meeting) return state;
         const recordedMeeting = { ...meeting, aiRecap: recap };
         return {
-          currentUser: {
-            ...state.currentUser,
-            recordings: [recordedMeeting, ...state.currentUser.recordings]
-          }
+          recordings: [recordedMeeting, ...state.recordings]
         };
       }),
     }),

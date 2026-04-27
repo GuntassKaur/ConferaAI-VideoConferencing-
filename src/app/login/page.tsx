@@ -11,10 +11,9 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   
   const { login, user, isLoading } = useAuthStore();
-  const { login: legacyLogin } = useProductStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -23,16 +22,12 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(false);
+    setErrorMsg('');
     try {
       await login(email, password);
-      // Synchronize legacy store with user name if possible
-      // In a real app, you'd fetch the user profile here.
-      legacyLogin(email.split('@')[0]); 
       router.push('/dashboard');
-    } catch (err) {
-      setError(true);
-      setTimeout(() => setError(false), 500);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Login failed');
     }
   };
 
@@ -47,7 +42,7 @@ export default function LoginPage() {
         animate={{ 
           opacity: 1, 
           y: 0,
-          x: error ? [0, -5, 5, -3, 3, 0] : 0
+          x: errorMsg ? [0, -5, 5, -3, 3, 0] : 0
         }}
         className="w-full max-w-md bg-white border border-slate-200 rounded-[2.5rem] p-12 shadow-xl relative z-10"
       >
@@ -55,7 +50,7 @@ export default function LoginPage() {
           <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
             <Video size={20} />
           </div>
-          <span className="font-bold text-2xl text-slate-900 tracking-tight">Confera AI</span>
+          <span className="font-bold text-2xl text-slate-900 tracking-tight">Confera</span>
         </div>
 
         <div className="text-center mb-10">
@@ -74,9 +69,10 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium"
+                  className={`w-full pl-11 pr-4 py-3 bg-slate-50 border ${errorMsg === 'Invalid email' ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : 'border-slate-200 focus:ring-indigo-500/20 focus:border-indigo-500'} rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 transition-all font-medium`}
                 />
              </div>
+             {errorMsg === 'Invalid email' && <p className="text-red-500 text-sm mt-1">Invalid email</p>}
           </div>
 
           <div className="space-y-1.5">
@@ -89,7 +85,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium"
+                  className={`w-full pl-11 pr-12 py-3 bg-slate-50 border ${errorMsg === 'Wrong password' ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : 'border-slate-200 focus:ring-indigo-500/20 focus:border-indigo-500'} rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 transition-all font-medium`}
                 />
                 <button 
                   type="button"
@@ -99,6 +95,7 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
              </div>
+             {errorMsg === 'Wrong password' && <p className="text-red-500 text-sm mt-1">Wrong password</p>}
           </div>
           
           <button 
@@ -108,7 +105,7 @@ export default function LoginPage() {
           >
             {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : (
               <>
-                Sign in
+                {isLoading ? 'Logging in...' : 'Sign in'}
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </>
             )}

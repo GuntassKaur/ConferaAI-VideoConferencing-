@@ -96,7 +96,7 @@ export default function AIPanel({ onClose }: { onClose?: () => void }) {
               </div>
               <h4 className="text-lg font-bold text-slate-900 mb-2">Ready for analysis</h4>
               <p className="text-sm text-slate-500 leading-relaxed max-w-[240px] mx-auto font-medium">
-                Confera AI is listening. Generate a summary to capture key takeaways and action items.
+                Confera is listening. Generate a summary to capture key takeaways and action items.
               </p>
               <button 
                 onClick={generateNeuralRecap}

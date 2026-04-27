@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useProductStore } from '@/store/productStore';
 import { 
   Mic, MicOff, Video as VideoIcon, VideoOff, 
@@ -15,7 +16,8 @@ import ControlBar from '@/components/ControlBar';
 export default function MeetingPage() {
   const params = useParams();
   const router = useRouter();
-  const { currentUser, saveRecording } = useProductStore();
+  const { user: currentUser } = useAuthStore();
+  const { saveRecording } = useProductStore();
   const meetingId = params.id as string;
   
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -279,7 +281,7 @@ export default function MeetingPage() {
                  </div>
                  <div>
                     <h3 className="font-bold text-lg tracking-tight">AI Workspace</h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Neural Intelligence</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">AI Assistant</p>
                  </div>
               </div>
               <button onClick={() => setIsAiOpen(false)} className="p-2.5 hover:bg-slate-50 rounded-xl text-slate-400 transition-colors">
@@ -296,7 +298,7 @@ export default function MeetingPage() {
                   </div>
                   <h4 className="text-xl font-bold text-slate-900 mb-3 tracking-tight">Ready to Recap?</h4>
                   <p className="text-sm text-slate-500 max-w-[280px] leading-relaxed mb-10">
-                    Let Confera AI analyze the current session and generate a comprehensive summary.
+                    Let Confera analyze the current session and generate a comprehensive summary.
                   </p>
                   <button 
                     onClick={generateRecap}
@@ -312,7 +314,7 @@ export default function MeetingPage() {
                  <div className="h-full flex flex-col items-center justify-center text-center">
                     <div className="w-12 h-12 border-[3px] border-indigo-100 border-t-indigo-600 rounded-full animate-spin mb-6" />
                     <h4 className="text-lg font-bold text-slate-900 mb-2">Analyzing Session...</h4>
-                    <p className="text-xs text-slate-500 tracking-wider font-bold uppercase">Processing neural nodes</p>
+                    <p className="text-xs text-slate-500 tracking-wider font-bold uppercase">Generating Recap</p>
                  </div>
               )}
 
@@ -324,7 +326,7 @@ export default function MeetingPage() {
                 >
                    {/* TLDR Card */}
                    <section>
-                      <label className="text-[10px] font-bold text-indigo-500 uppercase tracking-[0.2em] mb-4 block">Neural Summary</label>
+                      <label className="text-[10px] font-bold text-indigo-500 uppercase tracking-[0.2em] mb-4 block">Summary</label>
                       <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 shadow-inner">
                          <p className="text-base text-slate-700 leading-relaxed font-medium italic">
                            "{recap.tldr}"
@@ -334,7 +336,7 @@ export default function MeetingPage() {
 
                    {/* Key Points */}
                    <section>
-                      <label className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.2em] mb-5 block">Strategic Takeaways</label>
+                      <label className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.2em] mb-5 block">Key Points</label>
                       <div className="space-y-4">
                          {recap.keyPoints?.map((p: string, i: number) => (
                            <motion.div 
@@ -355,7 +357,7 @@ export default function MeetingPage() {
 
                    {/* Action Items */}
                    <section>
-                      <label className="text-[10px] font-bold text-amber-500 uppercase tracking-[0.2em] mb-5 block">Assigned Tasks</label>
+                      <label className="text-[10px] font-bold text-amber-500 uppercase tracking-[0.2em] mb-5 block">Action Items</label>
                       <div className="grid grid-cols-1 gap-3">
                          {recap.actionItems?.map((item: any, i: number) => (
                            <motion.div 
