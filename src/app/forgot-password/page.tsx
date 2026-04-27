@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Mail, ArrowLeft, Loader2, ShieldCheck, MailCheck } from 'lucide-react';
+import { Mail, ArrowLeft, Loader2, ShieldCheck, MailCheck, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ForgotPasswordPage() {

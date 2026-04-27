@@ -17,14 +17,30 @@ export default function JoinPage() {
   
   const [status, setStatus] = useState<'idle' | 'requesting' | 'waiting' | 'accepted' | 'rejected'>('idle');
   const [meetingName, setMeetingName] = useState('');
+  const [guestInfo, setGuestInfo] = useState<{ id: string, name: string } | null>(null);
+
+  useEffect(() => {
+    if (!currentUser && typeof window !== 'undefined') {
+      let gId = localStorage.getItem('confera-guest-id');
+      if (!gId) {
+        gId = 'guest_' + Math.random().toString(36).substring(2, 11);
+        localStorage.setItem('confera-guest-id', gId);
+      }
+      setGuestInfo({ id: gId, name: 'Guest User' });
+    }
+  }, [currentUser]);
 
   const checkStatus = useCallback(async () => {
     if (status !== 'waiting') return;
+    const uId = currentUser?.id || guestInfo?.id;
+    const uName = currentUser?.name || guestInfo?.name;
+    if (!uId) return;
+
     try {
       const res = await fetch(`/api/meeting/${meetingId}/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: currentUser?.id, name: currentUser?.name })
+        body: JSON.stringify({ userId: uId, name: uName })
       });
       const data = await res.json();
       if (data.status === 'accepted') {
@@ -36,7 +52,7 @@ export default function JoinPage() {
     } catch (e) {
       console.error(e);
     }
-  }, [meetingId, currentUser, status, router]);
+  }, [meetingId, currentUser, guestInfo, status, router]);
 
   useEffect(() => {
     const fetchMeeting = async () => {
@@ -44,15 +60,14 @@ export default function JoinPage() {
       if (res.ok) {
         const data = await res.json();
         setMeetingName(data.name);
-        if (data.hostId === currentUser?.id) {
+        if (currentUser && data.hostId === currentUser.id) {
             router.push(`/meeting/${meetingId}`);
         }
       } else {
-        router.push('/dashboard');
+        router.push(currentUser ? '/dashboard' : '/login');
       }
     };
-    if (currentUser) fetchMeeting();
-    else router.push('/login');
+    fetchMeeting();
   }, [meetingId, currentUser, router]);
 
   useEffect(() => {
@@ -65,11 +80,14 @@ export default function JoinPage() {
 
   const requestJoin = async () => {
     setStatus('requesting');
+    const uId = currentUser?.id || guestInfo?.id;
+    const uName = currentUser?.name || guestInfo?.name;
+    
     try {
       const res = await fetch(`/api/meeting/${meetingId}/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: currentUser?.id, name: currentUser?.name })
+        body: JSON.stringify({ userId: uId, name: uName })
       });
       const data = await res.json();
       if (data.status === 'accepted') {
@@ -118,10 +136,10 @@ export default function JoinPage() {
                 <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400">
                    <User size={20} />
                 </div>
-                <div>
-                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Signed in as</p>
-                   <p className="text-sm font-bold text-slate-800">{currentUser?.name}</p>
-                </div>
+                 <div>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{currentUser ? 'Signed in as' : 'Joining as Guest'}</p>
+                    <p className="text-sm font-bold text-slate-800">{currentUser?.name || 'Guest User'}</p>
+                 </div>
              </div>
              <div className="h-px bg-slate-200/50 mb-4" />
              <div className="flex items-center gap-3 text-slate-500">

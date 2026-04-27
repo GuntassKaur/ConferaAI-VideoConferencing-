@@ -63,11 +63,9 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
   const isAuthPage = ['/login', '/signup', '/forgot-password', '/reset-password'].includes(pathname);
   if (isAuthPage) return <div className="min-h-screen bg-background-base">{children}</div>;
 
-  // Redirect unauthenticated users — show spinner, not blank screen
-  if (!currentUser) {
-    router.push('/login');
-    return <Spinner />;
-  }
+  // We allow guests to view the app, but some features may be restricted at the component level.
+  // The sidebar and navbar will show guest states.
+
 
   return (
     <div className="min-h-screen bg-background-base text-text-primary font-sans selection:bg-accent/20 selection:text-accent">
@@ -105,11 +103,20 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
 
             <div className="h-6 w-px bg-background-border mx-1" />
 
-            <div className="flex items-center gap-3 pl-2 cursor-pointer group" onClick={() => router.push('/settings')}>
-               <div className="w-9 h-9 rounded-full bg-background-elevated border border-background-border flex items-center justify-center text-xs font-bold text-text-primary shadow-sm group-hover:border-accent/50 transition-all">
-                  {getInitials(currentUser.name)}
-               </div>
-            </div>
+            {currentUser ? (
+              <div className="flex items-center gap-3 pl-2 cursor-pointer group" onClick={() => router.push('/settings')}>
+                 <div className="w-9 h-9 rounded-full bg-background-elevated border border-background-border flex items-center justify-center text-xs font-bold text-text-primary shadow-sm group-hover:border-accent/50 transition-all">
+                    {getInitials(currentUser.name)}
+                 </div>
+              </div>
+            ) : (
+              <button 
+                onClick={() => router.push('/login')}
+                className="px-4 py-1.5 bg-accent text-white text-xs font-bold rounded-xl hover:bg-accent/90 transition-all shadow-lg shadow-accent/20"
+              >
+                Sign In
+              </button>
+            )}
 
             <button onClick={() => setIsMobileOpen(true)} className="lg:hidden p-2 text-text-secondary"><Menu size={24} /></button>
           </div>
@@ -148,12 +155,21 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
 
           {/* Bottom Card */}
           <div className="p-4">
-            <button 
-              onClick={handleLogout}
-              className="mt-4 w-full flex items-center justify-center gap-2 py-3 text-xs font-bold text-rose-500 hover:bg-background-elevated rounded-xl transition-all border border-transparent"
-            >
-              <LogOut size={16} /> Sign Out
-            </button>
+            {currentUser ? (
+              <button 
+                onClick={handleLogout}
+                className="mt-4 w-full flex items-center justify-center gap-2 py-3 text-xs font-bold text-rose-500 hover:bg-background-elevated rounded-xl transition-all border border-transparent"
+              >
+                <LogOut size={16} /> Sign Out
+              </button>
+            ) : (
+              <button 
+                onClick={() => router.push('/login')}
+                className="mt-4 w-full flex items-center justify-center gap-2 py-3 text-xs font-bold text-accent hover:bg-background-elevated rounded-xl transition-all border border-transparent"
+              >
+                <LogOut size={16} /> Sign In
+              </button>
+            )}
           </div>
         </aside>
 
@@ -207,10 +223,14 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
 
               <div className="mt-auto pt-6 border-t border-background-border">
                  <button 
-                  onClick={handleLogout}
-                  className="w-full py-4 bg-rose-500/10 text-rose-500 text-sm font-semibold rounded-2xl active:scale-95 transition-all flex items-center justify-center gap-2"
+                  onClick={() => {
+                    if (currentUser) handleLogout();
+                    else router.push('/login');
+                    setIsMobileOpen(false);
+                  }}
+                  className={`w-full py-4 ${currentUser ? 'bg-rose-500/10 text-rose-500' : 'bg-accent/10 text-accent'} text-sm font-semibold rounded-2xl active:scale-95 transition-all flex items-center justify-center gap-2`}
                  >
-                    <LogOut size={18} /> Logout
+                    <LogOut size={18} /> {currentUser ? 'Logout' : 'Sign In'}
                  </button>
               </div>
             </motion.div>

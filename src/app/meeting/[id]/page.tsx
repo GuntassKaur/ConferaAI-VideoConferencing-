@@ -38,9 +38,9 @@ export default function MeetingPage() {
       if (!res.ok) return;
       const data = await res.json();
       setMeetingData(data);
-      setIsHost(data.hostId === currentUser?.id);
+      setIsHost(currentUser ? data.hostId === currentUser.id : false);
       
-      if (data.hostId === currentUser?.id) {
+      if (currentUser && data.hostId === currentUser.id) {
         setRequests(data.joinRequests?.filter((r: any) => r.status === 'pending') || []);
       }
     } catch (e) {
@@ -68,10 +68,9 @@ export default function MeetingPage() {
   }, []);
 
   useEffect(() => {
-    if (!currentUser) router.push('/login');
     initMedia();
     return () => stream?.getTracks().forEach(t => t.stop());
-  }, [currentUser, initMedia]);
+  }, [initMedia]);
 
   const toggleMic = () => {
     stream?.getAudioTracks().forEach(t => t.enabled = !isMicOn);
@@ -120,10 +119,8 @@ export default function MeetingPage() {
 
   const endCall = async () => {
     if (recap) saveRecording(meetingId, recap);
-    router.push('/dashboard');
+    router.push(currentUser ? '/dashboard' : '/login');
   };
-
-  if (!currentUser) return null;
 
   return (
     <div className="h-screen bg-[#020617] flex overflow-hidden font-sans selection:bg-indigo-500/30 text-white">
@@ -195,7 +192,7 @@ export default function MeetingPage() {
                     className="absolute inset-0 flex items-center justify-center bg-[#0F172A]"
                   >
                     <div className="w-40 h-40 rounded-full bg-indigo-600/10 border-2 border-indigo-500/20 flex items-center justify-center text-6xl font-bold relative group">
-                      <span className="text-indigo-100 group-hover:scale-110 transition-transform duration-500">{currentUser.name.charAt(0)}</span>
+                      <span className="text-indigo-100 group-hover:scale-110 transition-transform duration-500">{(currentUser?.name || 'Guest').charAt(0)}</span>
                       <div className="absolute -inset-10 bg-indigo-600/10 blur-[80px] rounded-full -z-10 animate-pulse" />
                     </div>
                   </motion.div>
@@ -205,7 +202,7 @@ export default function MeetingPage() {
               {/* Local Tag */}
               <div className="absolute bottom-8 left-8 flex items-center gap-3 bg-black/60 backdrop-blur-xl px-5 py-2.5 rounded-2xl border border-white/10">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full" />
-                <span className="text-xs font-bold uppercase tracking-widest text-white/90">{currentUser.name} (You)</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-white/90">{currentUser?.name || 'Guest User'} (You)</span>
               </div>
           </div>
         </div>
