@@ -61,24 +61,24 @@ function ResetPasswordForm() {
   return (
     <>
       <div className="flex flex-col items-center mb-10">
-        <div className="w-12 h-12 bg-blue-600/10 rounded-xl flex items-center justify-center mb-4 border border-blue-500/20">
-          {message ? <CheckCircle2 className="text-emerald-500 w-6 h-6" /> : <Lock className="text-blue-500 w-6 h-6" />}
+        <div className="w-12 h-12 bg-[#6366F1]/10 rounded-xl flex items-center justify-center mb-4 border border-[#6366F1]/20">
+          {message ? <CheckCircle2 className="text-emerald-500 w-6 h-6" /> : <Lock className="text-[#6366F1] w-6 h-6" />}
         </div>
         <h1 className="text-2xl font-bold text-white tracking-tight">{message ? 'Security Updated' : 'Reset Password'}</h1>
-        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Confera Account Recovery</p>
+        <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Confera Account Recovery</p>
       </div>
 
       {message ? (
         <div className="text-center space-y-6">
-           <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-xl">
+           <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
               <p className="text-sm text-slate-300">{message}</p>
            </div>
-           <p className="text-[10px] text-slate-500 uppercase tracking-widest animate-pulse">Redirecting to login portal...</p>
+           <p className="text-[10px] text-slate-400 uppercase tracking-widest animate-pulse">Redirecting to login portal...</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">New Security Key</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">New Security Key</label>
             <div className="relative">
               <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
               <input 
@@ -86,7 +86,7 @@ function ResetPasswordForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="New password"
-                className="input-field w-full pl-11 pr-11"
+                className="w-full pl-11 pr-11 py-3 bg-[#0F172A] border border-[#1F2937] rounded-xl text-sm text-white focus:outline-none focus:border-[#6366F1] transition-colors"
                 required
               />
               <button 
@@ -100,7 +100,7 @@ function ResetPasswordForm() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Confirm Security Key</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 ml-1">Confirm Security Key</label>
             <div className="relative">
               <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
               <input 
@@ -108,45 +108,46 @@ function ResetPasswordForm() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm password"
-                className="input-field w-full pl-11"
+                className="w-full pl-11 pr-11 py-3 bg-[#0F172A] border border-[#1F2937] rounded-xl text-sm text-white focus:outline-none focus:border-[#6366F1] transition-colors"
                 required
               />
             </div>
           </div>
 
           {error && (
-            <p className="text-red-400 text-[10px] font-bold uppercase tracking-widest text-center bg-red-400/5 py-3 rounded-lg border border-red-400/10">{error}</p>
+            <p className="text-red-400 text-[10px] font-bold uppercase tracking-widest text-center bg-red-400/10 py-3 rounded-lg border border-red-400/20">{error}</p>
           )}
 
           <button 
             type="submit"
             disabled={isLoading}
-            className="btn-primary w-full py-6 text-xs uppercase tracking-[0.2em]"
+            className="w-full py-4 bg-[#6366F1] text-white font-bold text-sm rounded-xl shadow-lg hover:bg-[#4F46E5] transition-all active:scale-[0.98] flex items-center justify-center gap-2 group disabled:opacity-70"
           >
             {isLoading ? <Loader2 className="animate-spin" /> : 'Apply Security Update'}
           </button>
         </form>
       )}
     </>
+    </>
   );
 }
 
-export default function ResetPasswordPage() {
   return (
-    <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-6 font-inter">
-      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-blue-600/5 to-transparent -z-10" />
-
+    <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-6 font-sans relative overflow-hidden">
+      {/* Subtle Background Blobs */}
+      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-indigo-500/5 rounded-full blur-3xl -z-10 translate-x-1/4 -translate-y-1/4" />
+      <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-blue-500/5 rounded-full blur-3xl -z-10 -translate-x-1/4 translate-y-1/4" />
+      
       <motion.div 
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ 
+          opacity: 1, 
+          y: 0,
+          x: error ? [0, -5, 5, -3, 3, 0] : 0
+        }}
+        className="w-full max-w-md bg-[#111827] border border-[#1F2937] rounded-[2.5rem] p-12 shadow-2xl relative z-10"
       >
-        <div className="enterprise-card p-10 bg-slate-900 border-slate-800 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-blue-600" />
-          <Suspense fallback={<div className="flex justify-center p-12"><Loader2 className="animate-spin text-blue-500" size={32} /></div>}>
-            <ResetPasswordForm />
-          </Suspense>
-        </div>
+        <ResetPasswordForm />
       </motion.div>
     </div>
   );

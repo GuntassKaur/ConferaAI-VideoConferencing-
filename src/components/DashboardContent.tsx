@@ -19,23 +19,23 @@ export default function DashboardContent() {
 
   // Fetch recent meetings
   useEffect(() => {
-    if (currentUser) {
-      fetch(`/api/meetings?userId=${currentUser.id}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            setMeetings(data.meetings);
-          }
-        })
-        .catch(console.error);
-    }
+    const userId = currentUser?.id || 'guest_global';
+    fetch(`/api/meetings?userId=${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setMeetings(data.meetings);
+        }
+      })
+      .catch(console.error);
   }, [currentUser]);
 
   const startMeeting = async () => {
-    if (!currentUser) return;
     setIsStarting(true);
     
     const realId = `meet-${Math.random().toString(36).substring(7)}`;
+    const userName = currentUser?.name || 'Guest User';
+    const userId = currentUser?.id || `guest_${Math.random().toString(36).substring(2, 9)}`;
     
     try {
       const response = await fetch('/api/livekit/room', {
@@ -43,8 +43,8 @@ export default function DashboardContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           roomId: realId,
-          name: `${currentUser.name}'s Meeting`,
-          hostId: currentUser.id
+          name: `${userName}'s Meeting`,
+          hostId: userId
         })
       });
 
@@ -103,10 +103,10 @@ export default function DashboardContent() {
           </div>
           <button 
             onClick={startMeeting}
-            disabled={isStarting || !currentUser}
-            className="mt-auto w-full flex items-center justify-center gap-2 bg-accent text-white font-medium py-2.5 rounded-lg hover:bg-accent-dark transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isStarting}
+            className="mt-auto w-full flex items-center justify-center gap-2 bg-[#6366F1] text-white font-medium py-2.5 rounded-lg hover:bg-[#4F46E5] transition-all disabled:opacity-50"
           >
-            {isStarting ? 'Starting...' : currentUser ? 'Start Meeting' : 'Sign in to Start'} 
+            {isStarting ? 'Starting...' : 'Start Meeting'} 
           </button>
         </div>
 

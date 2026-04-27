@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-6 font-sans relative overflow-hidden">
       {/* Subtle Background Blobs */}
       <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-indigo-50/50 rounded-full blur-3xl -z-10 translate-x-1/4 -translate-y-1/4" />
       <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-blue-50/50 rounded-full blur-3xl -z-10 -translate-x-1/4 translate-y-1/4" />
@@ -48,20 +48,20 @@ export default function ForgotPasswordPage() {
           y: 0,
           x: error ? [0, -5, 5, -3, 3, 0] : 0
         }}
-        className="w-full max-w-md bg-white border border-slate-200 rounded-[2.5rem] p-12 shadow-xl relative z-10"
+        className="w-full max-w-md bg-[#111827] border border-[#1F2937] rounded-[2.5rem] p-12 shadow-xl relative z-10"
       >
         <div className="flex flex-col items-center mb-10">
-          <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-100 mb-6">
+          <div className="w-12 h-12 bg-[#6366F1] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#6366F1]/20 mb-6">
             {message ? <MailCheck size={24} /> : <ShieldCheck size={24} />}
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Recover Access</h1>
-          <p className="text-slate-500 text-sm text-center">Enter your email to receive a secure recovery link.</p>
+          <h1 className="text-2xl font-bold text-white mb-2">Recover Access</h1>
+          <p className="text-slate-400 text-sm text-center">Enter your email to receive a secure recovery link.</p>
         </div>
 
         {message ? (
           <div className="space-y-8 text-center">
-            <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl">
-               <p className="text-sm font-semibold text-emerald-600 leading-snug">{message}</p>
+             <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+               <p className="text-sm font-semibold text-emerald-500 leading-snug">{message}</p>
             </div>
             <Link 
               href="/login" 
@@ -77,22 +77,21 @@ export default function ForgotPasswordPage() {
                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Registered Email</label>
                <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-                  <input 
+                   <input 
                     type="email" 
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@company.com"
-                    className={`w-full pl-11 pr-4 py-3 bg-slate-50 border ${error ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : 'border-slate-200 focus:ring-indigo-500/20 focus:border-indigo-500'} rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 transition-all font-medium`}
+                    className={`w-full pl-11 pr-4 py-3 bg-[#0F172A] border ${error ? 'border-red-500 focus:ring-red-500/20 focus:border-red-500' : 'border-[#1F2937] focus:ring-[#6366F1]/20 focus:border-[#6366F1]'} rounded-xl text-sm text-white focus:outline-none focus:ring-2 transition-all font-medium`}
                   />
                </div>
                {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
             </div>
-            
-            <button 
+                        <button 
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 bg-indigo-600 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-[0.98] flex items-center justify-center gap-2 group disabled:opacity-70"
+              className="w-full py-3.5 bg-[#6366F1] text-white font-bold text-sm rounded-xl shadow-lg hover:bg-[#4F46E5] transition-all active:scale-[0.98] flex items-center justify-center gap-2 group disabled:opacity-70"
             >
               {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : (
                 <>

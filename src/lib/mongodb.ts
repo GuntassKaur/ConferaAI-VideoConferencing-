@@ -22,7 +22,8 @@ async function connectToDatabase() {
   }
 
   if (!MONGODB_URI) {
-    throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+    console.error('CRITICAL: MONGODB_URI is not defined in environment variables');
+    throw new Error('Database connection string missing');
   }
 
   if (!cached.promise) {
@@ -30,17 +31,18 @@ async function connectToDatabase() {
       bufferCommands: false,
     };
 
+    console.log('Initiating new MongoDB connection...');
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      console.log('MongoDB connection established successfully');
       return mongoose;
     });
   }
 
   try {
     cached.conn = await cached.promise;
-    console.log('Successfully connected to MongoDB');
   } catch (e) {
     cached.promise = null;
-    console.error('MongoDB connection error details:', e);
+    console.error('MongoDB connection failed:', e);
     throw e;
   }
 

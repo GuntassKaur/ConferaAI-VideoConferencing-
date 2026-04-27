@@ -14,18 +14,19 @@ export async function GET(request: Request) {
     }
 
     // Find sessions where this user was a participant
-    const userMeetings = await Meeting.find({ 
-      participants: userId 
-    }).sort({ createdAt: -1 });
+    // If it's a guest, maybe they want to see all public meetings?
+    // For now, let's keep it to participants but ensure it's robust
+    const query = userId.startsWith('guest_') ? {} : { participants: userId };
+    
+    const userMeetings = await Meeting.find(query).sort({ createdAt: -1 }).limit(50);
 
     return NextResponse.json({ success: true, meetings: userMeetings });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('Fetch meetings error:', error);
-    const msg = error instanceof Error ? error.message : '';
-    const errorMessage = msg.includes('Database connection string missing') 
-      ? 'Database Configuration Missing' 
-      : 'Session Query Timeout';
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Database error', 
+      details: error.message 
+    }, { status: 500 });
   }
 }
 

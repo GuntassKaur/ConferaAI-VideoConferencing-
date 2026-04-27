@@ -3,11 +3,32 @@ import SidebarWrapper from '@/components/SidebarWrapper';
 import { MonitorPlay, Download, Trash2, Clock, ShieldCheck, Play, ArrowRight, Share2 } from 'lucide-react';
 import { useProductStore } from '@/store/productStore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'next/navigation';
 
 export default function RecordingsPage() {
-  const { recordings } = useProductStore();
+  const { user: currentUser } = useAuthStore();
+  const [recordings, setRecordings] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    if (currentUser) {
+      fetch(`/api/meetings?userId=${currentUser.id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            // Filter meetings that have a recap (these are "recordings")
+            setRecordings(data.meetings.filter((m: any) => m.recap || m.status === 'ended'));
+          }
+        })
+        .catch(console.error)
+        .finally(() => setIsLoading(false));
+    } else {
+      setIsLoading(false);
+    }
+  }, [currentUser]);
 
   return (
     <SidebarWrapper>
@@ -53,8 +74,8 @@ export default function RecordingsPage() {
                   transition={{ delay: i * 0.05 }}
                   className="bg-background-elevated border border-background-border rounded-xl overflow-hidden group hover:border-accent/50 transition-all"
                 >
-                  <div className="aspect-video bg-background-sub relative flex items-center justify-center overflow-hidden cursor-pointer" onClick={() => router.push(`/meeting/${rec.id}`)}>
-                     <MonitorPlay size={48} className="text-text-secondary group-hover:scale-110 group-hover:text-accent transition-all duration-500" />
+                  <div className="aspect-video bg-[#0F172A] relative flex items-center justify-center overflow-hidden cursor-pointer" onClick={() => router.push(`/meeting/${rec.roomId || rec.meetingId}`)}>
+                     <MonitorPlay size={48} className="text-slate-500 group-hover:scale-110 group-hover:text-[#6366F1] transition-all duration-500" />
                      <div className="absolute top-4 right-4 z-20">
                         <div className="px-2 py-1 bg-background-elevated border border-background-border rounded text-[10px] font-medium text-text-secondary shadow-sm">
                            1080P HD
@@ -71,19 +92,19 @@ export default function RecordingsPage() {
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                         <span className="text-xs font-medium text-text-secondary">Archived</span>
                      </div>
-                     <h3 className="font-semibold text-text-primary mb-2 group-hover:text-accent transition-colors truncate">{rec.title}</h3>
-                     <div className="flex items-center gap-2 text-xs text-text-secondary mb-4">
+                      <h3 className="font-semibold text-white mb-2 group-hover:text-[#6366F1] transition-colors truncate">{rec.name || rec.meetingId}</h3>
+                     <div className="flex items-center gap-2 text-xs text-slate-400 mb-4">
                         <Clock size={14} />
-                        {rec.createdAt}
+                        {new Date(rec.createdAt).toLocaleString()}
                      </div>
                      
                      <div className="flex items-center gap-2 pt-4 border-t border-background-border">
-                        <button 
-                          onClick={() => router.push(`/meeting/${rec.id}`)}
-                          className="flex-1 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-dark transition-all flex items-center justify-center gap-2"
-                        >
-                           Review Insights
-                        </button>
+                         <button 
+                           onClick={() => router.push(`/meeting/${rec.roomId || rec.meetingId}`)}
+                           className="flex-1 py-2 bg-[#6366F1] text-white rounded-lg text-sm font-medium hover:bg-[#4F46E5] transition-all flex items-center justify-center gap-2"
+                         >
+                            Review Insights
+                         </button>
                         <button title="Share" className="p-2 bg-background-sub text-text-secondary rounded-lg hover:text-text-primary hover:bg-background-border transition-all border border-background-border">
                            <Share2 size={18} />
                         </button>
