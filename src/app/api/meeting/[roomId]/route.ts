@@ -4,11 +4,12 @@ import Meeting from '@/models/Meeting';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { roomId: string } }
+  { params }: { params: Promise<{ roomId: string }> }
 ) {
   try {
+    const { roomId } = await params;
     await connectToDatabase();
-    const meeting = await Meeting.findOne({ roomId: params.roomId });
+    const meeting = await Meeting.findOne({ roomId });
 
     if (!meeting) {
       return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });

@@ -4,7 +4,7 @@ import SidebarWrapper from '@/components/SidebarWrapper';
 import { 
   Video, Calendar, Clock, Users, 
   ChevronRight, MoreVertical, Filter, 
-  Plus, Search, Shield, Globe
+  Plus, Search, Shield, Globe, Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '@/store/useAuthStore';

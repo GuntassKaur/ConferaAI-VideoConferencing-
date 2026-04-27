@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { 
   User, Shield, Bell, Video, 
   Mic, Monitor, Globe, ChevronRight,
-  Check, AlertCircle
+  Check, AlertCircle, Loader2
 } from 'lucide-react';
 
 export default function SettingsPage() {
