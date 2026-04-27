@@ -31,21 +31,22 @@ export default function DashboardContent() {
 
   const startMeeting = async () => {
     setIsStarting(true);
-    const realId = `meet-${Math.random().toString(36).substring(7)}`;
     const userName = currentUser?.name || 'Guest User';
     const userId = currentUser?.id || `guest_${Math.random().toString(36).substring(2, 9)}`;
     
     try {
-      await fetch('/api/livekit/room', {
+      const response = await fetch('/api/meeting', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          roomId: realId,
           name: `${userName}'s Meeting`,
           hostId: userId
         })
       });
-      router.push(`/meeting/${realId}`);
+
+      if (!response.ok) throw new Error('Failed to create meeting');
+      const data = await response.json();
+      router.push(`/meeting/${data.meetingId}`);
     } catch (error) {
       console.error(error);
       setIsStarting(false);

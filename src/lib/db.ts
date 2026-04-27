@@ -1,43 +1,13 @@
-// src/lib/db.ts
-// Robust in-memory DB for development that mimics a real DB
-// In a real production app, this would be MongoDB/PostgreSQL
+import mongoose from "mongoose";
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  password?: string;
-  createdAt: string;
-}
+const MONGODB_URI = process.env.MONGODB_URI;
 
-export interface Meeting {
-  id: string;
-  title: string;
-  hostId: string;
-  participants: string[]; // User IDs
-  status: 'live' | 'completed' | 'scheduled';
-  createdAt: string;
-  transcript: string[];
-}
+export async function connectDB() {
+  if (mongoose.connection.readyState >= 1) return;
 
-class Database {
-  users: User[] = [];
-  meetings: Meeting[] = [];
-
-  constructor() {
-    this.users = [
-      {
-        id: 'admin-id',
-        name: 'Admin User',
-        email: 'admin@confera.ai',
-        password: 'password123',
-        createdAt: new Date().toISOString()
-      }
-    ];
+  if (!MONGODB_URI) {
+    throw new Error("MONGODB_URI is not defined");
   }
-}
 
-// Global singleton to persist data during dev server runtime
-const globalForDb = global as unknown as { db: Database };
-export const db = globalForDb.db || new Database();
-if (process.env.NODE_ENV !== 'production') globalForDb.db = db;
+  await mongoose.connect(MONGODB_URI);
+}
