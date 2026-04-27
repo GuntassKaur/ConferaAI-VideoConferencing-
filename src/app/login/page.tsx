@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   
-  const { login, user, isLoading } = useAuthStore();
+  const { login, user, isLoading, setUser } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -127,7 +127,11 @@ export default function LoginPage() {
 
           <button 
             type="button"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => {
+              const guestId = 'guest_' + Math.random().toString(36).substring(2, 9);
+              setUser({ id: guestId, name: 'Guest User', email: 'guest@confera.ai' });
+              router.push('/dashboard');
+            }}
             className="w-full py-3.5 bg-slate-100 text-slate-600 font-bold text-sm rounded-xl hover:bg-slate-200 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
           >
             <User size={18} className="text-slate-400" />

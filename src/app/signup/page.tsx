@@ -18,7 +18,7 @@ export default function SignupPage() {
   const [strength, setStrength] = useState(0);
   
   const router = useRouter();
-  const { signup, isLoading } = useAuthStore();
+  const { signup, isLoading, setUser } = useAuthStore();
 
   useEffect(() => {
     let s = 0;
@@ -205,7 +205,11 @@ export default function SignupPage() {
 
           <button 
             type="button"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => {
+              const guestId = 'guest_' + Math.random().toString(36).substring(2, 9);
+              setUser({ id: guestId, name: 'Guest User', email: 'guest@confera.ai' });
+              router.push('/dashboard');
+            }}
             className="w-full py-3.5 bg-slate-100 text-slate-600 font-bold text-sm rounded-xl hover:bg-slate-200 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
           >
             <User size={18} className="text-slate-400" />

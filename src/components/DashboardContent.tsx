@@ -18,11 +18,9 @@ export default function DashboardContent() {
   const [isStarting, setIsStarting] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Redirect to login if not authenticated
+  // Guest mode allowed
   useEffect(() => {
-    if (!currentUser) {
-      router.push('/login');
-    }
+    // We no longer redirect to login here to allow guest access
   }, [currentUser, router]);
 
   const startMeeting = async () => {
@@ -67,17 +65,18 @@ export default function DashboardContent() {
     if (meetingId.trim()) router.push(`/meeting/${meetingId.trim()}/join`);
   };
 
-  if (!currentUser) return null;
+  // Guests are welcome!
+
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
       {/* 🚀 PREMIUM HEADER */}
       <header className="mb-8">
         <h1 className="text-2xl font-semibold text-text-primary mb-1">
-          Dashboard
+          {currentUser ? `Welcome back, ${currentUser.name.split(' ')[0]}` : 'Welcome, Guest'}
         </h1>
         <p className="text-sm text-text-secondary">
-          Manage your meetings and sessions
+          {currentUser ? 'Manage your meetings and sessions' : 'Sign in to access your meeting history and host meetings'}
         </p>
       </header>
 
@@ -96,10 +95,10 @@ export default function DashboardContent() {
           </div>
           <button 
             onClick={startMeeting}
-            disabled={isStarting}
-            className="mt-auto w-full flex items-center justify-center gap-2 bg-accent text-white font-medium py-2.5 rounded-lg hover:bg-accent-dark transition-all disabled:opacity-50"
+            disabled={isStarting || !currentUser}
+            className="mt-auto w-full flex items-center justify-center gap-2 bg-accent text-white font-medium py-2.5 rounded-lg hover:bg-accent-dark transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isStarting ? 'Starting...' : 'Start Meeting'} 
+            {isStarting ? 'Starting...' : currentUser ? 'Start Meeting' : 'Sign in to Start'} 
           </button>
         </div>
 
