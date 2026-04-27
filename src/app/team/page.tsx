@@ -1,73 +1,110 @@
 'use client';
+import { useState, useEffect } from 'react';
 import SidebarWrapper from '@/components/SidebarWrapper';
-import { UserPlus, Shield, Mail, Zap } from 'lucide-react';
+import { 
+  Users, Search, Shield, 
+  Mail, Clock, ChevronRight,
+  MoreVertical, Filter, Loader2,
+  Globe, Zap
+} from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function TeamPage() {
+  const [members, setMembers] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTeam = async () => {
+      try {
+        const res = await fetch('/api/meetings/participants'); // I'll reuse or create a participant endpoint
+        const data = await res.json();
+        if (data.success) {
+          setMembers(data.participants);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTeam();
+  }, []);
+
   return (
     <SidebarWrapper>
-      <div className="max-w-5xl mx-auto px-8 py-12 lg:py-20">
-        <header className="mb-16">
+      <div className="max-w-6xl mx-auto px-6 py-12 font-inter">
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
           >
-            <h1 className="text-4xl lg:text-5xl font-black text-white tracking-tight mb-4">Team Space</h1>
-            <p className="text-slate-500 text-lg font-medium max-w-xl">
-              Collaborate and manage your organization's communication nodes.
+            <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Global Directory</h1>
+            <p className="text-slate-400 text-sm font-medium">
+              Manage your encrypted collaboration network and authorized nodes.
             </p>
           </motion.div>
+          <div className="flex gap-3">
+             <div className="px-4 py-2 bg-[#111827] border border-[#1F2937] rounded-xl flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <Globe size={14} className="text-[#6366F1]" />
+                {members.length} Nodes Online
+             </div>
+          </div>
         </header>
 
-        {/* Premium Empty State */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="bg-[#0a0a0c] border border-white/5 rounded-[4rem] p-16 lg:p-24 flex flex-col items-center text-center relative overflow-hidden shadow-2xl"
-        >
-           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
-           <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-600/5 blur-[80px] rounded-full" />
-           
-           <div className="w-24 h-24 bg-white/5 rounded-[2.5rem] flex items-center justify-center mb-10 border border-white/10 shadow-inner relative group">
-              <UserPlus size={36} className="text-indigo-400 group-hover:scale-110 transition-transform duration-500" />
-              <motion.div 
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className="absolute inset-0 bg-indigo-500/10 blur-xl rounded-full -z-10" 
-              />
-           </div>
-           
-           <h2 className="text-3xl font-bold text-white mb-4 tracking-tight">Expand the network</h2>
-           <p className="text-slate-500 text-base leading-relaxed mb-12 max-w-md mx-auto font-medium">
-             Connect with your colleagues to unlock shared intelligence, team-wide archives, and synchronized communication nodes.
-           </p>
-           
-           <div className="flex flex-col sm:flex-row gap-4 w-full max-w-lg bg-white/[0.02] p-2.5 rounded-[2.2rem] border border-white/5 focus-within:border-indigo-500/50 transition-all shadow-inner">
-              <div className="flex-1 flex items-center px-6">
-                <Mail className="text-slate-600 mr-4" size={20} />
-                <input 
-                  type="email" 
-                  placeholder="name@company.com" 
-                  className="w-full bg-transparent border-none text-white text-sm focus:ring-0 placeholder:text-slate-600 font-medium"
-                />
-              </div>
-              <button className="px-10 py-4 bg-white text-black font-black text-[10px] uppercase tracking-widest rounded-[1.8rem] hover:bg-indigo-500 hover:text-white transition-all shadow-xl active:scale-95">
-                Send Invite
-              </button>
-           </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+           {isLoading ? (
+             <div className="col-span-full py-32 flex flex-col items-center">
+                <Loader2 className="w-10 h-10 animate-spin text-[#6366F1] mb-4" />
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Scanning Network...</p>
+             </div>
+           ) : members.length === 0 ? (
+             <div className="col-span-full py-32 text-center bg-[#111827] border border-[#1F2937] rounded-[2.5rem]">
+                <Users size={48} className="text-slate-700 mx-auto mb-6" />
+                <h3 className="text-xl font-bold text-white mb-2">Network Isolated</h3>
+                <p className="text-slate-500 text-sm">No other authorized users detected in the directory.</p>
+             </div>
+           ) : (
+             members.map((member, i) => (
+               <motion.div 
+                 key={member.id}
+                 initial={{ opacity: 0, scale: 0.95 }}
+                 animate={{ opacity: 1, scale: 1 }}
+                 transition={{ delay: i * 0.05 }}
+                 className="bg-[#111827] border border-[#1F2937] rounded-[2.5rem] p-8 shadow-2xl hover:border-[#6366F1]/50 transition-all group"
+               >
+                 <div className="flex items-center gap-5 mb-8">
+                    <div className="w-16 h-16 rounded-full bg-[#0F172A] border border-[#1F2937] flex items-center justify-center text-xl font-bold text-white group-hover:border-[#6366F1]/30 transition-all shadow-inner">
+                       {member.name.charAt(0)}
+                    </div>
+                    <div>
+                       <h3 className="text-lg font-bold text-white group-hover:text-[#6366F1] transition-colors">{member.name}</h3>
+                       <div className="flex items-center gap-2 mt-1">
+                          <Shield size={12} className="text-emerald-500" />
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Authorized</span>
+                       </div>
+                    </div>
+                 </div>
 
-           <div className="mt-20 pt-10 border-t border-white/[0.03] w-full flex flex-col md:flex-row items-center justify-center gap-12 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
-              <div className="flex items-center gap-3">
-                 <Shield size={16} className="text-indigo-500/60" />
-                 Encrypted Management
-              </div>
-              <div className="flex items-center gap-3">
-                 <Zap size={16} className="text-amber-500/60" />
-                 Zero-Lag Sync
-              </div>
-           </div>
-        </motion.div>
+                 <div className="space-y-4 mb-8">
+                    <div className="flex items-center gap-3 text-slate-400">
+                       <Mail size={14} className="text-[#6366F1]" />
+                       <span className="text-xs font-medium truncate">{member.email}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-slate-400">
+                       <Zap size={14} className="text-amber-500" />
+                       <span className="text-xs font-medium">Platform Engineering</span>
+                    </div>
+                 </div>
+
+                 <button className="w-full py-3 bg-[#0F172A] border border-[#1F2937] text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-[#111827] hover:border-[#6366F1]/50 transition-all flex items-center justify-center gap-2">
+                    Start Session
+                    <ChevronRight size={14} />
+                 </button>
+               </motion.div>
+             ))
+           )}
+        </div>
       </div>
     </SidebarWrapper>
   );

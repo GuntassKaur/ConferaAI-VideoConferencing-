@@ -31,6 +31,7 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
     { icon: LayoutGrid, label: 'Dashboard', href: '/dashboard' },
     { icon: Video, label: 'Meetings', href: '/meetings' },
     { icon: Globe, label: 'Recordings', href: '/recordings' },
+    { icon: Users, label: 'Team', href: '/team' },
     { icon: Settings, label: 'Settings', href: '/settings' },
   ];
 

@@ -103,48 +103,53 @@ export default function JoinPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-indigo-50/50 rounded-full blur-3xl -z-10 translate-x-1/4 -translate-y-1/4" />
-      <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-blue-50/50 rounded-full blur-3xl -z-10 -translate-x-1/4 translate-y-1/4" />
+    <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-6 relative overflow-hidden font-inter">
+      {/* Background Polish */}
+      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-blue-600/5 rounded-full blur-[120px] -z-10 translate-x-1/4 -translate-y-1/4" />
+      <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-indigo-600/5 rounded-full blur-[120px] -z-10 -translate-x-1/4 translate-y-1/4" />
       
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md relative z-10">
         <button 
           onClick={() => router.push('/dashboard')}
-          className="flex items-center gap-2 text-slate-400 hover:text-slate-600 transition-colors mb-8 group"
+          className="flex items-center gap-2 text-slate-500 hover:text-white transition-all mb-8 group px-2"
         >
           <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-          <span className="text-xs font-bold uppercase tracking-wider">Back to dashboard</span>
+          <span className="text-xs font-bold uppercase tracking-widest">Back to dashboard</span>
         </button>
 
-        <div className="bg-white border border-slate-200 rounded-[2rem] p-10 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 to-blue-500" />
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[#111827] border border-[#1F2937] rounded-[2.5rem] p-10 shadow-2xl relative overflow-hidden"
+        >
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-[#6366F1]" />
           
           <div className="text-center mb-10">
-            <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 mx-auto mb-6 shadow-sm">
+            <div className="w-16 h-16 bg-[#6366F1]/10 rounded-2xl flex items-center justify-center text-[#6366F1] mx-auto mb-6 border border-[#6366F1]/20 shadow-lg shadow-[#6366F1]/5">
                <Video size={32} />
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 mb-2">
+            <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">
               {meetingName || 'Connecting...'}
             </h1>
-            <p className="text-slate-500 text-sm">
-              Wait for the host to let you in.
+            <p className="text-slate-400 text-sm font-medium">
+              Waiting for host approval to enter the session.
             </p>
           </div>
 
-          <div className="bg-slate-50 rounded-2xl p-6 mb-10 border border-slate-100">
+          <div className="bg-[#0F172A] rounded-2xl p-6 mb-10 border border-[#1F2937]">
              <div className="flex items-center gap-4 mb-4">
-                <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400">
+                <div className="w-10 h-10 rounded-full bg-[#111827] border border-[#1F2937] flex items-center justify-center text-slate-500">
                    <User size={20} />
                 </div>
                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{currentUser ? 'Signed in as' : 'Joining as Guest'}</p>
-                    <p className="text-sm font-bold text-slate-800">{currentUser?.name || 'Guest User'}</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{currentUser ? 'Signed in as' : 'Joining as Guest'}</p>
+                    <p className="text-sm font-bold text-white">{currentUser?.name || 'Guest User'}</p>
                  </div>
              </div>
-             <div className="h-px bg-slate-200/50 mb-4" />
-             <div className="flex items-center gap-3 text-slate-500">
+             <div className="h-px bg-[#1F2937] mb-4" />
+             <div className="flex items-center gap-3 text-slate-400">
                 <ShieldCheck size={16} className="text-emerald-500" />
-                <span className="text-xs font-medium">Encryption active for this session</span>
+                <span className="text-xs font-medium">Secure Session Tunnel Active</span>
              </div>
           </div>
 
@@ -152,59 +157,59 @@ export default function JoinPage() {
             {status === 'idle' && (
               <button
                 onClick={requestJoin}
-                className="w-full py-4 bg-indigo-600 text-white font-bold text-sm rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 group"
+                className="w-full py-4 bg-[#6366F1] text-white font-bold text-sm rounded-xl hover:bg-[#4F46E5] transition-all shadow-xl shadow-[#6366F1]/20 flex items-center justify-center gap-2 group active:scale-[0.98]"
               >
-                Ask to join
+                Request Access
                 <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </button>
             )}
 
             {(status === 'requesting' || status === 'waiting') && (
               <div className="flex flex-col items-center">
-                <div className="flex items-center gap-3 text-indigo-600 font-bold mb-2">
+                <div className="flex items-center gap-3 text-[#6366F1] font-bold mb-2">
                    <Loader2 className="w-5 h-5 animate-spin" />
-                   <span className="text-sm">Waiting for approval...</span>
+                   <span className="text-sm uppercase tracking-widest">Waiting for host...</span>
                 </div>
-                <p className="text-xs text-slate-400">The host will see your request shortly.</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Host notified. Please stand by.</p>
               </div>
             )}
 
             {status === 'accepted' && (
-              <div className="flex flex-col items-center text-emerald-600">
-                <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-4 border border-emerald-100">
+              <div className="flex flex-col items-center text-emerald-500">
+                <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4 border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
                    <CheckCircle2 size={24} />
                 </div>
-                <h3 className="font-bold">Entry Granted</h3>
-                <p className="text-xs text-slate-400">Redirecting to call...</p>
+                <h3 className="font-bold uppercase tracking-widest text-sm">Entry Granted</h3>
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Initializing call matrix...</p>
               </div>
             )}
 
             {status === 'rejected' && (
-              <div className="flex flex-col items-center text-rose-600 text-center">
-                <div className="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center mb-4 border border-rose-100">
+              <div className="flex flex-col items-center text-rose-500 text-center">
+                <div className="w-12 h-12 bg-rose-500/10 rounded-full flex items-center justify-center mb-4 border border-rose-500/20 shadow-lg shadow-rose-500/5">
                    <XCircle size={24} />
                 </div>
-                <h3 className="font-bold">Entry Denied</h3>
+                <h3 className="font-bold uppercase tracking-widest text-sm">Access Denied</h3>
                 <button 
                   onClick={() => setStatus('idle')}
-                  className="mt-4 text-xs font-bold text-indigo-600 hover:underline"
+                  className="mt-4 text-[10px] font-bold text-[#6366F1] hover:underline uppercase tracking-widest"
                 >
-                  Try again
+                  Request Again
                 </button>
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
-        <div className="mt-8 flex items-center justify-center gap-6 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-           <div className="flex items-center gap-1.5">
-              <Shield size={12} />
-              <span>E2EE Secure</span>
+        <div className="mt-10 flex items-center justify-center gap-8 text-[10px] font-bold text-slate-500 uppercase tracking-[0.25em]">
+           <div className="flex items-center gap-2">
+              <Shield size={12} className="text-[#6366F1]" />
+              <span>E2EE Active</span>
            </div>
-           <div className="w-1 h-1 bg-slate-300 rounded-full" />
-           <div className="flex items-center gap-1.5">
-              <Clock size={12} />
-              <span>Low Latency</span>
+           <div className="w-1 h-1 bg-[#1F2937] rounded-full" />
+           <div className="flex items-center gap-2">
+              <Clock size={12} className="text-[#6366F1]" />
+              <span>Real-time</span>
            </div>
         </div>
       </div>

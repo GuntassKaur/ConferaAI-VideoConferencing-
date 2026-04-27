@@ -235,21 +235,21 @@ export default function MeetingPage() {
                      <User size={28} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-1">Waiting in Lobby</p>
-                    <h4 className="text-base font-bold text-slate-900 truncate">{req.name}</h4>
+                    <p className="text-[10px] font-bold text-[#6366F1] uppercase tracking-widest mb-1">Waiting in Lobby</p>
+                    <h4 className="text-base font-bold text-white truncate">{req.name}</h4>
                   </div>
                 </div>
                 
                 <div className="flex gap-3">
                    <button 
                     onClick={() => approveUser(req.userId, true)}
-                    className="flex-1 py-3 bg-indigo-600 text-white rounded-2xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 active:scale-95"
+                    className="flex-1 py-3 bg-[#6366F1] text-white rounded-2xl font-bold text-sm hover:bg-[#4F46E5] transition-all shadow-lg shadow-[#6366F1]/10 active:scale-95"
                    >
                       Accept
                    </button>
                    <button 
                     onClick={() => approveUser(req.userId, false)}
-                    className="flex-1 py-3 bg-slate-50 text-slate-500 rounded-2xl font-bold text-sm hover:bg-rose-50 hover:text-rose-600 transition-all active:scale-95 border border-slate-100"
+                    className="flex-1 py-3 bg-[#0F172A] text-slate-400 rounded-2xl font-bold text-sm hover:bg-rose-500 hover:text-white transition-all active:scale-95 border border-[#1F2937]"
                    >
                       Reject
                    </button>
@@ -273,15 +273,15 @@ export default function MeetingPage() {
             {/* Panel Header */}
             <div className="p-8 border-b border-[#1F2937] flex justify-between items-center bg-[#111827] sticky top-0 z-10">
               <div className="flex items-center gap-4">
-                 <div className="w-10 h-10 bg-indigo-600 rounded-[14px] flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                 <div className="w-10 h-10 bg-[#6366F1] rounded-[14px] flex items-center justify-center text-white shadow-lg shadow-[#6366F1]/20">
                     <Sparkles size={20} />
                  </div>
                  <div>
-                    <h3 className="font-bold text-lg tracking-tight">AI Workspace</h3>
+                    <h3 className="font-bold text-lg tracking-tight text-white">AI Workspace</h3>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">AI Assistant</p>
                  </div>
               </div>
-              <button onClick={() => setIsAiOpen(false)} className="p-2.5 hover:bg-slate-50 rounded-xl text-slate-400 transition-colors">
+              <button onClick={() => setIsAiOpen(false)} className="p-2.5 hover:bg-[#1F2937] rounded-xl text-slate-400 transition-colors">
                 <X size={22} />
               </button>
             </div>
@@ -309,9 +309,9 @@ export default function MeetingPage() {
 
               {isGenerating && (
                  <div className="h-full flex flex-col items-center justify-center text-center">
-                    <div className="w-12 h-12 border-[3px] border-indigo-100 border-t-indigo-600 rounded-full animate-spin mb-6" />
-                    <h4 className="text-lg font-bold text-slate-900 mb-2">Analyzing Session...</h4>
-                    <p className="text-xs text-slate-500 tracking-wider font-bold uppercase">Generating Recap</p>
+                    <div className="w-12 h-12 border-[3px] border-[#6366F1]/20 border-t-[#6366F1] rounded-full animate-spin mb-6" />
+                    <h4 className="text-lg font-bold text-white mb-2">Analyzing Session...</h4>
+                    <p className="text-xs text-slate-400 tracking-wider font-bold uppercase">Generating Recap</p>
                  </div>
               )}
 

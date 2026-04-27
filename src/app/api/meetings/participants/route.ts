@@ -1,25 +1,22 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { connectToDatabase } from '@/lib/mongodb';
+import User from '@/models/User';
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const meetingId = searchParams.get('meetingId');
-
-    if (!meetingId) {
-      return NextResponse.json({ error: 'Missing meetingId' }, { status: 400 });
-    }
-
-    const meeting = db.meetings.find(m => m.id === meetingId);
-    if (!meeting) {
-      return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });
-    }
-
-    const participants = db.users.filter(u => meeting.participants.includes(u.id))
-      .map(u => ({ id: u.id, name: u.name, email: u.email }));
-
-    return NextResponse.json({ success: true, participants });
-  } catch (_error) {
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    await connectToDatabase();
+    // Fetch all users to populate the "Team" directory
+    const participants = await User.find({}, 'name email').lean();
+    
+    return NextResponse.json({
+      success: true,
+      participants: participants.map((p: any) => ({
+        id: p._id,
+        name: p.name,
+        email: p.email
+      }))
+    });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
