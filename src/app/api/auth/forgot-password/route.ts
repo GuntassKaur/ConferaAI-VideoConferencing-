@@ -61,10 +61,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'Reset link sent successfully' });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.error('Error in forgot password route:', msg);
+    const stack = error instanceof Error ? error.stack : '';
+    
+    console.error('CRITICAL: Forgot Password Failure:', msg);
+    console.error('Stack Trace:', stack);
+
     if (msg.includes('Database connection string missing')) {
       return NextResponse.json({ error: 'System database not configured.' }, { status: 503 });
     }
-    return NextResponse.json({ error: 'Failed to process request. Try again later.' }, { status: 500 });
+    
+    // Check for common SMTP errors
+    if (msg.includes('Invalid login') || msg.includes('authentication failed')) {
+      return NextResponse.json({ error: 'Email security service refused connection. Please check your App Password.' }, { status: 500 });
+    }
+
+    return NextResponse.json({ error: `Process failed: ${msg}` }, { status: 500 });
   }
 }
