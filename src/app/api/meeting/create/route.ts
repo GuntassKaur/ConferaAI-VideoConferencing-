@@ -17,7 +17,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: "Server misconfigured: LiveKit credentials missing" }, { status: 500 });
     }
 
-    await connectDB();
     const body = await req.json().catch(() => ({}));
     const { userId, name } = body;
 
@@ -26,18 +25,24 @@ export async function POST(req: Request) {
     }
 
     const meetingId = crypto.randomUUID().substring(0, 8);
-
     const participantName = name || `User-${userId.substring(0, 4)}`;
 
-    // 1. Save in MongoDB
-    const newMeeting = await Meeting.create({ 
-      meetingId,
-      name: name || `Meeting ${meetingId}`,
-      hostId: userId,
-      status: 'active',
-      participants: [userId],
-      createdAt: new Date()
-    });
+    // 1. Save in MongoDB (Optional for Guest Mode)
+    try {
+      await connectDB();
+      await Meeting.create({ 
+        meetingId,
+        name: name || `Meeting ${meetingId}`,
+        hostId: userId,
+        status: 'active',
+        participants: [userId],
+        createdAt: new Date()
+      });
+    } catch (dbError) {
+      console.warn("MongoDB connection failed, proceeding in Guest Mode:", dbError);
+    }
+
+
 
     // 2. Generate LiveKit Token
     const at = new AccessToken(apiKey, apiSecret, {

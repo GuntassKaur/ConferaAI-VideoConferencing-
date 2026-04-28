@@ -15,7 +15,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: "Server misconfigured: LiveKit credentials missing" }, { status: 500 });
     }
 
-    await connectDB();
     const body = await req.json().catch(() => ({}));
     const { meetingId, userId, name } = body;
 
@@ -23,11 +22,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: "Missing meetingId or userId" }, { status: 400 });
     }
 
-    // 1. Check in DB
-    const meeting = await Meeting.findOne({ meetingId });
-    if (!meeting) {
-      return NextResponse.json({ success: false, message: "Meeting not found in registry" }, { status: 404 });
+    // 1. Check in DB (Optional for pure Guest Mode)
+    let meetingName = `Meeting ${meetingId}`;
+    try {
+      await connectDB();
+      const meeting = await Meeting.findOne({ meetingId });
+      if (meeting) {
+        meetingName = meeting.name;
+        // 3. Update participants in DB
+        if (!meeting.participants.includes(userId)) {
+          meeting.participants.push(userId);
+          await meeting.save();
+        }
+      }
+    } catch (dbError) {
+      console.warn("MongoDB connection failed or record missing, proceeding as Guest:", dbError);
     }
+
+
 
     // 2. Generate LiveKit Token
     const participantName = name || `User-${userId.substring(0, 4)}`;
@@ -56,10 +68,11 @@ export async function POST(req: Request) {
       token,
       wsUrl,
       meeting: {
-        id: meeting.meetingId,
-        name: meeting.name
+        id: meetingId,
+        name: meetingName
       }
     });
+
 
   } catch (error: any) {
     console.error("Meeting Join Failure:", error);

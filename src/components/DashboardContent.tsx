@@ -27,8 +27,17 @@ export default function DashboardContent() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
+    if (!currentUser) {
+      const guestId = 'guest_' + Math.random().toString(36).substring(2, 9);
+      useAuthStore.getState().setUser({ 
+        id: guestId, 
+        name: 'Guest Explorer', 
+        email: 'guest@confera.ai' 
+      });
+    }
     fetchMeetings();
   }, [currentUser]);
+
 
   const fetchMeetings = async () => {
     setIsLoading(true);
