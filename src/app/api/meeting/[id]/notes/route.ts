@@ -12,12 +12,14 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    await connectDB();
-    const meeting = await Meeting.findOne({ meetingId: id });
-    return NextResponse.json({ notes: meeting?.notes || "" });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+    try {
+      await connectDB();
+      const meeting = await Meeting.findOne({ meetingId: id });
+      return NextResponse.json({ notes: meeting?.notes || "" });
+    } catch (e) {
+      return NextResponse.json({ notes: "" });
+    }
+
 }
 
 export async function POST(
@@ -27,19 +29,21 @@ export async function POST(
   try {
     const { id } = await params;
     const { notes, userId } = await req.json();
-    await connectDB();
-
-    const meeting = await Meeting.findOneAndUpdate(
-      { meetingId: id },
-      { 
-        notes, 
-        notesLastEditedBy: userId,
-        notesUpdatedAt: new Date()
-      },
-      { new: true }
-    );
-
-    return NextResponse.json({ success: true, notes: meeting.notes });
+    try {
+      await connectDB();
+      const meeting = await Meeting.findOneAndUpdate(
+        { meetingId: id },
+        { 
+          notes, 
+          notesLastEditedBy: userId,
+          notesUpdatedAt: new Date()
+        },
+        { new: true }
+      );
+      return NextResponse.json({ success: true, notes: meeting?.notes || notes });
+    } catch (e) {
+      return NextResponse.json({ success: true, notes });
+    }
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

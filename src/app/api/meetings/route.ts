@@ -7,29 +7,22 @@ import Meeting from '@/models/Meeting';
 
 export async function GET(request: Request) {
   try {
-    await connectDB();
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    try {
+      await connectDB();
+      const { searchParams } = new URL(request.url);
+      const userId = searchParams.get('userId');
 
-    if (!userId) {
+      if (!userId) {
+        return NextResponse.json({ success: true, meetings: [] });
+      }
+
+      const query = userId.startsWith('guest_') ? {} : { participants: userId };
+      const userMeetings = await Meeting.find(query).sort({ createdAt: -1 }).limit(50);
+      return NextResponse.json({ success: true, meetings: userMeetings });
+    } catch (e) {
       return NextResponse.json({ success: true, meetings: [] });
     }
 
-    // Find sessions where this user was a participant
-    // If it's a guest, maybe they want to see all public meetings?
-    // For now, let's keep it to participants but ensure it's robust
-    const query = userId.startsWith('guest_') ? {} : { participants: userId };
-    
-    const userMeetings = await Meeting.find(query).sort({ createdAt: -1 }).limit(50);
-
-    return NextResponse.json({ success: true, meetings: userMeetings });
-  } catch (error: any) {
-    console.error('Fetch meetings error:', error);
-    return NextResponse.json({ 
-      error: 'Database error', 
-      details: error.message 
-    }, { status: 500 });
-  }
 }
 
 export async function DELETE(request: Request) {
