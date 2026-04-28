@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import connectDB from '@/lib/mongodb';
+
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 

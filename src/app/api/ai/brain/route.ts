@@ -1,10 +1,19 @@
 import { NextRequest } from 'next/server';
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: NextRequest) {
   try {
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    if (!GEMINI_API_KEY) {
+      return new Response(JSON.stringify({ error: "AI Engine configuration missing" }), { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+
     const { message, transcript, participants, roomName } = await req.json();
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
