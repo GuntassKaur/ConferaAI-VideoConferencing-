@@ -8,22 +8,33 @@ import Meeting from '@/models/Meeting';
 export async function GET(request: Request) {
   try {
     try {
-      await connectDB();
-      const { searchParams } = new URL(request.url);
-      const userId = searchParams.get('userId');
+      const db = await connectDB();
+      if (db) {
+        const { searchParams } = new URL(request.url);
+        const userId = searchParams.get('userId');
 
-      if (!userId) {
-        return NextResponse.json({ success: true, meetings: [] });
+        if (!userId) {
+          return NextResponse.json({ success: true, meetings: [] });
+        }
+
+        const query = userId.startsWith('guest_') ? {} : { participants: userId };
+        const userMeetings = await Meeting.find(query).sort({ createdAt: -1 }).limit(50);
+        return NextResponse.json({ success: true, meetings: userMeetings });
       }
-
-      const query = userId.startsWith('guest_') ? {} : { participants: userId };
-      const userMeetings = await Meeting.find(query).sort({ createdAt: -1 }).limit(50);
-      return NextResponse.json({ success: true, meetings: userMeetings });
+      return NextResponse.json({ success: true, meetings: [] });
     } catch (e) {
+
+      console.error('Inner Fetch meetings error:', e);
       return NextResponse.json({ success: true, meetings: [] });
     }
-
+  } catch (outerError) {
+    console.error('Outer Fetch meetings error:', outerError);
+    return NextResponse.json({ success: true, meetings: [] });
+  }
 }
+
+
+
 
 export async function DELETE(request: Request) {
   try {

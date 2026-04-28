@@ -29,16 +29,19 @@ export async function POST(req: Request) {
 
     // 1. Save in MongoDB (Optional for Guest Mode)
     try {
-      await connectDB();
-      await Meeting.create({ 
-        meetingId,
-        name: name || `Meeting ${meetingId}`,
-        hostId: userId,
-        status: 'active',
-        participants: [userId],
-        createdAt: new Date()
-      });
+      const db = await connectDB();
+      if (db) {
+        await Meeting.create({ 
+          meetingId,
+          name: name || `Meeting ${meetingId}`,
+          hostId: userId,
+          status: 'active',
+          participants: [userId],
+          createdAt: new Date()
+        });
+      }
     } catch (dbError) {
+
       console.warn("MongoDB connection failed, proceeding in Guest Mode:", dbError);
     }
 

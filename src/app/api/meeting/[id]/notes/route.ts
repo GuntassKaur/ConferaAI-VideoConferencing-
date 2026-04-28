@@ -13,14 +13,22 @@ export async function GET(
   try {
     const { id } = await params;
     try {
-      await connectDB();
-      const meeting = await Meeting.findOne({ meetingId: id });
-      return NextResponse.json({ notes: meeting?.notes || "" });
+      const db = await connectDB();
+      if (db) {
+        const meeting = await Meeting.findOne({ meetingId: id });
+        return NextResponse.json({ notes: meeting?.notes || "" });
+      }
+      return NextResponse.json({ notes: "" });
     } catch (e) {
       return NextResponse.json({ notes: "" });
     }
 
+  } catch (outerError) {
+    return NextResponse.json({ notes: "" });
+  }
 }
+
+
 
 export async function POST(
   req: NextRequest,
@@ -30,20 +38,24 @@ export async function POST(
     const { id } = await params;
     const { notes, userId } = await req.json();
     try {
-      await connectDB();
-      const meeting = await Meeting.findOneAndUpdate(
-        { meetingId: id },
-        { 
-          notes, 
-          notesLastEditedBy: userId,
-          notesUpdatedAt: new Date()
-        },
-        { new: true }
-      );
-      return NextResponse.json({ success: true, notes: meeting?.notes || notes });
+      const db = await connectDB();
+      if (db) {
+        const meeting = await Meeting.findOneAndUpdate(
+          { meetingId: id },
+          { 
+            notes, 
+            notesLastEditedBy: userId,
+            notesUpdatedAt: new Date()
+          },
+          { new: true }
+        );
+        return NextResponse.json({ success: true, notes: meeting?.notes || notes });
+      }
+      return NextResponse.json({ success: true, notes });
     } catch (e) {
       return NextResponse.json({ success: true, notes });
     }
+
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

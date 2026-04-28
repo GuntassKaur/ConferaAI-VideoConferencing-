@@ -25,17 +25,20 @@ export async function POST(req: Request) {
     // 1. Check in DB (Optional for pure Guest Mode)
     let meetingName = `Meeting ${meetingId}`;
     try {
-      await connectDB();
-      const meeting = await Meeting.findOne({ meetingId });
-      if (meeting) {
-        meetingName = meeting.name;
-        // 3. Update participants in DB
-        if (!meeting.participants.includes(userId)) {
-          meeting.participants.push(userId);
-          await meeting.save();
+      const db = await connectDB();
+      if (db) {
+        const meeting = await Meeting.findOne({ meetingId });
+        if (meeting) {
+          meetingName = meeting.name;
+          // 3. Update participants in DB
+          if (!meeting.participants.includes(userId)) {
+            meeting.participants.push(userId);
+            await meeting.save();
+          }
         }
       }
     } catch (dbError) {
+
       console.warn("MongoDB connection failed or record missing, proceeding as Guest:", dbError);
     }
 
