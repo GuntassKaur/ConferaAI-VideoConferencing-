@@ -1,13 +1,17 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
 export async function generateMeetingSummary(
   transcript: string, 
   participants: string[], 
   duration: number
 ) {
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  if (!GEMINI_API_KEY) {
+    throw new Error("AI Engine configuration missing");
+  }
+  const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
 
   const prompt = `
     You are Confera's Neural Recap engine. Analyze this meeting transcript and return ONLY a JSON object (no markdown, no backticks) with the following structure:

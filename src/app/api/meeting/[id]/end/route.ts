@@ -7,13 +7,17 @@ import { connectDB } from '@/lib/mongodb';
 import Meeting from '@/models/Meeting';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    if (!GEMINI_API_KEY) {
+      return NextResponse.json({ error: 'AI Engine configuration missing' }, { status: 500 });
+    }
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+
     await connectDB();
     const { id } = await params;
 
