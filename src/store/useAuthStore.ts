@@ -41,7 +41,11 @@ export const useAuthStore = create<AuthState>()(
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Login failed');
-          if (data.token) localStorage.setItem('token', data.token);
+          if (data.token) {
+            localStorage.setItem('token', data.token);
+            document.cookie = `token=${data.token}; path=/; max-age=604800; samesite=lax`;
+          }
+
           set({ user: { id: data.user.id, name: data.user.name, email: data.user.email }, isLoading: false });
         } catch (error) {
           set({ isLoading: false });
@@ -58,7 +62,11 @@ export const useAuthStore = create<AuthState>()(
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error || 'Signup failed');
-          if (data.token) localStorage.setItem('token', data.token);
+          if (data.token) {
+            localStorage.setItem('token', data.token);
+            document.cookie = `token=${data.token}; path=/; max-age=604800; samesite=lax`;
+          }
+
           set({ user: { id: data.user.id, name: data.user.name, email: data.user.email }, isLoading: false });
         } catch (error) {
           set({ isLoading: false });
@@ -66,8 +74,11 @@ export const useAuthStore = create<AuthState>()(
         }
       },
       logout: () => {
+        localStorage.removeItem('token');
+        document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         set({ user: null, pendingSession: null });
       },
+
     }),
     {
       name: 'confera-auth',
