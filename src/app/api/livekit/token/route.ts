@@ -1,28 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import { AccessToken } from 'livekit-server-sdk';
 import connectToDatabase from '@/lib/mongodb';
 import Meeting from '@/models/Meeting';
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    // 1. Safe Env Usage Check
+    const apiKey = process.env.LIVEKIT_API_KEY;
+    const apiSecret = process.env.LIVEKIT_API_SECRET;
+    const wsUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL || process.env.LIVEKIT_URL;
+
+    if (!apiKey || !apiSecret || !wsUrl) {
+      console.error('LiveKit credentials missing from environment');
+      return NextResponse.json(
+        { error: 'Server is misconfigured with LiveKit credentials' },
+        { status: 500 }
+      );
+    }
+
+    // 2. Logic inside function only
+    const body = await req.json().catch(() => ({}));
     const { roomId, participantName } = body;
 
     if (!roomId || !participantName) {
       return NextResponse.json(
         { error: 'Missing roomId or participantName' },
         { status: 400 }
-      );
-    }
-
-    const apiKey = process.env.LIVEKIT_API_KEY;
-    const apiSecret = process.env.LIVEKIT_API_SECRET;
-    const wsUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL || process.env.LIVEKIT_URL;
-
-    if (!apiKey || !apiSecret || !wsUrl) {
-      return NextResponse.json(
-        { error: 'Server is misconfigured with LiveKit credentials' },
-        { status: 500 }
       );
     }
 
@@ -56,11 +61,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ token, wsUrl }, { status: 200 });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error generating LiveKit token:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: error.message || 'Internal Server Error' },
       { status: 500 }
     );
   }
 }
+

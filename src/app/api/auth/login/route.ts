@@ -1,22 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import connectToDatabase from '@/lib/mongodb';
-
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  console.warn('Warning: JWT_SECRET is not defined. Using a default secret for development.');
-}
-
-const finalSecret = JWT_SECRET || 'confera-ai-secret-key-2026';
-
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const JWT_SECRET = process.env.JWT_SECRET || 'confera-ai-secret-key-2026';
+    
+    // 1. Safe Env Usage
+    if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: "Security configuration missing" }, { status: 500 });
+    }
+
+    const { email, password } = await req.json().catch(() => ({}));
+
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
@@ -34,9 +34,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Password incorrect' }, { status: 400 });
     }
 
-    const token = jwt.sign({ id: user._id, email: user.email }, finalSecret, {
+    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, {
       expiresIn: '7d',
     });
+
 
     return NextResponse.json(
       { 

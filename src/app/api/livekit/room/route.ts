@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import connectToDatabase from '@/lib/mongodb';
 import Meeting from '@/models/Meeting';
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    // 1. Safe Env Usage Check
+    const mongoUri = process.env.MONGODB_URI;
+    if (!mongoUri) {
+      return NextResponse.json({ error: "Database configuration missing" }, { status: 500 });
+    }
+
+    // 2. Logic inside function only
+    const body = await req.json().catch(() => ({}));
     const { roomId, name, hostId } = body;
 
     if (!roomId || !name || !hostId) {
@@ -32,6 +41,7 @@ export async function POST(req: NextRequest) {
       hostId,
       status: 'waiting',
       participants: [hostId],
+      createdAt: new Date()
     });
 
     return NextResponse.json(
@@ -39,11 +49,12 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating meeting:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: error.message || 'Internal Server Error' },
       { status: 500 }
     );
   }
 }
+

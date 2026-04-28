@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import { connectDB } from '@/lib/mongodb';
+
 import Meeting from '@/models/Meeting';
 
 export async function GET(request: Request) {
