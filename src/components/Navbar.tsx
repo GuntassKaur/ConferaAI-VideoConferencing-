@@ -24,7 +24,7 @@ const Navbar = () => {
             <Video className="w-6 h-6 text-white" />
           </div>
           <span className="text-2xl font-black tracking-tighter text-white">
-            Confera
+            Confera AI
           </span>
         </Link>
 

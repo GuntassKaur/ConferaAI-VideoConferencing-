@@ -1,7 +1,8 @@
 'use client';
 import { 
   LayoutGrid, Video, Globe, Settings, 
-  Bell, LogOut, Search, User, Menu, X
+  Bell, LogOut, Search, User, Menu, X,
+  Shield, Zap, Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -20,14 +21,14 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
 
   const navItems = [
     { icon: LayoutGrid, label: 'Dashboard', href: '/dashboard' },
-    { icon: Video, label: 'Meetings', href: '/meetings' },
-    { icon: Globe, label: 'AI Recaps', href: '/recordings' },
-    { icon: Settings, label: 'Settings', href: '/settings' },
+    { icon: Video, label: 'Sessions', href: '/dashboard' },
+    { icon: Globe, label: 'Network', href: '/dashboard' },
+    { icon: Settings, label: 'Config', href: '/dashboard' },
   ];
 
   const handleLogout = () => {
     authLogout();
-    router.push('/login');
+    window.location.href = '/login';
   };
 
   const isAuthPage = ['/login', '/signup', '/forgot-password', '/reset-password'].includes(pathname);
@@ -36,98 +37,103 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
   if (isAuthPage) return <div className="min-h-screen bg-[#0F172A]">{children}</div>;
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-[#E5E7EB] font-sans selection:bg-[#6366F1]/20 selection:text-[#6366F1]">
+    <div className="min-h-screen bg-[#0F172A] text-white font-inter selection:bg-indigo-500/30 selection:text-indigo-200">
       
-      {/* 🧩 NAVBAR (64px) */}
-      <nav className="fixed top-0 left-0 right-0 h-16 z-[100] bg-[#111827]/80 backdrop-blur-md border-b border-[#1F2937]">
-        <div className="max-w-[1200px] mx-auto h-full px-6 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-3 group">
-            <div className="w-8 h-8 bg-[#6366F1] rounded-lg flex items-center justify-center shadow-lg shadow-[#6366F1]/20">
+      {/* 📱 MOBILE HEADER */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#111827] border-b border-white/5 z-50 px-6 flex items-center justify-between">
+         <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
               <Video size={16} className="text-white" />
             </div>
-            <span className="font-bold text-lg tracking-tight text-white">Confera AI</span>
-          </Link>
+            <span className="font-black text-lg tracking-tighter">CONFERA AI</span>
+         </div>
+         <button onClick={() => setIsMobileOpen(true)} className="p-2 text-slate-400"><Menu size={20} /></button>
+      </div>
 
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#6366F1] transition-colors" size={14} />
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                className="bg-[#0F172A] border border-[#1F2937] rounded-xl pl-9 pr-4 py-1.5 text-xs font-medium focus:outline-none focus:border-[#6366F1] transition-all w-48 placeholder:text-slate-600"
-              />
-            </div>
-            
-            <button className="p-2 text-slate-400 hover:text-white hover:bg-[#1F2937] rounded-xl transition-all relative">
-              <Bell size={18} />
-              <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-[#6366F1] rounded-full" />
-            </button>
-
-            <div className="h-4 w-px bg-[#1F2937] mx-1" />
-
-            {currentUser ? (
-              <div className="flex items-center gap-3 pl-2 cursor-pointer group" onClick={() => router.push('/settings')}>
-                 <div className="w-8 h-8 rounded-full bg-[#1F2937] border border-[#1F2937] flex items-center justify-center text-[10px] font-bold text-white shadow-sm group-hover:border-[#6366F1]/50 transition-all uppercase">
-                    {currentUser.name.charAt(0)}
-                 </div>
-              </div>
-            ) : (
-              <button 
-                onClick={() => router.push('/login')}
-                className="px-4 py-1.5 bg-[#6366F1] text-white text-xs font-bold rounded-lg hover:bg-[#4F46E5] transition-all shadow-lg shadow-[#6366F1]/20"
-              >
-                Sign In
-              </button>
-            )}
-
-            <button onClick={() => setIsMobileOpen(true)} className="lg:hidden p-2 text-slate-400"><Menu size={20} /></button>
-          </div>
-        </div>
-      </nav>
-
-      <div className="flex pt-16 h-screen overflow-hidden">
+      <div className="flex h-screen overflow-hidden pt-16 lg:pt-0">
         
-        {/* 📌 SIDEBAR (220px) */}
-        <aside className="w-[220px] bg-[#0F172A] border-r border-[#1F2937] hidden lg:flex flex-col flex-shrink-0">
-          <div className="flex-1 px-4 py-8 space-y-1">
+        {/* 📌 PREMIUM SIDEBAR */}
+        <aside className="w-[280px] bg-[#111827] border-r border-white/5 hidden lg:flex flex-col flex-shrink-0 z-40">
+          <div className="p-8">
+             <Link href="/dashboard" className="flex items-center gap-3 group">
+                <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center shadow-xl shadow-indigo-500/20 group-hover:scale-105 transition-all">
+                  <Video size={20} className="text-white" />
+                </div>
+                <div className="flex flex-col">
+                   <span className="font-black text-lg tracking-tighter leading-none">CONFERA AI</span>
+                   <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mt-1">v2.4.0 • Enterprise</span>
+                </div>
+             </Link>
+          </div>
+
+          <div className="flex-1 px-4 space-y-2 mt-4">
+            <div className="px-4 mb-4">
+               <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Platform</p>
+            </div>
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <Link 
-                  key={item.href} 
+                  key={item.label} 
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-semibold transition-all group ${
+                  className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all group ${
                     isActive 
-                      ? 'bg-[#111827] text-[#6366F1] border border-[#1F2937]' 
-                      : 'text-slate-400 hover:text-white hover:bg-[#111827]/50'
+                      ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/10 shadow-lg shadow-black/20' 
+                      : 'text-slate-500 hover:text-white hover:bg-white/[0.02]'
                   }`}
                 >
-                  <item.icon size={18} className={isActive ? 'text-[#6366F1]' : 'text-slate-500 group-hover:text-white transition-colors'} />
+                  <item.icon size={18} className={isActive ? 'text-indigo-400' : 'text-slate-600 group-hover:text-slate-300 transition-colors'} />
                   {item.label}
+                  {isActive && <motion.div layoutId="sidebar-active" className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_10px_#6366f1]" />}
                 </Link>
               );
             })}
+
+            <div className="px-4 mt-10 mb-4 pt-10 border-t border-white/5">
+               <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Personal</p>
+            </div>
+            <Link 
+              href="/dashboard"
+              className="flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[13px] font-bold text-slate-500 hover:text-white hover:bg-white/[0.02] transition-all group"
+            >
+               <User size={18} className="text-slate-600 group-hover:text-slate-300" />
+               Account Settings
+            </Link>
           </div>
 
-          <div className="p-4 border-t border-[#1F2937]">
+          <div className="p-6">
+             <div className="p-6 bg-[#0F172A] rounded-3xl border border-white/5 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                <div className="flex items-center gap-3 mb-4">
+                   <div className="w-8 h-8 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                      <Sparkles size={14} className="text-indigo-400" />
+                   </div>
+                   <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Pro Feature</span>
+                </div>
+                <p className="text-[11px] font-bold text-slate-400 leading-relaxed mb-4">Get AI-powered session recaps and strategic insights.</p>
+                <button className="w-full py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10">Upgrade Plan</button>
+             </div>
+          </div>
+
+          <div className="p-6 mt-auto border-t border-white/5">
             <button 
-              onClick={currentUser ? handleLogout : () => router.push('/login')}
-              className="w-full flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-500 hover:text-white hover:bg-[#111827] rounded-xl transition-all"
+              onClick={handleLogout}
+              className="w-full flex items-center gap-4 px-4 py-3.5 text-[13px] font-bold text-slate-500 hover:text-rose-500 hover:bg-rose-500/5 rounded-2xl transition-all group"
             >
-              <LogOut size={16} /> {currentUser ? 'Sign Out' : 'Sign In'}
+              <LogOut size={18} className="group-hover:text-rose-500 transition-colors" /> Sign Out
             </button>
           </div>
         </aside>
 
         {/* 🖥️ MAIN CONTENT */}
-        <main className="flex-1 overflow-y-auto scroll-smooth custom-scrollbar bg-[#0F172A]">
+        <main className="flex-1 overflow-y-auto scroll-smooth custom-scrollbar">
           <div className="min-h-full">
             {children}
           </div>
         </main>
       </div>
 
-      {/* 📱 MOBILE NAV */}
+      {/* 📱 MOBILE NAV DRAWER */}
       <AnimatePresence>
         {isMobileOpen && (
           <>
@@ -135,40 +141,64 @@ export default function SidebarWrapper({ children }: { children: React.ReactNode
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] lg:hidden" 
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] lg:hidden" 
               onClick={() => setIsMobileOpen(false)} 
             />
             <motion.div 
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
-              className="fixed left-0 top-0 bottom-0 w-[280px] bg-[#111827] z-[210] p-6 lg:hidden flex flex-col border-r border-[#1F2937]"
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed left-0 top-0 bottom-0 w-[300px] bg-[#111827] z-[210] p-8 lg:hidden flex flex-col"
             >
-              <div className="flex items-center justify-between mb-10">
+              <div className="flex items-center justify-between mb-12">
                  <div className="flex items-center gap-3">
-                   <div className="w-8 h-8 bg-[#6366F1] rounded-lg flex items-center justify-center"><Video size={16} className="text-white" /></div>
-                   <span className="font-bold text-lg text-white">Confera AI</span>
+                   <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center"><Video size={20} className="text-white" /></div>
+                   <span className="font-black text-xl tracking-tighter">CONFERA AI</span>
                  </div>
                  <button onClick={() => setIsMobileOpen(false)} className="p-2 text-slate-400"><X size={24} /></button>
               </div>
               
-              <nav className="space-y-1 flex-1">
+              <nav className="space-y-2 flex-1">
                  {navItems.map((item) => (
                    <Link 
-                     key={item.href} 
+                     key={item.label} 
                      href={item.href}
                      onClick={() => setIsMobileOpen(false)}
-                     className={`flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${pathname === item.href ? 'bg-[#0F172A] text-[#6366F1]' : 'text-slate-400 hover:text-white'}`}
+                     className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-bold transition-all ${pathname === item.href ? 'bg-[#0F172A] text-indigo-400 border border-white/5 shadow-xl' : 'text-slate-500 hover:text-white'}`}
                    >
                      <item.icon size={20} />
                      {item.label}
                    </Link>
                  ))}
               </nav>
+
+              <div className="mt-auto pt-8 border-t border-white/5">
+                 <button 
+                   onClick={handleLogout}
+                   className="w-full flex items-center gap-4 px-5 py-4 text-sm font-bold text-slate-500 hover:text-rose-500 transition-all"
+                 >
+                   <LogOut size={20} /> Sign Out
+                 </button>
+              </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 10px;
+        }
+      `}</style>
     </div>
   );
 }
+

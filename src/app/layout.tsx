@@ -6,7 +6,7 @@ import ToastContainer from "@/components/ui/Toast";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Confera",
+  title: "Confera AI",
   description: "Next-generation communication platform.",
 };
 
