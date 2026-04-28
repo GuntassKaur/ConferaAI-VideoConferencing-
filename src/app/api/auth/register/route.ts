@@ -46,7 +46,25 @@ export async function POST(req: NextRequest) {
       expiresIn: '7d',
     });
 
-    return NextResponse.json({ message: 'User created', token, user: { id: newUser._id, name: newUser.name, email: newUser.email } }, { status: 201 });
+    const response = NextResponse.json(
+      { 
+        success: true,
+        message: 'User created', 
+        user: { id: newUser._id, name: newUser.name, email: newUser.email } 
+      }, 
+      { status: 201 }
+    );
+
+    response.cookies.set('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7 // 7 days
+    });
+
+    return response;
+
 
   } catch (error: any) {
     console.error('Registration error:', error);

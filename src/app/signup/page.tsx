@@ -7,7 +7,10 @@ import { useProductStore } from '@/store/productStore';
 import { Mail, Lock, Eye, EyeOff, Loader2, Video, User, ArrowRight, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
+import { useToastStore } from '@/store/useToastStore';
+
 export default function SignupPage() {
+  const { addToast } = useToastStore();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,14 +37,18 @@ export default function SignupPage() {
     setErrorMsg('');
     
     if (password !== confirmPassword) {
-      setErrorMsg('Passwords do not match');
+      const msg = 'Passwords do not match';
+      setErrorMsg(msg);
+      addToast(msg, 'error');
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
     }
     
     if (password.length < 6) {
-      setErrorMsg('Password too short');
+      const msg = 'Password must be at least 6 characters';
+      setErrorMsg(msg);
+      addToast(msg, 'error');
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
@@ -49,14 +56,17 @@ export default function SignupPage() {
     
     try {
       await signup(name, email, password);
+      addToast('Account created successfully!', 'success');
       router.push('/dashboard');
     } catch (err: any) {
       const message = err.message || 'Registration failed. Please try again.';
       setErrorMsg(message);
+      addToast(message, 'error');
       setShake(true);
       setTimeout(() => setShake(false), 500);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-6 font-sans relative overflow-hidden">

@@ -4,6 +4,8 @@ export const runtime = 'nodejs';
 import { connectDB } from '@/lib/mongodb';
 import Meeting from '@/models/Meeting';
 import { AccessToken } from 'livekit-server-sdk';
+import crypto from 'crypto';
+
 
 export async function POST(req: Request) {
   try {
@@ -23,7 +25,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: "Unauthorized: Missing userId" }, { status: 401 });
     }
 
-    const meetingId = Math.random().toString(36).substring(2, 10);
+    const meetingId = crypto.randomUUID().substring(0, 8);
+
     const participantName = name || `User-${userId.substring(0, 4)}`;
 
     // 1. Save in MongoDB

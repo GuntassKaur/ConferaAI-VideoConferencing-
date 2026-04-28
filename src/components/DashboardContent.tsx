@@ -1,7 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useToastStore } from '@/store/useToastStore';
 import { useRouter } from 'next/navigation';
+
 import { 
   Plus, Video, Clock, 
   Search, Shield, Zap, 
@@ -45,11 +47,11 @@ export default function DashboardContent() {
   };
 
   const startMeeting = async () => {
+    const { addToast } = useToastStore.getState();
     setIsStarting(true);
     try {
       const res = await fetch("/api/meeting/create", {
         method: "POST",
-
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           userId: currentUser?.id || 'guest_global',
@@ -57,16 +59,19 @@ export default function DashboardContent() {
         })
       });
 
-      if (!res.ok) throw new Error("API failed");
       const data = await res.json();
+      if (!res.ok) throw new Error(data.message || data.error || "API failed");
       if (!data.meetingId) throw new Error("No meeting ID received");
 
+
+      addToast("Session initialized. Redirecting...", "success");
       window.location.href = `/meeting/${data.meetingId}`;
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("System failure during session initialization.");
+      addToast(err.message || "System failure during session initialization.", "error");
       setIsStarting(false);
     }
+
   };
 
   const handleJoin = async (e: React.FormEvent) => {
@@ -88,10 +93,12 @@ export default function DashboardContent() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to join session.");
 
+      useToastStore.getState().addToast("Joining session...", "success");
       window.location.href = `/meeting/${id}`;
     } catch (err: any) {
-      alert(err.message);
+      useToastStore.getState().addToast(err.message, "error");
     }
+
   };
 
 

@@ -2,12 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useProductStore } from '@/store/productStore';
+import { useToastStore } from '@/store/useToastStore';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Video, ShieldCheck, Zap, ArrowRight, User, Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
+  const { addToast } = useToastStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -25,11 +27,15 @@ export default function LoginPage() {
     setErrorMsg('');
     try {
       await login(email, password);
+      addToast('Welcome back!', 'success');
       router.push('/dashboard');
     } catch (err: any) {
-      setErrorMsg(err.message || 'Login failed');
+      const msg = err.message || 'Login failed';
+      setErrorMsg(msg);
+      addToast(msg, 'error');
     }
   };
+
 
   return (
     <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-6 font-sans relative overflow-hidden">

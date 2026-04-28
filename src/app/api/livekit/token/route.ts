@@ -1,72 +1,32 @@
-import { NextRequest, NextResponse } from 'next/server';
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-import { AccessToken } from 'livekit-server-sdk';
-import connectToDatabase from '@/lib/mongodb';
-import Meeting from '@/models/Meeting';
+import { AccessToken } from "livekit-server-sdk";
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    // 1. Safe Env Usage Check
-    const apiKey = process.env.LIVEKIT_API_KEY;
-    const apiSecret = process.env.LIVEKIT_API_SECRET;
-    const wsUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL || process.env.LIVEKIT_URL;
+    const { room, username } = await req.json();
 
-    if (!apiKey || !apiSecret || !wsUrl) {
-      console.error('LiveKit credentials missing from environment');
-      return NextResponse.json(
-        { error: 'Server is misconfigured with LiveKit credentials' },
-        { status: 500 }
-      );
+    if (!room || !username) {
+      return Response.json({ error: "Room and username are required" }, { status: 400 });
     }
 
-    // 2. Logic inside function only
-    const body = await req.json().catch(() => ({}));
-    const { roomId, participantName } = body;
-
-    if (!roomId || !participantName) {
-      return NextResponse.json(
-        { error: 'Missing roomId or participantName' },
-        { status: 400 }
-      );
-    }
-
-    // Connect to MongoDB and update Meeting
-    await connectToDatabase();
-    
-    // Using $addToSet to prevent the same participant from being added multiple times
-    await Meeting.findOneAndUpdate(
-      { roomId },
-      { 
-        $set: { status: 'active' },
-        $addToSet: { participants: participantName } 
-      },
-      { new: true, upsert: false }
+    const at = new AccessToken(
+      process.env.LIVEKIT_API_KEY!,
+      process.env.LIVEKIT_API_SECRET!,
+      { identity: username }
     );
 
-    // Create LiveKit Token
-    const at = new AccessToken(apiKey, apiSecret, {
-      identity: participantName,
-      name: participantName,
-    });
-
-    at.addGrant({ 
-      roomJoin: true, 
-      room: roomId, 
-      canPublish: true, 
-      canSubscribe: true 
+    at.addGrant({
+      room,
+      roomJoin: true,
+      canPublish: true,
+      canSubscribe: true,
     });
 
     const token = await at.toJwt();
 
-    return NextResponse.json({ token, wsUrl }, { status: 200 });
-
+    return Response.json({ token });
   } catch (error: any) {
-    console.error('Error generating LiveKit token:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal Server Error' },
-      { status: 500 }
-    );
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }
-
