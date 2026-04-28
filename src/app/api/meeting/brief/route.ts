@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import connectToDatabase from '@/lib/mongodb';
 import Meeting from '@/models/Meeting';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-
 export async function POST(req: NextRequest) {
   try {
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    if (!GEMINI_API_KEY) {
+      return NextResponse.json({ error: "AI Engine configuration missing" }, { status: 500 });
+    }
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+
     const { roomId, participantName } = await req.json();
     if (!roomId || !participantName) {
       return NextResponse.json(

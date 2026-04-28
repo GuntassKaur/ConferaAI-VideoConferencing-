@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import connectToDatabase from '@/lib/mongodb';
 import Meeting from '@/models/Meeting';
 import { generateMeetingSummary } from '@/lib/gemini';
+
 
 export async function POST(req: NextRequest) {
   try {

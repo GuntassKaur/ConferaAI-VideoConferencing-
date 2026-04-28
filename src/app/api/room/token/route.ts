@@ -1,7 +1,9 @@
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 import { AccessToken } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
+
 
 export async function GET(req: NextRequest) {
   const room = req.nextUrl.searchParams.get('room');

@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import connectToDatabase from '@/lib/mongodb';
-
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'confera-ai-secret-key-2026';
-
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password } = await req.json();
+    const JWT_SECRET = process.env.JWT_SECRET || 'confera-ai-secret-key-2026';
+    
+    // 1. Safe Env Usage Check
+    if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: "Security configuration missing" }, { status: 500 });
+    }
+
+    const { name, email, password } = await req.json().catch(() => ({}));
+
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
