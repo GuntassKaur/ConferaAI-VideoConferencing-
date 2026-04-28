@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import { connectDB } from '@/lib/mongodb';
+
 import Meeting from '@/models/Meeting';
 
 export async function POST(
