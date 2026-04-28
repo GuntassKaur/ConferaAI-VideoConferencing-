@@ -57,11 +57,6 @@ export async function POST(req: Request) {
 
     const token = await at.toJwt();
 
-    // 3. Update participants in DB
-    if (!meeting.participants.includes(userId)) {
-      meeting.participants.push(userId);
-      await meeting.save();
-    }
 
     return NextResponse.json({ 
       success: true, 

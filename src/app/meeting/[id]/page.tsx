@@ -122,6 +122,7 @@ export default function MeetingPage() {
 
   // --- 🤖 AI RECAP ---
   const generateRecap = async () => {
+    const { addToast } = useToastStore.getState();
     setIsGenerating(true);
     try {
       const res = await fetch(`/api/ai/recap`, { 
@@ -133,14 +134,17 @@ export default function MeetingPage() {
         const data = await res.json();
         setRecap(data.recap);
         setActiveTab('ai');
+        addToast("Intelligence report generated.", "success");
       } else {
-        alert("Failed to generate AI recap.");
+        const data = await res.json();
+        addToast(data.error || "Failed to generate AI recap.", "error");
       }
-    } catch (e) { 
+    } catch (e: any) { 
       console.error(e);
-      alert("AI Synthesis Engine offline.");
+      addToast("AI Synthesis Engine offline.", "error");
     } finally { setIsGenerating(false); }
   };
+
 
   if (isLoading) {
     return (
