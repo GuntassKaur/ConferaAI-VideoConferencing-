@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 
 export async function POST() {
   const meetingId = `mtg-${Math.random().toString(36).substring(2, 10)}`;
