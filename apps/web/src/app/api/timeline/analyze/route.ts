@@ -1,9 +1,5 @@
 import { NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || 'demo-key',
-});
+import { gemini } from '@/lib/ai';
 
 export async function POST(req: Request) {
   let action = '';
@@ -13,33 +9,26 @@ export async function POST(req: Request) {
     action = body.action;
 
     if (action === 'magic_clip') {
-      const response = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20240620',
-        max_tokens: 500,
-        system: 'You are an AI meeting assistant. Summarize the provided transcript segment concisely, highlighting key takeaways.',
-        messages: [{ role: 'user', content: transcript }]
-      });
-      return NextResponse.json({ summary: (response.content[0] as any).text });
+      const result = await gemini.generateContent(
+        `You are an AI meeting assistant. Summarize the provided transcript segment concisely, highlighting key takeaways: ${transcript}`
+      );
+      return NextResponse.json({ summary: result.response.text() });
     }
 
     // Default action: auto-highlight detection
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20240620',
-      max_tokens: 1000,
-      system: 'You are an AI assistant analyzing a meeting transcript. Extract highlights (decision, action_item, question, key_moment). Return ONLY JSON: { "highlights": [{ "type": string, "text": string, "timestamp": number, "importance": number }] }.',
-      messages: [{ role: 'user', content: transcript }]
-    });
+    const result = await gemini.generateContent(
+      `You are an AI assistant analyzing a meeting transcript. Extract highlights (decision, action_item, question, key_moment). Return ONLY JSON (no markdown): { "highlights": [{ "type": string, "text": string, "timestamp": number, "importance": number }] }.\n\nTranscript: ${transcript}`
+    );
 
-    const content = (response.content[0] as any).text;
+    const content = result.response.text();
     const jsonStr = content.substring(content.indexOf('{'), content.lastIndexOf('}') + 1);
-    const result = JSON.parse(jsonStr);
+    const parsedResult = JSON.parse(jsonStr);
 
-    return NextResponse.json(result);
+    return NextResponse.json(parsedResult);
   } catch (error) {
-    console.warn("Claude AI analysis failed or no API key, using mock response", error);
-    // Return mock data for demo purposes if the API key is not valid or network fails
+    console.warn("AI analysis failed, using mock response", error);
     if (action === 'magic_clip') {
-       return NextResponse.json({ summary: "This is an AI-generated summary of the selected clip. (Mocked due to missing API key)" });
+       return NextResponse.json({ summary: "This is an AI-generated summary of the selected clip. (Mocked due to failure)" });
     }
     
     return NextResponse.json({
