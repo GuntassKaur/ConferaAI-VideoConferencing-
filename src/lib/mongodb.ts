@@ -25,9 +25,10 @@ async function connectToDatabase() {
 
   if (!cached.promise) {
     const opts = {
-      bufferCommands: false,
+      bufferCommands: true,
       serverSelectionTimeoutMS: 5000,
     };
+
 
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
@@ -37,13 +38,16 @@ async function connectToDatabase() {
   }
 
   try {
-    cached.conn = await cached.promise;
+    await cached.promise;
+    if (mongoose.connection.readyState !== 1) {
+      throw new Error("Connection not ready");
+    }
+    cached.conn = mongoose.connection;
   } catch (e) {
     cached.promise = null;
-    // Silencing terminal noise for Guest Mode
-    // console.error('=> MongoDB connection failed:', e);
     return null; 
   }
+
 
 
   return cached.conn;

@@ -1,50 +1,9 @@
 {
-  "name": "confera-ai",
-  "version": "0.1.0",
+  "name": "confera-ai-monorepo",
+  "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint src"
-  },
-  "dependencies": {
-    "@google/generative-ai": "^0.24.1",
-    "@livekit/components-react": "^2.9.20",
-    "@livekit/components-styles": "^1.2.0",
-    "@types/bcryptjs": "^2.4.6",
-    "@types/jsonwebtoken": "^9.0.10",
-    "axios": "^1.7.0",
-    "bcryptjs": "^3.0.3",
-    "clsx": "^2.1.1",
-    "framer-motion": "^11.18.2",
-    "jsonwebtoken": "^9.0.3",
-    "livekit-client": "^2.18.1",
-    "livekit-server-sdk": "^2.15.1",
-    "lucide-react": "^0.460.0",
-    "mongoose": "^9.4.1",
-    "next": "^16.2.2",
-    "next-themes": "^0.4.6",
-    "nodemailer": "^8.0.5",
-    "openai": "^6.33.0",
-    "peerjs": "^1.5.5",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "shadcn-ui": "^0.9.5",
-    "socket.io-client": "^4.8.1",
-    "tailwind-merge": "^2.6.1",
-    "zustand": "^5.0.12"
-  },
-  "devDependencies": {
-    "@types/node": "^20",
-    "@types/nodemailer": "^8.0.0",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "autoprefixer": "^10.4.0",
-    "eslint": "^9",
-    "eslint-config-next": "^16.2.2",
-    "postcss": "^8.4.0",
-    "tailwindcss": "^3.4.0",
-    "typescript": "^5"
-  }
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }
