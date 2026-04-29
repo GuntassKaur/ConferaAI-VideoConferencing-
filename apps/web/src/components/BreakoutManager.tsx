@@ -201,7 +201,7 @@ export function BreakoutManager({ socket, participants, isHost, onClose, roomId 
                     </div>
                     {g.reasoning !== 'Randomly assigned' && (
                       <p className="text-[11px] text-emerald-400/80 leading-snug">
-                        "{g.reasoning}"
+                        &quot;{g.reasoning}&quot;
                       </p>
                     )}
                   </div>
@@ -237,7 +237,7 @@ export function BreakoutManager({ socket, participants, isHost, onClose, roomId 
               </div>
             </div>
 
-            <div className="text-center space-y-1">
+            <div className="text-center">
               <h3 className="text-lg font-semibold text-white flex items-center justify-center"><Bot className="w-5 h-5 mr-2 text-indigo-400"/> AI Moderators Active</h3>
               <p className="text-white/50 text-sm max-w-sm">
                 Each room is being monitored. Summaries will generate automatically upon return.

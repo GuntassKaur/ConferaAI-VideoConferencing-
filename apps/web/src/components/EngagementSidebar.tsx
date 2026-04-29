@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useEngagementStore } from '@/store/useEngagementStore';
 import { useTranscriptStore } from '@/store/useTranscriptStore';
-import { Hand, BarChart3, Cloud, Smile, Bot, Plus, X, HandDown } from 'lucide-react';
+import { Hand, BarChart3, Cloud, Smile, Bot, Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function EngagementSidebar({ onClose, socket, localParticipantId }: { onClose: () => void, socket: any, localParticipantId: string }) {

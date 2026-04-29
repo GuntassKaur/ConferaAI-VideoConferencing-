@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bot, Calendar, FileText, CheckCircle2, Clock, Users, Play, Link as LinkIcon, Briefcase, ChevronRight, Plus, Check } from 'lucide-react';
+import { Bot, Calendar, FileText, CheckCircle2, Clock, Users, Play, Link as LinkIcon, Briefcase, ChevronRight, Plus, Check, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface PreMeetingBriefingProps {
@@ -151,7 +151,7 @@ export function PreMeetingBriefing({ roomId, onJoin }: PreMeetingBriefingProps) 
             </div>
             
             <h2 className="text-lg font-bold text-indigo-300 mb-6 flex items-center">
-              <Bot className="w-5 h-5 mr-2" /> Claude's Meeting Briefing
+              <Bot className="w-5 h-5 mr-2" /> Claude&apos;s Meeting Briefing
             </h2>
             
             <div className="relative z-10 text-white/90 text-[15px] leading-relaxed space-y-4">

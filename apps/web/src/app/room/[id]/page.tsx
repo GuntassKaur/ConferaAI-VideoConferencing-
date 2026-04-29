@@ -1,7 +1,8 @@
 "use client";
 
-import { use } from 'react';
-import { use, useState } from 'react';
+export const dynamic = 'force-dynamic';
+
+import { use, useState, useEffect } from 'react';
 import { useRoom } from '@/hooks/useRoom';
 import { useMediaStream } from '@/hooks/useMediaStream';
 import { usePeerConnection } from '@/hooks/usePeerConnection';
@@ -16,7 +17,7 @@ import { PreMeetingBriefing } from '@/components/PreMeetingBriefing';
 import { useTranscriptStore } from '@/store/useTranscriptStore';
 import { useEngagementStore } from '@/store/useEngagementStore';
 import { useScreenShare } from '@/hooks/useScreenShare';
-import { Loader2, Users, Mic, MicOff, Video, VideoOff, MonitorUp, PhoneOff, MessageSquareText, Network, SmilePlus } from 'lucide-react';
+import { Loader2, Users, Mic, MicOff, Video, VideoOff, MonitorUp, PhoneOff, MessageSquareText, Network, SmilePlus, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function RoomPage({ params }: { params: Promise<{ id: string }> }) {
@@ -25,13 +26,23 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   const [isTranscriptOpen, setIsTranscriptOpen] = useState(false);
   const [isBreakoutOpen, setIsBreakoutOpen] = useState(false);
   const [isEngagementOpen, setIsEngagementOpen] = useState(false);
+  const [activeSpeakerId, setActiveSpeakerId] = useState<string | null>(null);
   
   const { setMeetingStartTime, segments, addHighlights } = useTranscriptStore();
   const { addReaction, addPoll, votePoll, submitMood, raiseHand, lowerHand } = useEngagementStore();
   
   const { status, participants, error, roomData, socket } = useRoom(id);
-  const { localStream, remoteStreams, isAudioMuted, isVideoMuted, toggleAudio, toggleVideo, activeSpeakerId } = useMediaStream(socket);
-  const { isSharing, screenStream, startSharing, stopSharing, captureFrame, context: screenContext, annotations } = useScreenShare(socket, id);
+  
+  const { 
+    stream: localStream, 
+    isMuted: isAudioMuted, 
+    isVideoOff: isVideoMuted, 
+    toggleMic: toggleAudio, 
+    toggleVideo 
+  } = useMediaStream();
+  
+  const { peers: remoteStreams, quality } = usePeerConnection(socket?.id || null, localStream, socket);
+  const { isSharing, screenStream, startSharing, stopSharing, captureFrame, screenContext, annotations } = useScreenShare();
 
   // Meeting duration timer
   const [meetingDuration, setMeetingDuration] = useState(0);
@@ -162,7 +173,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
           <div className={gridClass}>
             {allParticipants.map((pId) => {
               const isLocal = pId === 'local';
-              const stream = isLocal ? localStream : remoteStreams.get(pId) || null;
+              const stream = isLocal ? localStream : remoteStreams[pId] || null;
               const isActive = activeSpeakerId === pId;
               let tileClass = "w-full h-full min-h-[200px] transition-all duration-500 relative";
               if (!isSharing && totalCount >= 2 && totalCount <= 4 && isActive) tileClass += " col-span-2 row-span-2";

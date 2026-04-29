@@ -142,7 +142,7 @@ export function SettingsSheet({ isOpen, onClose }: SettingsSheetProps) {
                       <h3 className="text-sm font-bold text-red-400/80 uppercase tracking-wider flex items-center"><ShieldAlert className="w-4 h-4 mr-2"/> Privacy Options</h3>
                       <div className="bg-red-500/5 border border-red-500/10 p-5 rounded-2xl flex items-center justify-between">
                         <div>
-                          <p className="font-semibold text-white flex items-center"><EyeOff className="w-4 h-4 mr-2 text-red-400"/> Don't Transcribe Meetings</p>
+                          <p className="font-semibold text-white flex items-center"><EyeOff className="w-4 h-4 mr-2 text-red-400"/> Don&apos;t Transcribe Meetings</p>
                           <p className="text-sm text-white/50">Pause all AI processing and transcription locally.</p>
                         </div>
                         <div className="w-12 h-6 bg-white/10 rounded-full flex items-center p-1 cursor-pointer">
@@ -223,7 +223,6 @@ export function SettingsSheet({ isOpen, onClose }: SettingsSheetProps) {
                             </div>
                             <select className="bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white outline-none w-48">
                               <option>FaceTime HD Camera</option>
-                            </option>
                             </select>
                           </div>
                           <div className="w-full h-48 bg-black rounded-xl overflow-hidden relative border border-white/5 flex items-center justify-center">

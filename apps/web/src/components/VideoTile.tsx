@@ -5,18 +5,21 @@ import { ReactionOverlay } from './ReactionOverlay';
 
 interface VideoTileProps {
   stream: MediaStream | null;
-  name: string;
+  name?: string;
   isLocal?: boolean;
+  participantId?: string;
+  isActiveSpeaker?: boolean;
   quality?: { rtt: number; packetLoss: number };
 }
 
-export function VideoTile({ stream, name, isLocal = false, quality }: VideoTileProps) {
+export function VideoTile({ stream, name, isLocal = false, participantId, isActiveSpeaker = false, quality }: VideoTileProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [volume, setVolume] = useState(0);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   // Auto-transcribe local user when they speak
   useTranscription('local', isLocal && isSpeaking && !isAudioMuted);
@@ -94,6 +97,10 @@ export function VideoTile({ stream, name, isLocal = false, quality }: VideoTileP
         track.removeEventListener('unmute', handleMuteChange);
       };
     } catch (err) {
+      console.warn("VAD setup failed", err);
+    }
+  }, [stream, isLocal]);
+
   // Network quality simulation (could be wired to WebRTC stats)
   const getQualityDots = () => {
     // 3 dots logic (mocked randomly for demo)

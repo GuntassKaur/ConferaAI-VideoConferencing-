@@ -1,11 +1,13 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Video, Calendar as CalendarIcon, Settings as SettingsIcon, PieChart, 
   Bell, Search, Plus, Clock, FileText, ArrowRight, Play, 
-  MoreHorizontal, Users, Sparkles, Filter, CheckCircle2, AlertCircle
+  MoreHorizontal, Users, Sparkles, Filter, CheckCircle2, AlertCircle, Loader2
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ResponsiveContainer, PieChart as RechartsPie, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, AreaChart, Area } from 'recharts';
@@ -257,7 +259,7 @@ export default function DashboardPage() {
                   <div className="p-3 bg-indigo-500/20 rounded-xl"><Sparkles className="w-6 h-6 text-indigo-400" /></div>
                   <div>
                     <h3 className="font-semibold text-lg text-indigo-100">AI Insight</h3>
-                    <p className="text-indigo-300 mt-1">You've had 40% more meetings this month. Your talk time is heavily skewed in status updates. <strong className="text-white">Recommend:</strong> Move engineering syncs to async formats using Confera AI Video Notes.</p>
+                    <p className="text-indigo-300 mt-1">You&apos;ve had 40% more meetings this month. Your talk time is heavily skewed in status updates. <strong className="text-white">Recommend:</strong> Move engineering syncs to async formats using Confera AI Video Notes.</p>
                   </div>
                 </div>
 
@@ -267,12 +269,14 @@ export default function DashboardPage() {
                     <h3 className="font-semibold text-white/80 mb-6 flex items-center"><PieChart className="w-4 h-4 mr-2" /> Talk Time Distribution</h3>
                     <div className="flex-1 min-h-[250px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <RechartsPie
-                          data={TALK_TIME_DATA}
-                          cx="50%" cy="50%" innerRadius={60} outerRadius={80}
-                          paddingAngle={5} dataKey="value" stroke="none"
-                        >
-                          {TALK_TIME_DATA.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
+                        <RechartsPie>
+                          <Pie
+                            data={TALK_TIME_DATA}
+                            cx="50%" cy="50%" innerRadius={60} outerRadius={80}
+                            paddingAngle={5} dataKey="value" stroke="none"
+                          >
+                            {TALK_TIME_DATA.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
+                          </Pie>
                         </RechartsPie>
                       </ResponsiveContainer>
                     </div>

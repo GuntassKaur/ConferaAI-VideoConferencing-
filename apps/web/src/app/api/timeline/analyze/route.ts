@@ -6,8 +6,11 @@ const anthropic = new Anthropic({
 });
 
 export async function POST(req: Request) {
+  let action = '';
   try {
-    const { transcript, action } = await req.json();
+    const body = await req.json();
+    const transcript = body.transcript;
+    action = body.action;
 
     if (action === 'magic_clip') {
       const response = await anthropic.messages.create({
