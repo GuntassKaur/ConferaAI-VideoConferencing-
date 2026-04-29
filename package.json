@@ -2,8 +2,17 @@
   "name": "confera-ai-monorepo",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "build": "npm run build --workspace=@confera/web",
+    "dev": "npm run dev --workspace=@confera/web",
+    "start": "npm run start --workspace=@confera/web"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "overrides": {
+    "react": "19.2.5",
+    "react-dom": "19.2.5"
+  }
 }
