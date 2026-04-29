@@ -3,19 +3,17 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Confera AI",
-  description: "Next-gen video conferencing app",
+  description: "Next-generation AI video conferencing",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className="antialiased">
-        {children}
-      </body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
