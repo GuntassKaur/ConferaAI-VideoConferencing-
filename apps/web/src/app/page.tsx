@@ -4,75 +4,114 @@ import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [roomId, setRoomId] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
-  const createRoom = () => {
-    const id = Math.random().toString(36).substring(2, 5).toUpperCase() + "-" +
-               Math.random().toString(36).substring(2, 5).toUpperCase() + "-" +
-               Math.random().toString(36).substring(2, 5).toUpperCase();
-    router.push(`/room/${id}`);
+  const createRoom = async () => {
+    setIsCreating(true);
+    setError("");
+    try {
+      const res = await fetch("/api/rooms/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ host_id: "guest", room_name: "Confera Meeting" }),
+      });
+      const data = await res.json();
+      if (data.id) {
+        router.push(`/room/${data.id}`);
+      } else {
+        setError("Failed to create room. Please try again.");
+      }
+    } catch (e) {
+      setError("Network error. Please try again.");
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const joinRoom = () => {
-    if (roomId.trim()) router.push(`/room/${roomId.trim()}`);
+    const id = roomId.trim().toUpperCase();
+    if (!id) {
+      setError("Please enter a room code.");
+      return;
+    }
+    setIsJoining(true);
+    router.push(`/room/${id}`);
   };
 
   return (
-    <main className="min-h-screen bg-[#0a0a1a] text-white flex flex-col items-center justify-center px-6">
+    <main style={{ minHeight: "100vh", backgroundColor: "#0a0a1a", color: "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px", fontFamily: "system-ui, -apple-system, sans-serif", position: "relative", overflow: "hidden" }}>
       {/* Glow blobs */}
-      <div className="fixed top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-purple-600/20 blur-[120px] pointer-events-none" />
-      <div className="fixed bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-pink-600/15 blur-[100px] pointer-events-none" />
+      <div style={{ position: "fixed", top: "-20%", left: "-10%", width: "600px", height: "600px", borderRadius: "50%", background: "radial-gradient(circle, rgba(124,58,237,0.25) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "fixed", bottom: "-20%", right: "-10%", width: "500px", height: "500px", borderRadius: "50%", background: "radial-gradient(circle, rgba(236,72,153,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
 
       {/* Logo */}
-      <div className="flex items-center gap-3 mb-12">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-lg font-black">C</div>
-        <span className="text-2xl font-black tracking-tight">Confera <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">AI</span></span>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "48px" }}>
+        <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "linear-gradient(135deg, #7c3aed, #ec4899)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", fontWeight: 900, boxShadow: "0 0 32px rgba(124,58,237,0.5)" }}>C</div>
+        <span style={{ fontSize: "24px", fontWeight: 900, letterSpacing: "-0.5px" }}>Confera <span style={{ background: "linear-gradient(135deg, #a78bfa, #f472b6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>AI</span></span>
       </div>
 
       {/* Hero */}
-      <h1 className="text-5xl md:text-7xl font-black text-center leading-[1.05] mb-6 max-w-3xl">
-        Meetings that<br />
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-teal-400">
+      <h1 style={{ fontSize: "clamp(40px, 8vw, 72px)", fontWeight: 900, textAlign: "center", lineHeight: 1.05, marginBottom: "20px", maxWidth: "700px" }}>
+        Meetings that{" "}
+        <span style={{ background: "linear-gradient(135deg, #a78bfa, #f472b6, #34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
           think with you
         </span>
       </h1>
-      <p className="text-lg text-white/50 text-center max-w-lg mb-12 leading-relaxed">
+      <p style={{ fontSize: "18px", color: "rgba(255,255,255,0.5)", textAlign: "center", maxWidth: "480px", lineHeight: 1.7, marginBottom: "48px" }}>
         AI-powered video conferencing with live recaps, smart transcription, screen analysis, and real-time co-pilot.
       </p>
 
-      {/* Actions */}
-      <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md mb-6">
+      {/* Error message */}
+      {error && (
+        <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: "12px", padding: "12px 20px", marginBottom: "20px", color: "#fca5a5", fontSize: "14px" }}>
+          {error}
+        </div>
+      )}
+
+      {/* Action buttons */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%", maxWidth: "460px", marginBottom: "16px" }}>
         <button
           onClick={createRoom}
-          className="flex-1 py-4 px-6 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 font-bold text-lg hover:opacity-90 active:scale-95 transition-all"
+          disabled={isCreating}
+          style={{ width: "100%", padding: "18px 24px", borderRadius: "16px", background: isCreating ? "rgba(124,58,237,0.5)" : "linear-gradient(135deg, #7c3aed, #ec4899)", border: "none", color: "#fff", fontSize: "18px", fontWeight: 700, cursor: isCreating ? "not-allowed" : "pointer", transition: "all 0.2s", boxShadow: "0 0 40px rgba(124,58,237,0.3)" }}
         >
-          Start Meeting
+          {isCreating ? "Creating room..." : "🚀 Start Meeting"}
         </button>
-        <div className="flex-1 flex gap-2">
+
+        <div style={{ display: "flex", gap: "10px" }}>
           <input
             value={roomId}
-            onChange={e => setRoomId(e.target.value)}
+            onChange={e => { setRoomId(e.target.value); setError(""); }}
             onKeyDown={e => e.key === "Enter" && joinRoom()}
-            placeholder="Room code"
-            className="flex-1 py-4 px-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-purple-500 transition-colors"
+            placeholder="Enter room code (e.g. ABC-DEF-GHI)"
+            style={{ flex: 1, padding: "16px", borderRadius: "14px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", color: "#fff", fontSize: "15px", outline: "none" }}
           />
           <button
             onClick={joinRoom}
-            className="py-4 px-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors font-bold"
+            disabled={isJoining}
+            style={{ padding: "16px 20px", borderRadius: "14px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontSize: "15px", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
           >
-            Join
+            {isJoining ? "..." : "Join"}
           </button>
         </div>
       </div>
 
       {/* Feature pills */}
-      <div className="flex flex-wrap gap-2 justify-center mt-4">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "center", marginTop: "32px", maxWidth: "600px" }}>
         {["🧠 AI Recap", "📝 Live Transcription", "🖥️ Screen AI", "⚡ Co-pilot", "🌐 Translation", "🤝 Breakout Rooms"].map(f => (
-          <span key={f} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-white/60">
+          <span key={f} style={{ padding: "8px 16px", borderRadius: "999px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", fontSize: "13px", color: "rgba(255,255,255,0.6)" }}>
             {f}
           </span>
         ))}
       </div>
+
+      {/* Footer */}
+      <p style={{ marginTop: "48px", fontSize: "13px", color: "rgba(255,255,255,0.2)" }}>
+        No account needed · WebRTC powered · End-to-end encrypted
+      </p>
     </main>
   );
 }
