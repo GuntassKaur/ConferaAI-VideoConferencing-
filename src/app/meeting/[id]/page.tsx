@@ -19,10 +19,13 @@ import {
   ParticipantTile,
   LayoutLoop,
   TrackLoop,
-  ConnectionState
+  ConnectionState,
+  useParticipants,
+  useIsSpeaking,
+  VideoTrack,
+  useLocalParticipant
 } from '@livekit/components-react';
 import { Track } from 'livekit-client';
-import '@livekit/components-styles';
 
 interface Reaction {
   id: string;
@@ -174,7 +177,7 @@ export default function MeetingPage() {
   }
 
   return (
-    <div className="h-screen bg-[#020617] flex overflow-hidden font-sans text-white">
+    <div className="h-screen bg-gradient-to-br from-[#0f172a] to-[#020617] flex overflow-hidden font-sans text-white">
       <LiveKitRoom
         video={true}
         audio={true}
@@ -182,7 +185,6 @@ export default function MeetingPage() {
         serverUrl={wsUrl}
         connect={true}
         onDisconnected={() => window.location.href = '/dashboard'}
-        data-lk-theme="default"
         className="flex-1 flex overflow-hidden"
       >
         <div className="flex-1 flex flex-col relative overflow-hidden">
@@ -219,10 +221,7 @@ export default function MeetingPage() {
 
           {/* 📹 STAGE */}
           <div className="flex-1 p-8 pt-24 pb-32">
-             <VideoConference 
-               controlBar={false} 
-               className="!bg-transparent !border-none !shadow-none h-full"
-             />
+             <CustomVideoGrid />
              
              {/* Reactions Overlay */}
              <div className="absolute inset-0 pointer-events-none z-40">
@@ -244,20 +243,9 @@ export default function MeetingPage() {
           </div>
 
           {/* 🎛️ CONTROLS */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#111827]/80 backdrop-blur-xl px-8 py-4 rounded-2xl border border-white/5 shadow-2xl">
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-white/10 backdrop-blur-xl px-8 py-4 rounded-2xl border border-white/5 shadow-2xl">
              <div className="flex items-center gap-2">
-                {/* Standard LiveKit Controls could be used, but for UI consistency I'll use a custom ControlBar wrapper or just use the default one for now to ensure functionality */}
-                <ControlBar 
-                  variation="minimal" 
-                  controls={{ 
-                    microphone: true, 
-                    camera: true, 
-                    chat: false, 
-                    screenShare: true, 
-                    leave: true 
-                  }}
-                  className="!bg-transparent !border-none !gap-3"
-                />
+                <CustomControlBar />
              </div>
              
              <div className="w-px h-8 bg-white/10 mx-2" />
@@ -387,6 +375,93 @@ export default function MeetingPage() {
           border-radius: 10px;
         }
       `}</style>
+    </div>
+  );
+}
+
+function CustomVideoGrid() {
+  const participants = useParticipants();
+  
+  let gridCols = 'grid-cols-1';
+  if (participants.length === 2) gridCols = 'grid-cols-1 md:grid-cols-2';
+  else if (participants.length === 3 || participants.length === 4) gridCols = 'grid-cols-2';
+  else if (participants.length > 4) gridCols = 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+
+  return (
+    <div className={`w-full h-full grid gap-4 ${gridCols} place-items-center place-content-center`}>
+      {participants.map((p) => (
+        <CustomParticipantTile key={p.identity} participant={p} />
+      ))}
+      {participants.length === 0 && (
+         <div className="col-span-full h-full flex items-center justify-center text-slate-500 text-sm font-medium">Waiting for others to join...</div>
+      )}
+    </div>
+  );
+}
+
+function CustomParticipantTile({ participant }: { participant: any }) {
+  const tracks = useTracks([{ source: Track.Source.Camera, withPlaceholder: true }]);
+  const participantTrack = tracks.find(t => t.participant.identity === participant.identity);
+  const isSpeaking = useIsSpeaking(participant);
+
+  return (
+    <div className={`w-full max-h-full min-h-[200px] aspect-video bg-[#0f0f13] rounded-2xl overflow-hidden relative shadow-lg transition-all duration-300 ${isSpeaking ? 'border-2 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.3)]' : 'border border-white/5'}`}>
+      {participantTrack ? (
+        <VideoTrack trackRef={participantTrack} className="absolute inset-0 w-full h-full object-cover" />
+      ) : (
+        <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#09090b]">
+          <div className="w-20 h-20 rounded-full bg-[#111827] border border-white/5 flex items-center justify-center text-3xl font-bold text-slate-500 shadow-inner">
+            {participant.name?.charAt(0) || 'U'}
+          </div>
+        </div>
+      )}
+      
+      <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur rounded-lg px-2.5 py-1 text-[11px] font-bold text-white border border-white/10 flex items-center gap-2 shadow-sm z-10">
+        {participant.name || 'Unknown'}
+        {participant.isLocal && <span className="text-slate-400 font-medium">(You)</span>}
+      </div>
+
+      {!participant.isMicrophoneEnabled && (
+        <div className="absolute top-3 right-3 bg-rose-500/80 backdrop-blur rounded-lg p-1.5 border border-rose-500/50 shadow-sm z-10">
+          <MicOff size={14} className="text-white" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CustomControlBar() {
+  const { localParticipant } = useLocalParticipant();
+  const micEnabled = localParticipant?.isMicrophoneEnabled;
+  const camEnabled = localParticipant?.isCameraEnabled;
+  const screenEnabled = localParticipant?.isScreenShareEnabled;
+
+  return (
+    <div className="flex items-center gap-3">
+      <button 
+        onClick={() => localParticipant?.setMicrophoneEnabled(!micEnabled)}
+        className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${micEnabled ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-rose-500/20 border border-rose-500/50 text-rose-500'}`}
+      >
+        {micEnabled ? <Mic size={20} /> : <MicOff size={20} />}
+      </button>
+      <button 
+        onClick={() => localParticipant?.setCameraEnabled(!camEnabled)}
+        className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${camEnabled ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-rose-500/20 border border-rose-500/50 text-rose-500'}`}
+      >
+        {camEnabled ? <VideoIcon size={20} /> : <VideoOff size={20} />}
+      </button>
+      <button 
+        onClick={() => localParticipant?.setScreenShareEnabled(!screenEnabled)}
+        className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${screenEnabled ? 'bg-indigo-500/20 border border-indigo-500/50 text-indigo-400' : 'bg-white/10 hover:bg-white/20 text-white'}`}
+      >
+        <Monitor size={20} />
+      </button>
+      <button 
+        onClick={() => window.location.href = '/dashboard'}
+        className="px-6 h-12 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 rounded-xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 font-bold text-[11px] uppercase tracking-widest border border-rose-500/20 ml-2"
+      >
+        <PhoneOff size={16} /> Leave
+      </button>
     </div>
   );
 }

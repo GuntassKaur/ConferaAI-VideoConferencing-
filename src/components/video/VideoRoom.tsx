@@ -80,7 +80,10 @@ export default function VideoRoom({ roomId }: { roomId: string }) {
     }, 1000);
   };
 
-  const gridCols = participants.length <= 1 ? 'grid-cols-1' : participants.length <= 4 ? 'grid-cols-2' : 'grid-cols-3';
+  let gridCols = 'grid-cols-1';
+  if (participants.length === 2) gridCols = 'grid-cols-1 md:grid-cols-2';
+  else if (participants.length === 3 || participants.length === 4) gridCols = 'grid-cols-2';
+  else if (participants.length > 4) gridCols = 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
 
   return (
     <div className="flex flex-col h-screen bg-[#08080a] text-white font-inter overflow-hidden relative">
@@ -113,7 +116,7 @@ export default function VideoRoom({ roomId }: { roomId: string }) {
 
       <div className="flex flex-1 overflow-hidden">
         {/* VIDEO GRID */}
-        <div className={`flex-1 p-4 grid gap-3 ${gridCols} auto-rows-fr overflow-y-auto`}>
+        <div className={`flex-1 p-4 grid gap-4 ${gridCols} place-content-center overflow-y-auto`}>
           {participants.map((p) => (
             <ParticipantTile key={p.identity} participant={p} />
           ))}
@@ -290,28 +293,29 @@ export default function VideoRoom({ roomId }: { roomId: string }) {
 }
 
 function ParticipantTile({ participant }: { participant: any }) {
-  const tracks = useTracks([Track.Source.Camera]); // In simpler version, we just get all camera tracks
+  const tracks = useTracks([{ source: Track.Source.Camera, withPlaceholder: true }]);
+  const participantTrack = tracks.find(t => t.participant.identity === participant.identity);
   const isSpeaking = useIsSpeaking(participant);
 
   return (
-    <div className={`bg-[#0f0f13] rounded-2xl overflow-hidden relative shadow-lg transition-all duration-300 ${isSpeaking ? 'border-2 border-[#6366f1] shadow-[0_0_15px_rgba(99,102,241,0.3)]' : 'border border-[#1e1e27]'}`}>
-      {tracks.length > 0 ? (
-        <VideoTrack trackRef={tracks[0]} className="w-full h-full object-cover" />
+    <div className={`w-full h-full min-h-[200px] aspect-video bg-[#0f0f13] rounded-2xl overflow-hidden relative shadow-lg transition-all duration-300 ${isSpeaking ? 'border-2 border-[#6366f1] shadow-[0_0_15px_rgba(99,102,241,0.3)]' : 'border border-[#1e1e27]'}`}>
+      {participantTrack ? (
+        <VideoTrack trackRef={participantTrack} className="absolute inset-0 w-full h-full object-cover" />
       ) : (
-        <div className="w-full h-full flex items-center justify-center bg-[#09090b]">
+        <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#09090b]">
           <div className="w-20 h-20 rounded-full bg-[#17171d] border border-[#27272a] flex items-center justify-center text-3xl font-bold text-slate-500 shadow-inner">
             {participant.name?.charAt(0) || 'U'}
           </div>
         </div>
       )}
       
-      <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur rounded-lg px-2.5 py-1 text-[11px] font-bold text-white border border-white/10 flex items-center gap-2 shadow-sm">
+      <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur rounded-lg px-2.5 py-1 text-[11px] font-bold text-white border border-white/10 flex items-center gap-2 shadow-sm z-10">
         {participant.name || 'Unknown'}
         {participant.isLocal && <span className="text-slate-400 font-medium">(You)</span>}
       </div>
 
       {!participant.isMicrophoneEnabled && (
-        <div className="absolute top-3 right-3 bg-rose-500/80 backdrop-blur rounded-lg p-1.5 border border-rose-500/50 shadow-sm">
+        <div className="absolute top-3 right-3 bg-rose-500/80 backdrop-blur rounded-lg p-1.5 border border-rose-500/50 shadow-sm z-10">
           <MicOff size={14} className="text-white" />
         </div>
       )}

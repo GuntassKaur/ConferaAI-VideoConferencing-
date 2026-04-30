@@ -6,7 +6,6 @@ import { useParams, useRouter } from 'next/navigation';
 import PreCallLobby from '@/components/video/PreCallLobby';
 import VideoRoom from '@/components/video/VideoRoom';
 import { LiveKitRoom } from '@livekit/components-react';
-import '@livekit/components-styles';
 
 export default function SessionPage() {
   const { roomId } = useParams() as { roomId: string };
@@ -60,8 +59,7 @@ export default function SessionPage() {
       audio={micEnabled}
       token={token}
       serverUrl={livekitUrl}
-      data-lk-theme="default"
-      className="h-screen w-full bg-[#08080a]"
+      className="flex flex-col h-screen w-full bg-[#08080a]"
       onDisconnected={() => router.push('/dashboard')}
     >
       <VideoRoom roomId={roomId} />
