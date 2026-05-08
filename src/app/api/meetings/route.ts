@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-import { connectDB } from '@/lib/mongodb';
+import { connectDB } from '@/lib/db';
 
 import Meeting from '@/models/Meeting';
 

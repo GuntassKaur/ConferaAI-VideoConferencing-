@@ -56,31 +56,26 @@ export default function DashboardContent() {
   };
 
   const startMeeting = async () => {
-    const { addToast } = useToastStore.getState();
     setIsStarting(true);
     try {
-      const res = await fetch("/api/meeting/create", {
+      const response = await fetch("/api/meeting/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          userId: currentUser?.id || 'guest_global',
-          name: `${currentUser?.name || 'Guest'}'s Workspace`
-        })
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || data.error || "API failed");
-      if (!data.meetingId) throw new Error("No meeting ID received");
+      const data = await response.json();
 
+      if (!data.success) {
+        alert(data.error || "Meeting creation failed");
+        setIsStarting(false);
+        return;
+      }
 
-      addToast("Session initialized. Redirecting...", "success");
-      window.location.href = `/meeting/${data.meetingId}`;
-    } catch (err: any) {
+      router.push(`/meeting/${data.meetingId}`);
+    } catch (err) {
       console.error(err);
-      addToast(err.message || "System failure during session initialization.", "error");
+      alert("Server error");
       setIsStarting(false);
     }
-
   };
 
   const handleJoin = async (e: React.FormEvent) => {

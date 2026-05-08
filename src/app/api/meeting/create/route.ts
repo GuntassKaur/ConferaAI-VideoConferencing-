@@ -1,76 +1,35 @@
-import { NextResponse } from 'next/server';
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-import { connectDB } from '@/lib/mongodb';
-import Meeting from '@/models/Meeting';
-import { AccessToken } from 'livekit-server-sdk';
-import crypto from 'crypto';
+import { NextResponse } from "next/server";
+import { connectDB } from "@/lib/db";
+import { v4 as uuidv4 } from "uuid";
+import Meeting from "@/models/Meeting";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
-    const apiKey = process.env.LIVEKIT_API_KEY;
-    const apiSecret = process.env.LIVEKIT_API_SECRET;
-    const wsUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL || process.env.LIVEKIT_URL;
+    await connectDB();
 
-    if (!apiKey || !apiSecret || !wsUrl) {
-      return NextResponse.json({ success: false, message: "Server misconfigured: LiveKit credentials missing" }, { status: 500 });
-    }
+    const meetingId = uuidv4();
 
-    const body = await req.json().catch(() => ({}));
-    const { userId, name } = body;
-
-    if (!userId) {
-      return NextResponse.json({ success: false, message: "Unauthorized: Missing userId" }, { status: 401 });
-    }
-
-    const meetingId = crypto.randomUUID().substring(0, 8);
-    const participantName = name || `User-${userId.substring(0, 4)}`;
-
-    // 1. Save in MongoDB (Optional for Guest Mode)
-    try {
-      const db = await connectDB();
-      if (db) {
-        await Meeting.create({ 
-          meetingId,
-          name: name || `Meeting ${meetingId}`,
-          hostId: userId,
-          status: 'active',
-          participants: [userId],
-          createdAt: new Date()
-        });
-      }
-    } catch (dbError) {
-
-      console.warn("MongoDB connection failed, proceeding in Guest Mode:", dbError);
-    }
-
-
-
-    // 2. Generate LiveKit Token
-    const at = new AccessToken(apiKey, apiSecret, {
-      identity: userId,
-      name: participantName,
+    const meeting = await Meeting.create({
+      meetingId,
+      createdAt: new Date(),
     });
 
-    at.addGrant({ 
-      roomJoin: true, 
-      room: meetingId, 
-      canPublish: true, 
-      canSubscribe: true 
-    });
-
-    const token = await at.toJwt();
-
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
-      meetingId, 
-      token,
-      wsUrl
+      meetingId: meeting.meetingId,
     });
-
   } catch (error: any) {
-    console.error("Meeting Creation Failure:", error);
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    console.error(error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message,
+      },
+      { status: 500 }
+    );
   }
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-import connectToDatabase from '@/lib/mongodb';
+import { connectDB } from '@/lib/db';
 import Meeting from '@/models/Meeting';
 
 export async function GET() {
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     const { roomId, score, status, insights, participantTalkTimes } = await req.json().catch(() => ({}));
     if (!roomId) return NextResponse.json({ error: 'roomId required' }, { status: 400 });
 
-    await connectToDatabase();
+    await connectDB();
     await Meeting.findOneAndUpdate(
       { roomId },
       { $set: { 

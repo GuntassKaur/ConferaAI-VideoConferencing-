@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-import connectToDatabase from '@/lib/mongodb';
+import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 
 
 export async function GET() {
   try {
-    await connectToDatabase();
+    await connectDB();
     // Fetch all users to populate the "Team" directory
     const participants = await User.find({}, 'name email').lean();
     
