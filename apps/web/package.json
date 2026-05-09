@@ -30,6 +30,7 @@
     "livekit-client": "^2.18.9",
     "livekit-server-sdk": "^2.15.2",
     "lucide-react": "^0.460.0",
+    "mongoose": "^9.6.2",
     "next": "^15.0.0",
     "peerjs": "^1.5.5",
     "react": "^19.0.0",
