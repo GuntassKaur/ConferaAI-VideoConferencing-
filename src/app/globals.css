@@ -1,92 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: #F8FAFC;
-    --foreground: #111827;
-    --card: #FFFFFF;
-    --border: #E5E7EB;
-    --primary: #6366F1;
-    --primary-hover: #4F46E5;
-  }
-
-  .dark {
-    --background: #0F172A;
-    --foreground: #E5E7EB;
-    --card: #111827;
-    --border: #1F2937;
-    --primary: #6366F1;
-    --primary-hover: #4F46E5;
-  }
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: #0f172a;
+  color: white;
+  font-family: Inter, sans-serif;
 }
 
-@layer base {
-  * {
-    border-color: var(--border);
-  }
-  body {
-    background-color: var(--background);
-    color: var(--foreground);
-    font-family: 'Inter', -apple-system, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-}
-
-/* 📏 8PX GRID SYSTEM UTILITIES */
-.gap-8px { gap: 8px; }
-.p-8px { padding: 8px; }
-.m-8px { margin: 8px; }
-
-/* ✨ PREMIUM SaaS UI COMPONENTS */
-.card-premium {
-  @apply bg-[#111827] border border-[#1F2937] rounded-xl shadow-sm transition-all duration-200 hover:border-[#6366F1]/40;
-}
-
-.btn-primary {
-  @apply bg-[#6366F1] text-white font-bold py-2.5 px-6 rounded-xl hover:bg-[#4F46E5] transition-all active:scale-[0.98] shadow-lg shadow-[#6366F1]/20;
-}
-
-.input-premium {
-  @apply bg-[#0F172A] border border-[#1F2937] rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-[#6366F1] transition-all;
-}
-
-/* 🚀 CUSTOM SCROLLBAR */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #1F2937;
-  border-radius: 999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #374151;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-
-/* 🎥 VIDEO UTILS */
-.video-tile {
-  @apply bg-[#0F172A] rounded-2xl overflow-hidden border border-white/5 shadow-2xl;
-}
-
-/* 🤖 AI GLOW EFFECT */
-.ai-glow {
-  box-shadow: 0 0 40px -10px rgba(99, 102, 241, 0.3);
-}
-
-@keyframes pulse-soft {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-.animate-pulse-soft {
-  animation: pulse-soft 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+* {
+  box-sizing: border-box;
 }

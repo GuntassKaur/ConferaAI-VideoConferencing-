@@ -8,9 +8,9 @@ interface PreMeetingBriefingProps {
 }
 
 export function PreMeetingBriefing({ roomId, onJoin }: PreMeetingBriefingProps) {
-  const [meetingTitle, setMeetingTitle] = useState('Q3 Product Roadmap Sync');
+  const [meetingTitle, setMeetingTitle] = useState('New Strategic Sync');
   const [duration, setDuration] = useState(30);
-  const [goals, setGoals] = useState(['Finalize Q3 Budget', 'Assign Feature Leads']);
+  const [goals, setGoals] = useState(['Define Objectives', 'Establish Timeline']);
   const [newGoal, setNewGoal] = useState('');
   
   const [agenda, setAgenda] = useState<any[]>([]);
@@ -18,12 +18,8 @@ export function PreMeetingBriefing({ roomId, onJoin }: PreMeetingBriefingProps) 
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAgendaLoading, setIsAgendaLoading] = useState(false);
 
-  // Mocked Participants pulled from calendar
-  const participants = [
-    { id: '1', name: 'Sarah Jenkins', role: 'Director of Product', interaction: 'Met 2 weeks ago regarding Q2 metrics' },
-    { id: '2', name: 'David Chen', role: 'Lead Engineer', interaction: 'Commented on your doc yesterday' },
-    { id: '3', name: 'Elena Rodriguez', role: 'UX Researcher', interaction: 'First meeting together' }
-  ];
+  // Participants will be loaded from the session registry
+  const participants: any[] = [];
 
   // Auto-generate briefing on load
   useEffect(() => {
