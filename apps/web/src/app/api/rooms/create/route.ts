@@ -1,47 +1,36 @@
 import { NextResponse } from 'next/server';
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
+import connectDB from '@/lib/db';
+import Meeting from '@/models/Meeting';
 
-function generateRoomId() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  const getGroup = () => Array.from({ length: 3 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-  return `${getGroup()}-${getGroup()}-${getGroup()}`;
-}
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json().catch(() => ({}));
-    const host_id = body.host_id || 'guest';
-    const room_name = body.room_name || 'Confera Meeting';
+    await connectDB();
+    const { room_name, host_id } = await req.json();
 
-    const roomId = generateRoomId();
-    const roomData = {
-      id: roomId,
-      host_id,
-      room_name,
-      created_at: new Date().toISOString(),
-      status: 'active'
+    // Generate a unique 9-digit ID (ABC-DEF-GHI)
+    const generateId = () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      const segment = () => Array.from({ length: 3 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+      return `${segment()}-${segment()}-${segment()}`;
     };
 
-    // Try Supabase if configured, but always succeed
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co') {
-      try {
-        const { createClient } = await import('@supabase/supabase-js');
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        );
-        await supabase.from('rooms').insert(roomData);
-      } catch (dbErr) {
-        console.warn('Supabase insert skipped (not configured):', dbErr);
-      }
-    }
+    const roomId = generateId();
 
-    return NextResponse.json(roomData);
-  } catch (error) {
-    console.error('Room create error:', error);
-    // Even on error, return a working room ID so users can meet
-    const fallbackId = `${Math.random().toString(36).substring(2, 5).toUpperCase()}-${Math.random().toString(36).substring(2, 5).toUpperCase()}-${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
-    return NextResponse.json({ id: fallbackId, status: 'active', created_at: new Date().toISOString() });
+    const meeting = await Meeting.create({
+      roomId,
+      name: room_name || 'Strategic Sync',
+      hostId: host_id,
+      status: 'active',
+      startTime: new Date(),
+    });
+
+    return NextResponse.json({ id: meeting.roomId });
+
+  } catch (error: any) {
+    console.error('Room creation error:', error);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
