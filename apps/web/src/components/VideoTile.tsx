@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Mic, MicOff, Signal, SignalHigh, SignalLow, SignalMedium } from 'lucide-react';
+import { MicOff, Activity, Maximize2, MoreHorizontal } from 'lucide-react';
 import { useTranscription } from '@/hooks/useTranscription';
 import { ReactionOverlay } from './ReactionOverlay';
 
@@ -101,23 +101,22 @@ export function VideoTile({ stream, name, isLocal = false, participantId, isActi
     }
   }, [stream, isLocal]);
 
-  // Network quality simulation (could be wired to WebRTC stats)
+  // Network quality representation
   const getQualityDots = () => {
-    // 3 dots logic (mocked randomly for demo)
     const q = isLocal ? 3 : Math.floor(Math.random() * 2) + 2; 
     return (
-      <div className="flex space-x-0.5 items-end h-3">
-        <div className={`w-1 bg-emerald-400 rounded-full ${q >= 1 ? 'h-1.5' : 'h-1 opacity-20'}`} />
-        <div className={`w-1 bg-emerald-400 rounded-full ${q >= 2 ? 'h-2.5' : 'h-1 opacity-20'}`} />
-        <div className={`w-1 bg-emerald-400 rounded-full ${q >= 3 ? 'h-3' : 'h-1 opacity-20'}`} />
+      <div className="flex space-x-0.5 items-end h-3 px-2 py-1 bg-[#0B1120]/40 rounded-lg">
+        <div className={`w-0.5 bg-emerald-500 rounded-full ${q >= 1 ? 'h-1.5' : 'h-1 opacity-20'}`} />
+        <div className={`w-0.5 bg-emerald-500 rounded-full ${q >= 2 ? 'h-2' : 'h-1 opacity-20'}`} />
+        <div className={`w-0.5 bg-emerald-500 rounded-full ${q >= 3 ? 'h-2.5' : 'h-1 opacity-20'}`} />
       </div>
     );
   };
 
   return (
     <div 
-      className={`relative w-full h-full bg-zinc-900 overflow-hidden rounded-[20px] transition-all duration-300 ease-out group ${
-        isActiveSpeaker ? 'ring-2 ring-purple-500 shadow-[0_0_30px_rgba(168,85,247,0.3)]' : 'border border-white/5 shadow-xl'
+      className={`relative w-full h-full bg-[#0B1120] overflow-hidden rounded-2xl transition-all duration-500 ease-out group ${
+        isActiveSpeaker ? 'ring-2 ring-indigo-500 shadow-2xl shadow-indigo-500/20' : 'border border-[#1F2937]'
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -128,41 +127,51 @@ export function VideoTile({ stream, name, isLocal = false, participantId, isActi
           autoPlay
           playsInline
           muted={isLocal}
-          className={`w-full h-full object-cover transition-transform duration-700 ${isLocal ? 'scale-x-[-1]' : ''} ${isHovered ? 'scale-105' : 'scale-100'}`}
+          className={`w-full h-full object-cover transition-transform duration-1000 ${isLocal ? 'scale-x-[-1]' : ''} ${isHovered ? 'scale-105' : 'scale-100'}`}
         />
       ) : (
-        <div className="w-full h-full flex items-center justify-center bg-zinc-900/80 backdrop-blur-sm">
-          <div className="w-20 h-20 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
-            <span className="text-3xl text-indigo-400 font-medium">
-              {isLocal ? 'Y' : (participantId?.charAt(0).toUpperCase() || '?')}
-            </span>
-          </div>
+        <div className="w-full h-full flex items-center justify-center bg-[#0B1120]">
+           <div className={`w-24 h-24 rounded-full flex items-center justify-center border transition-all duration-700 ${isActiveSpeaker ? 'bg-indigo-500/10 border-indigo-500/30' : 'bg-[#111827] border-[#1F2937]'}`}>
+              <span className={`text-3xl font-bold transition-colors ${isActiveSpeaker ? 'text-indigo-400' : 'text-[#9CA3AF]'}`}>
+                 {isLocal ? 'GK' : (participantId?.substring(0, 2).toUpperCase() || 'P1')}
+              </span>
+           </div>
         </div>
       )}
 
-      {/* Hover Options Overlay */}
-      <div className={`absolute inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity duration-300 flex items-center justify-center space-x-3 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-        <button className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl backdrop-blur-md text-xs font-semibold transition-all">Pin</button>
-        <button className="px-4 py-2 bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-300 border border-indigo-500/30 rounded-xl backdrop-blur-md text-xs font-semibold transition-all">Spotlight</button>
+      {/* Control Overlay */}
+      <div className={`absolute top-3 right-3 flex items-center gap-2 transition-all duration-300 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}>
+         <button className="w-8 h-8 rounded-lg bg-[#0B1120]/60 backdrop-blur-md border border-white/5 flex items-center justify-center text-[#F9FAFB]/60 hover:text-[#F9FAFB] hover:bg-[#1F2937] transition-all">
+            <Maximize2 size={14} />
+         </button>
+         <button className="w-8 h-8 rounded-lg bg-[#0B1120]/60 backdrop-blur-md border border-white/5 flex items-center justify-center text-[#F9FAFB]/60 hover:text-[#F9FAFB] hover:bg-[#1F2937] transition-all">
+            <MoreHorizontal size={14} />
+         </button>
       </div>
 
-      {/* Name Tag (Bottom Left) */}
-      <div className="absolute bottom-3 left-3 bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full flex items-center space-x-2">
-        <div className={`w-2 h-2 rounded-full ${isActiveSpeaker ? 'bg-purple-400 animate-pulse' : 'bg-transparent'}`} />
-        <span className="text-white font-medium text-xs tracking-wide">
-          {isLocal ? 'You' : participantId ? `Guest ${participantId.substring(0, 4)}` : 'Connecting...'}
-        </span>
-        {isLocal && (
-          <div className="ml-1 bg-indigo-500 px-1.5 rounded text-[9px] font-bold uppercase tracking-wider text-white">Host</div>
-        )}
-      </div>
+      {/* Bottom Info Bar */}
+      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+        <div className="bg-[#0B1120]/60 backdrop-blur-md border border-white/5 px-3 py-1.5 rounded-xl flex items-center gap-2">
+          {isSpeaking && !isAudioMuted && (
+             <div className="flex gap-0.5 items-center h-2">
+                {[1, 2, 3].map(i => (
+                   <div key={i} className="w-0.5 bg-emerald-500 rounded-full animate-bounce" style={{ height: `${Math.random() * 100}%`, animationDelay: `${i * 0.1}s` }} />
+                ))}
+             </div>
+          )}
+          <span className="text-[10px] font-bold text-[#F9FAFB] uppercase tracking-widest">
+            {isLocal ? 'You (Host)' : participantId ? `Guest ${participantId.substring(0, 4)}` : 'Remote User'}
+          </span>
+        </div>
 
-      {/* Status Icons (Top Right) */}
-      <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-md p-2 rounded-full border border-white/10 flex items-center space-x-2">
-        {getQualityDots()}
-        {!stream?.getAudioTracks()[0]?.enabled && (
-          <MicOff className="w-3.5 h-3.5 text-red-400 ml-2" />
-        )}
+        <div className="flex items-center gap-2">
+           {isAudioMuted && (
+              <div className="bg-red-500/20 backdrop-blur-md border border-red-500/30 p-1.5 rounded-lg">
+                 <MicOff size={12} className="text-red-400" />
+              </div>
+           )}
+           {getQualityDots()}
+        </div>
       </div>
 
       {/* Floating Reactions overlay */}

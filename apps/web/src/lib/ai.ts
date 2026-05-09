@@ -4,9 +4,10 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || process.env.N
 export const gemini = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 export async function generateRecap(transcript: string, participants: string[]) {
-  const prompt = `You are an elite meeting AI. Analyze this transcript and return ONLY valid JSON (no markdown, no backticks):
+  const prompt = `You are Confera AI's intelligence engine. Analyze this meeting transcript and return a structured JSON summary.
+Return ONLY valid JSON:
 {
-  "tldr": "2-sentence summary",
+  "tldr": "2-sentence high-level summary",
   "keyDecisions": [{"decision": "", "madeBy": "", "timestamp": ""}],
   "actionItems": [{"task": "", "owner": "", "deadline": "", "priority": "high|medium|low"}],
   "openQuestions": [{"question": "", "raisedBy": ""}],
@@ -27,7 +28,7 @@ ${transcript}`;
 
 export async function generateCopilotSuggestion(context: string) {
   const result = await gemini.generateContent(
-    `You are a live meeting co-pilot. Based on this meeting context, give ONE short, specific suggestion (max 15 words): ${context}`
+    `You are Confera AI's strategic assistant. Based on this session context, provide ONE concise, professional suggestion (max 15 words) to drive the meeting forward: ${context}`
   );
   return result.response.text();
 }

@@ -1,21 +1,50 @@
 @import "tailwindcss";
 
 @theme {
-  --color-indigo-500: #6366f1;
-  --color-slate-950: #020617;
-  --color-slate-900: #0f172a;
-  --color-slate-800: #1e293b;
+  --color-background: #0B1120;
+  --color-card: #111827;
+  --color-border: #1F2937;
+  --color-primary: #6366F1;
+  --color-primary-hover: #7C83FF;
+  --color-text: #F9FAFB;
+  --color-muted: #9CA3AF;
+  
+  --color-indigo-500: #6366F1;
+  --color-slate-950: #0B1120;
+  --color-slate-900: #111827;
+  --color-slate-800: #1F2937;
 }
 
 html,
 body {
   padding: 0;
   margin: 0;
-  background: #0f172a;
-  color: white;
-  font-family: Inter, sans-serif;
+  background: #0B1120;
+  color: #F9FAFB;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Custom Scrollbar for a premium feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1F2937;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6366F1/50;
 }
