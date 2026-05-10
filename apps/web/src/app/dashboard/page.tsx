@@ -7,16 +7,15 @@ import {
   Plus, 
   Video, 
   History, 
-  Settings, 
   LogOut, 
   Clock, 
   ChevronRight, 
-  Calendar,
-  MoreVertical,
   Search,
-  Users,
-  Zap,
-  Loader2
+  LayoutDashboard,
+  CalendarDays,
+  Settings,
+  Sparkles,
+  Users
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -26,6 +25,7 @@ export default function DashboardPage() {
   const [meetings, setMeetings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [joinId, setJoinId] = useState("");
 
   useEffect(() => {
     fetchMeetings();
@@ -52,8 +52,8 @@ export default function DashboardPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          room_name: `${user?.name}'s Sync`,
-          host_id: user?.id 
+          room_name: `${user?.name || 'User'}'s Sync`,
+          host_id: user?.id || 'guest'
         })
       });
       const data = await res.json();
@@ -67,173 +67,170 @@ export default function DashboardPage() {
     }
   };
 
+  const handleJoinMeeting = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (joinId.trim()) {
+      router.push(`/room/${joinId.trim()}`);
+    }
+  };
+
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans text-[#0F172A]">
+      <div className="min-h-screen bg-[#0B1120] flex text-slate-50 font-sans">
         
-        {/* Navigation */}
-        <nav className="h-16 border-b border-slate-200 bg-white px-6 flex items-center justify-between sticky top-0 z-30">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white text-sm">
-                C
-              </div>
-              <span className="font-bold text-slate-900 tracking-tight">Confera AI</span>
+        {/* Sidebar */}
+        <aside className="w-64 border-r border-white/5 bg-[#111827] flex flex-col hidden md:flex">
+          <div className="h-16 flex items-center px-6 border-b border-white/5">
+            <div className="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center font-bold text-white text-sm mr-3">
+              C
             </div>
-            
-            <div className="hidden md:flex items-center gap-6">
-               <button className="text-sm font-semibold text-slate-900 border-b-2 border-indigo-600 h-16 flex items-center">Dashboard</button>
-               <button className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Meetings</button>
-               <button className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Recaps</button>
-               <button className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Settings</button>
-            </div>
+            <span className="font-bold text-white tracking-tight">Confera AI</span>
           </div>
 
-          <div className="flex items-center gap-4">
-             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg text-slate-600">
-                <Search size={14} />
-                <span className="text-xs font-medium">Search...</span>
-             </div>
-             <div className="w-px h-6 bg-slate-200 mx-2" />
-             <div className="flex items-center gap-3">
-                <div className="text-right hidden sm:block">
-                   <p className="text-xs font-bold text-slate-900">{user?.name}</p>
-                   <p className="text-[10px] font-medium text-slate-500">{user?.email}</p>
-                </div>
-                <button onClick={logout} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
-                   <LogOut size={18} />
-                </button>
-             </div>
+          <div className="flex-1 py-6 px-4 space-y-2">
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 bg-white/5 text-white rounded-lg text-sm font-medium transition-colors">
+              <LayoutDashboard size={18} className="text-indigo-400" />
+              Dashboard
+            </button>
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg text-sm font-medium transition-colors">
+              <CalendarDays size={18} />
+              Meetings
+            </button>
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg text-sm font-medium transition-colors">
+              <Sparkles size={18} />
+              AI Recaps
+            </button>
           </div>
-        </nav>
 
-        {/* Main Content */}
-        <main className="flex-1 max-w-6xl w-full mx-auto p-6 md:p-10 space-y-10">
-          
-          {/* Header & Actions */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">Overview</h1>
-              <p className="text-slate-500 text-sm">Manage your strategic sessions and AI insights.</p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
-                <input 
-                  placeholder="Room Code" 
-                  className="bg-transparent border-none outline-none px-3 py-2 text-sm w-32 font-medium"
-                />
-                <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg text-sm font-bold transition-all">
-                  Join
-                </button>
+          <div className="p-4 border-t border-white/5">
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg text-sm font-medium transition-colors">
+              <Settings size={18} />
+              Settings
+            </button>
+            <div className="mt-4 flex items-center justify-between px-3">
+              <div className="overflow-hidden">
+                <p className="text-sm font-medium text-white truncate">{user?.name}</p>
+                <p className="text-xs text-slate-500 truncate">{user?.email}</p>
               </div>
-              <button 
-                onClick={handleCreateMeeting}
-                disabled={isCreating}
-                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-600/10 transition-all flex items-center gap-2 active:scale-95 disabled:opacity-70"
-              >
-                {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus size={18} />}
-                New Meeting
+              <button onClick={logout} className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+                <LogOut size={16} />
               </button>
             </div>
           </div>
+        </aside>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            {/* Left Column: Recent Meetings */}
-            <div className="lg:col-span-8 space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest px-1">Recent Sessions</h2>
-                <button className="text-xs font-bold text-indigo-600 hover:underline">View all</button>
-              </div>
-
-              <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                {isLoading ? (
-                  <div className="p-20 flex flex-col items-center justify-center space-y-4 opacity-30">
-                    <History size={40} />
-                    <p className="text-sm font-medium tracking-tight">Syncing history...</p>
-                  </div>
-                ) : meetings.length === 0 ? (
-                  <div className="p-20 flex flex-col items-center justify-center space-y-4 opacity-40">
-                    <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center">
-                       <Video size={24} className="text-slate-400" />
-                    </div>
-                    <div className="text-center">
-                       <p className="text-sm font-bold text-slate-900">No sessions yet</p>
-                       <p className="text-xs text-slate-500 mt-1">Start your first AI-powered meeting.</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-slate-100">
-                    {meetings.map((m) => (
-                      <div key={m.id} className="p-4 hover:bg-slate-50 transition-colors flex items-center justify-between group cursor-pointer" onClick={() => router.push(`/room/${m.id}`)}>
-                        <div className="flex items-center gap-4">
-                           <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all">
-                              <Video size={20} />
-                           </div>
-                           <div>
-                              <p className="text-sm font-bold text-slate-900">{m.room_name}</p>
-                              <div className="flex items-center gap-2 mt-1">
-                                 <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded uppercase tracking-wider">{m.id}</span>
-                                 <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1">
-                                    <Clock size={10} /> 2 hours ago
-                                 </span>
-                              </div>
-                           </div>
-                        </div>
-                        <div className="flex items-center gap-6">
-                           <div className="hidden md:flex -space-x-2">
-                              {[1, 2, 3].map(i => (
-                                 <div key={i} className="w-7 h-7 rounded-full border-2 border-white bg-slate-200" />
-                              ))}
-                           </div>
-                           <ChevronRight size={18} className="text-slate-300 group-hover:text-slate-600 transition-all" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col min-w-0">
+          
+          {/* Topbar */}
+          <header className="h-16 border-b border-white/5 bg-[#0B1120] flex items-center justify-between px-8">
+            <div>
+              <h1 className="text-lg font-semibold text-white">Dashboard</h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
+                <input 
+                  type="text" 
+                  placeholder="Search meetings..." 
+                  className="w-64 h-9 bg-[#111827] border border-white/10 rounded-lg pl-9 pr-4 text-sm text-white placeholder:text-slate-500 outline-none focus:border-indigo-500/50 transition-colors"
+                />
               </div>
             </div>
+          </header>
 
-            {/* Right Column: Stats & Insights */}
-            <div className="lg:col-span-4 space-y-6">
-              <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest px-1">Quick Insights</h2>
+          <div className="flex-1 p-8 overflow-y-auto">
+            <div className="max-w-5xl mx-auto space-y-8">
               
-              <div className="space-y-4">
-                 <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                       <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
-                          <Users size={20} />
-                       </div>
-                       <span className="text-xs font-bold text-slate-400">Monthly</span>
+              {/* Quick Actions */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* Start Meeting Card */}
+                <div className="bg-[#111827] border border-white/10 rounded-2xl p-6 flex items-start justify-between">
+                  <div>
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 mb-4">
+                      <Video size={20} />
                     </div>
-                    <p className="text-3xl font-bold text-slate-900 tracking-tight">12.5h</p>
-                    <p className="text-xs text-slate-500 mt-1 font-medium">Total session duration</p>
-                 </div>
-
-                 <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                       <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-                          <Zap size={20} />
-                       </div>
-                       <span className="text-xs font-bold text-slate-400">Efficiency</span>
-                    </div>
-                    <p className="text-3xl font-bold text-slate-900 tracking-tight">92%</p>
-                    <p className="text-xs text-slate-500 mt-1 font-medium">AI Recap accuracy score</p>
-                 </div>
-
-                 <div className="bg-indigo-600 rounded-2xl p-6 shadow-xl shadow-indigo-600/20 text-white relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                       <Plus size={80} />
-                    </div>
-                    <p className="text-sm font-bold opacity-80 mb-2">Upgrade to Pro</p>
-                    <h3 className="text-lg font-bold leading-tight mb-4">Unlock unlimited <br /> AI intelligence.</h3>
-                    <button className="w-full py-2.5 bg-white text-indigo-600 rounded-xl text-sm font-bold hover:bg-indigo-50 transition-all">
-                       Learn More
+                    <h2 className="text-base font-semibold text-white mb-1">Start Meeting</h2>
+                    <p className="text-sm text-slate-400 mb-6">Create a new secure room instantly.</p>
+                    <button 
+                      onClick={handleCreateMeeting}
+                      disabled={isCreating}
+                      className="px-5 py-2.5 bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-medium rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50"
+                    >
+                      {isCreating ? <span className="animate-pulse">Creating...</span> : <><Plus size={16} /> New Session</>}
                     </button>
-                 </div>
+                  </div>
+                </div>
+
+                {/* Join Meeting Card */}
+                <div className="bg-[#111827] border border-white/10 rounded-2xl p-6 flex items-start justify-between">
+                  <div className="w-full">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-4">
+                      <Users size={20} />
+                    </div>
+                    <h2 className="text-base font-semibold text-white mb-1">Join Meeting</h2>
+                    <p className="text-sm text-slate-400 mb-6">Enter an existing room code.</p>
+                    <form onSubmit={handleJoinMeeting} className="flex gap-3">
+                      <input 
+                        type="text"
+                        value={joinId}
+                        onChange={(e) => setJoinId(e.target.value)}
+                        placeholder="e.g. ABC-DEF-GHI"
+                        className="flex-1 h-10 bg-[#0B1120] border border-white/10 rounded-xl px-4 text-sm text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/50 transition-colors"
+                      />
+                      <button 
+                        type="submit"
+                        className="px-5 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-sm font-medium rounded-xl transition-colors"
+                      >
+                        Join
+                      </button>
+                    </form>
+                  </div>
+                </div>
+
               </div>
+
+              {/* Recent Meetings */}
+              <div>
+                <h3 className="text-sm font-medium text-slate-400 mb-4">Recent Sessions</h3>
+                <div className="bg-[#111827] border border-white/10 rounded-2xl overflow-hidden">
+                  {isLoading ? (
+                    <div className="p-12 flex items-center justify-center text-slate-500 text-sm">
+                      Loading history...
+                    </div>
+                  ) : meetings.length === 0 ? (
+                    <div className="p-12 flex flex-col items-center justify-center text-center">
+                      <History size={32} className="text-slate-600 mb-3" />
+                      <p className="text-sm text-slate-300 font-medium">No recent meetings</p>
+                      <p className="text-xs text-slate-500 mt-1">Your meeting history will appear here.</p>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-white/5">
+                      {meetings.map((m) => (
+                        <div key={m.id} onClick={() => router.push(`/room/${m.id}`)} className="p-4 hover:bg-white/5 transition-colors flex items-center justify-between cursor-pointer group">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-[#0B1120] border border-white/5 flex items-center justify-center text-slate-400 group-hover:text-indigo-400 group-hover:border-indigo-500/20 transition-colors">
+                              <Video size={18} />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-white">{m.room_name}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-[10px] font-medium text-slate-500 flex items-center gap-1">
+                                  <Clock size={10} /> {new Date(m.created_at).toLocaleDateString()}
+                                </span>
+                                <span className="text-[10px] text-slate-600 bg-white/5 px-1.5 py-0.5 rounded">ID: {m.id}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <ChevronRight size={18} className="text-slate-600 group-hover:text-white transition-colors" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
             </div>
           </div>
         </main>

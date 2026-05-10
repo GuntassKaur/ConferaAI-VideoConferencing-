@@ -87,11 +87,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
           {/* Main Video Area */}
           <main className="flex-1 flex overflow-hidden bg-slate-50 relative">
              <div className="flex-1 p-6 flex flex-col relative">
-                <VideoConference 
-                   chat={false} 
-                   settingsBar={false}
-                   className="flex-1"
-                />
+                <VideoConference />
              </div>
 
              {/* Right Sidebar Placeholder (Notes/AI) */}
