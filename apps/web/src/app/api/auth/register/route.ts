@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import connectDB from '@/lib/db';
+import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 
 export const dynamic = "force-dynamic";
@@ -8,22 +8,33 @@ export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
-    await connectDB();
-    const { name, email, password } = await req.json();
-
-    if (!name || !email || !password) {
-      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+    try {
+      await connectDB();
+    } catch (dbError) {
+      return NextResponse.json({ error: 'Database connection failed' }, { status: 500 });
     }
 
-    const existingUser = await User.findOne({ email });
+    const { name, email, password } = await req.json();
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const trimmedName = String(name || '').trim();
+
+    if (!trimmedName || !normalizedEmail || !password) {
+      return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
+    }
+
+    if (password.length < 6) {
+      return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
+    }
+
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
-      return NextResponse.json({ error: 'User already exists' }, { status: 400 });
+      return NextResponse.json({ error: 'Email already exists' }, { status: 400 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const user = await User.create({
-      name,
-      email,
+      name: trimmedName,
+      email: normalizedEmail,
       password: hashedPassword,
     });
 
