@@ -1,49 +1,38 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useToastStore } from '@/store/useToastStore';
 import { useRouter } from 'next/navigation';
-
 import { 
-  Plus, Video, Clock, 
-  Search, Shield, Zap, 
-  ArrowRight, MoreVertical,
-  Calendar, CheckCircle2,
-  Users, LayoutGrid, Settings,
-  LogOut, Bell, Monitor, Sparkles,
-  Link as LinkIcon, Trash2, Loader2,
-  ExternalLink
+  Video, 
+  Plus, 
+  Link as LinkIcon, 
+  Clock, 
+  LogOut, 
+  User as UserIcon,
+  Loader2,
+  Trash2,
+  ChevronRight
 } from 'lucide-react';
-
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export default function DashboardContent() {
   const router = useRouter();
-  const { user: currentUser } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const [meetings, setMeetings] = useState<any[]>([]);
   const [meetingId, setMeetingId] = useState('');
   const [isStarting, setIsStarting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    if (!currentUser) {
-      const guestId = 'guest_' + Math.random().toString(36).substring(2, 9);
-      useAuthStore.getState().setUser({ 
-        id: guestId, 
-        name: 'Guest Explorer', 
-        email: 'guest@confera.ai' 
-      });
+    if (user) {
+      fetchMeetings();
     }
-    fetchMeetings();
-  }, [currentUser]);
-
+  }, [user]);
 
   const fetchMeetings = async () => {
-    setIsLoading(true);
-    const userId = currentUser?.id || 'guest_global';
+    if (!user) return;
     try {
-      const res = await fetch(`/api/meetings?userId=${userId}`);
+      const res = await fetch(`/api/meetings?userId=${user.id}`);
       const data = await res.json();
       if (data.success) {
         setMeetings(data.meetings);
@@ -60,136 +49,111 @@ export default function DashboardContent() {
     try {
       const response = await fetch("/api/meeting/create", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user?.id, name: user?.name })
       });
-
       const data = await response.json();
-
-      if (!data.success) {
-        alert(data.error || "Meeting creation failed");
-        setIsStarting(false);
-        return;
+      if (data.success) {
+        router.push(`/room/${data.meetingId}`);
+      } else {
+        alert(data.error || "Failed to start meeting");
       }
-
-      router.push(`/meeting/${data.meetingId}`);
     } catch (err) {
-      console.error(err);
       alert("Server error");
+    } finally {
       setIsStarting(false);
     }
   };
 
-  const handleJoin = async (e: React.FormEvent) => {
+  const joinMeeting = async (e: React.FormEvent) => {
     e.preventDefault();
-    const id = meetingId.trim();
-    if (!id) return;
-    
-    try {
-      const res = await fetch("/api/meeting/join", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          meetingId: id,
-          userId: currentUser?.id || 'guest_global',
-          name: currentUser?.name || 'Guest'
-        })
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to join session.");
-
-      useToastStore.getState().addToast("Joining session...", "success");
-      window.location.href = `/meeting/${id}`;
-    } catch (err: any) {
-      useToastStore.getState().addToast(err.message, "error");
-    }
-
+    if (!meetingId.trim()) return;
+    router.push(`/room/${meetingId.trim()}`);
   };
 
-
   const deleteMeeting = async (id: string) => {
-    if (!confirm('Are you sure you want to purge this session data?')) return;
+    if (!confirm('Remove this meeting from your history?')) return;
     try {
-      const res = await fetch(`/api/meetings?meetingId=${id}&userId=${currentUser?.id || 'guest_global'}`, {
+      await fetch(`/api/meetings?meetingId=${id}&userId=${user?.id}`, {
         method: 'DELETE'
       });
-      if (res.ok) fetchMeetings();
+      fetchMeetings();
     } catch (e) { console.error(e); }
   };
 
-  const filteredMeetings = meetings.filter(m => 
-    (m.name || m.meetingId).toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
-    <div className="min-h-screen bg-[#0F172A] text-slate-200 font-sans selection:bg-indigo-500/30">
-      <div className="max-w-[1200px] mx-auto p-6 lg:p-12">
-        
-        {/* ⚡ HEADER SECTION */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-          <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight mb-2">Dashboard</h1>
-            <p className="text-slate-400 text-sm font-medium">Manage your encrypted sessions and AI recaps.</p>
+    <div className="min-h-screen bg-[#0B1020] text-slate-200 font-sans">
+      {/* Top Header */}
+      <header className="h-16 border-b border-[#1F2937] bg-[#111827]/50 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto h-full px-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-[#6366F1] rounded-lg flex items-center justify-center text-white">
+              <Video size={18} />
+            </div>
+            <span className="font-bold text-lg text-white tracking-tight">Confera AI</span>
           </div>
           
-          <div className="flex items-center gap-3">
-             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
-                <input 
-                  type="text" 
-                  placeholder="Filter sessions..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-[#111827] border border-[#1F2937] rounded-lg pl-9 pr-4 py-2 text-xs font-medium focus:outline-none focus:border-indigo-500 transition-colors w-full md:w-64 placeholder:text-slate-600"
-                />
-             </div>
-             <button className="p-2 bg-[#111827] border border-[#1F2937] rounded-lg text-slate-400 hover:text-white transition-colors">
-                <Bell size={16} />
-             </button>
-          </div>
-        </header>
-
-        {/* 🧱 ACTION GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-          {/* Create Meeting */}
-          <div className="p-8 bg-[#111827] border border-[#1F2937] rounded-2xl hover:border-indigo-500/50 transition-all duration-200 group">
-            <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-500 mb-6 border border-indigo-500/20">
-               <Video size={20} />
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex flex-col items-end mr-2">
+              <span className="text-xs font-semibold text-white">{user?.name}</span>
+              <span className="text-[10px] text-slate-500">{user?.email}</span>
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">New Session</h3>
-            <p className="text-slate-400 text-sm mb-8 leading-relaxed">
-               Deploy a secure, E2E encrypted meeting room with instant AI intelligence enabled.
-            </p>
             <button 
-              onClick={startMeeting}
-              disabled={isStarting}
-              className="px-6 py-2.5 bg-[#6366F1] text-white font-semibold text-xs rounded-lg hover:bg-[#4F46E5] transition-all flex items-center gap-2 disabled:opacity-50"
+              onClick={() => logout()}
+              className="p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+              title="Logout"
             >
-              {isStarting ? <Loader2 className="animate-spin" size={14} /> : <Plus size={14} />}
-              {isStarting ? 'Initializing...' : 'Start Session'}
+              <LogOut size={18} />
             </button>
           </div>
+        </div>
+      </header>
 
-          {/* Join Meeting */}
-          <div className="p-8 bg-[#111827] border border-[#1F2937] rounded-2xl hover:border-indigo-500/50 transition-all duration-200 group">
-            <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500 mb-6 border border-emerald-500/20">
-               <LinkIcon size={20} />
+      <main className="max-w-4xl mx-auto py-12 px-6">
+        {/* Welcome Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-4xl font-bold text-white mb-3">Hello, {user?.name?.split(' ')[0]}</h1>
+          <p className="text-slate-400">Start a new encrypted session or join an existing workspace.</p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20">
+          <button 
+            onClick={startMeeting}
+            disabled={isStarting}
+            className="flex flex-col items-center justify-center gap-4 p-10 bg-[#111827] border border-[#1F2937] rounded-2xl hover:border-[#6366F1]/50 hover:bg-[#151C2E] transition-all group"
+          >
+            <div className="w-14 h-14 bg-[#6366F1]/10 rounded-2xl flex items-center justify-center text-[#6366F1] border border-[#6366F1]/20 group-hover:scale-110 transition-transform">
+              {isStarting ? <Loader2 className="animate-spin" size={28} /> : <Plus size={28} />}
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Join Room</h3>
-            <p className="text-slate-400 text-sm mb-8 leading-relaxed">
-               Access an existing workspace via unique transmission code.
-            </p>
-            <form onSubmit={handleJoin} className="flex gap-2">
+            <div className="text-center">
+              <span className="block text-lg font-bold text-white">Start Meeting</span>
+              <span className="text-xs text-slate-500">Create a secure instant room</span>
+            </div>
+          </button>
+
+          <div className="flex flex-col p-10 bg-[#111827] border border-[#1F2937] rounded-2xl hover:border-[#6366F1]/50 hover:bg-[#151C2E] transition-all">
+            <div className="flex flex-col items-center justify-center gap-4 mb-6">
+              <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 border border-emerald-500/20">
+                <LinkIcon size={28} />
+              </div>
+              <div className="text-center">
+                <span className="block text-lg font-bold text-white">Join Meeting</span>
+                <span className="text-xs text-slate-500">Enter a session ID or link</span>
+              </div>
+            </div>
+            <form onSubmit={joinMeeting} className="flex gap-2">
               <input 
                 type="text" 
                 value={meetingId}
                 onChange={(e) => setMeetingId(e.target.value)}
-                placeholder="Session ID"
-                className="flex-1 bg-[#0F172A] border border-[#1F2937] rounded-lg px-4 py-2.5 text-xs font-medium text-white placeholder:text-slate-700 focus:outline-none focus:border-indigo-500 transition-colors"
+                placeholder="Meeting ID"
+                className="flex-1 bg-[#0B1020] border border-[#1F2937] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#6366F1] transition-all"
               />
               <button 
                 type="submit"
-                disabled={!meetingId}
-                className="px-6 py-2.5 bg-[#1F2937] text-white font-semibold text-xs rounded-lg hover:bg-[#374151] transition-colors disabled:opacity-30"
+                disabled={!meetingId.trim()}
+                className="px-6 py-3 bg-[#6366F1] text-white font-bold text-sm rounded-xl hover:bg-[#4F46E5] disabled:opacity-50 transition-all"
               >
                 Join
               </button>
@@ -197,65 +161,55 @@ export default function DashboardContent() {
           </div>
         </div>
 
-        {/* 📋 RECENT SESSIONS */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between px-2">
-             <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-               <Clock size={12} />
-               Recent Transmissions
-             </h4>
-             <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{filteredMeetings.length} Total</span>
+        {/* Recent Meetings */}
+        <div>
+          <div className="flex items-center justify-between mb-6 px-2">
+            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+              <Clock size={14} />
+              Recent Meetings
+            </h2>
+            <span className="text-[10px] text-slate-600 font-bold uppercase">{meetings.length} Total</span>
           </div>
 
-          <div className="bg-[#111827] border border-[#1F2937] rounded-2xl overflow-hidden divide-y divide-[#1F2937]">
+          <div className="space-y-3">
             {isLoading ? (
-              <div className="p-12 flex flex-col items-center justify-center">
-                 <Loader2 className="w-6 h-6 text-indigo-500 animate-spin mb-4" />
-                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Synchronizing History...</p>
+              <div className="p-20 flex flex-col items-center justify-center">
+                <Loader2 className="animate-spin text-[#6366F1] mb-4" size={32} />
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Loading History...</p>
               </div>
-            ) : filteredMeetings.length === 0 ? (
-              <div className="p-12 text-center">
-                 <p className="text-sm text-slate-500 font-medium italic">No session history found on this uplink.</p>
+            ) : meetings.length === 0 ? (
+              <div className="p-12 text-center bg-[#111827] border border-[#1F2937] rounded-2xl border-dashed">
+                <p className="text-sm text-slate-500">No recent meetings found.</p>
               </div>
             ) : (
-              filteredMeetings.map((m: any) => (
+              meetings.map((m) => (
                 <div 
-                  key={m.meetingId} 
-                  className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors group"
+                  key={m.meetingId}
+                  className="flex items-center justify-between p-4 bg-[#111827] border border-[#1F2937] rounded-xl hover:bg-[#151C2E] transition-colors group"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-9 h-9 bg-[#0F172A] border border-[#1F2937] rounded-lg flex items-center justify-center text-slate-500 group-hover:text-indigo-400 group-hover:border-indigo-500/30 transition-colors">
-                      <Video size={16} />
+                    <div className="w-10 h-10 bg-[#0B1020] rounded-lg flex items-center justify-center text-slate-500 group-hover:text-[#6366F1] transition-colors">
+                      <Video size={20} />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">{m.name || `Session ${m.meetingId}`}</p>
-                      <div className="flex items-center gap-3 mt-1">
-                         <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{m.meetingId}</span>
-                         <div className="w-1 h-1 bg-slate-800 rounded-full" />
-                         <span className="text-[10px] font-medium text-slate-500">
-                           {new Date(m.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                         </span>
-                      </div>
+                      <p className="text-sm font-bold text-white">Meeting {m.meetingId}</p>
+                      <p className="text-[10px] text-slate-500">
+                        {new Date(m.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </p>
                     </div>
                   </div>
-                  
                   <div className="flex items-center gap-2">
                     <button 
-                      onClick={() => window.location.href = `/meeting/${m.meetingId}`}
-                      className="p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
-                      title="Rejoin Session"
+                      onClick={() => router.push(`/room/${m.meetingId}`)}
+                      className="p-2 text-slate-400 hover:text-white transition-colors"
                     >
-                       <ExternalLink size={16} />
+                      <ChevronRight size={20} />
                     </button>
                     <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteMeeting(m.meetingId);
-                      }}
-                      className="p-2 text-slate-500 hover:text-rose-500 hover:bg-rose-500/5 rounded-lg transition-all"
-                      title="Purge Record"
+                      onClick={() => deleteMeeting(m.meetingId)}
+                      className="p-2 text-slate-600 hover:text-rose-500 transition-colors"
                     >
-                       <Trash2 size={16} />
+                      <Trash2 size={18} />
                     </button>
                   </div>
                 </div>
@@ -263,7 +217,7 @@ export default function DashboardContent() {
             )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

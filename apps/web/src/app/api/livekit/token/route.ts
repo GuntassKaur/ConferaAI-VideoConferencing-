@@ -1,20 +1,26 @@
 import { AccessToken } from "livekit-server-sdk";
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
+import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export const dynamic = "force-dynamic";
+
+export async function GET(req: Request) {
   try {
-    const { room, username } = await req.json();
+    const { searchParams } = new URL(req.url);
+    const room = searchParams.get("room");
+    const username = searchParams.get("username");
 
     if (!room || !username) {
-      return Response.json({ error: "Room and username are required" }, { status: 400 });
+      return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
     }
 
-    const at = new AccessToken(
-      process.env.LIVEKIT_API_KEY!,
-      process.env.LIVEKIT_API_SECRET!,
-      { identity: username }
-    );
+    const apiKey = process.env.LIVEKIT_API_KEY;
+    const apiSecret = process.env.LIVEKIT_API_SECRET;
+
+    if (!apiKey || !apiSecret) {
+      return NextResponse.json({ error: "LiveKit server not configured" }, { status: 500 });
+    }
+
+    const at = new AccessToken(apiKey, apiSecret, { identity: username });
 
     at.addGrant({
       room,
@@ -24,9 +30,9 @@ export async function POST(req: Request) {
     });
 
     const token = await at.toJwt();
-
-    return Response.json({ token });
+    return NextResponse.json({ token });
   } catch (error: any) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error("LiveKit token error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

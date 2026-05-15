@@ -1,28 +1,31 @@
 "use client";
 
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, ShieldCheck } from "lucide-react";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, isInitialized, initialize } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/');
+    if (!isInitialized) {
+      initialize();
     }
-  }, [user, loading, router]);
+  }, [isInitialized, initialize]);
 
-  if (loading) {
+  useEffect(() => {
+    if (isInitialized && !user) {
+      router.push('/login');
+    }
+  }, [user, isInitialized, router]);
+
+  if (!isInitialized) {
     return (
-      <div className="min-h-screen bg-[#0B1120] flex flex-col items-center justify-center font-sans">
-        <div className="w-16 h-16 bg-gradient-to-br from-dineva-blue to-dineva-violet rounded-2xl flex items-center justify-center text-white mb-6 animate-pulse shadow-2xl shadow-dineva-blue/20">
-          <Sparkles size={32} />
-        </div>
-        <Loader2 className="w-8 h-8 animate-spin text-dineva-blue opacity-50 mb-4" />
-        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest animate-pulse">DinevaAI Neural Core Booting...</p>
+      <div className="min-h-screen bg-[#0B1020] flex flex-col items-center justify-center font-sans">
+        <div className="w-12 h-12 border-4 border-[#6366F1]/20 border-t-[#6366F1] rounded-full animate-spin mb-6"></div>
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest animate-pulse">Authenticating Confera AI Session...</p>
       </div>
     );
   }

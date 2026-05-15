@@ -1,34 +1,34 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
-import { v4 as uuidv4 } from "uuid";
 import Meeting from "@/models/Meeting";
 
 export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
 
-export async function POST() {
+export async function POST(req: Request) {
   try {
-    await connectDB();
+    const { userId, name } = await req.json();
+    
+    // Generate a simple readable room ID like XXX-XXXX-XXX or just a random string
+    const meetingId = Math.random().toString(36).substring(2, 5) + '-' + 
+                    Math.random().toString(36).substring(2, 6) + '-' + 
+                    Math.random().toString(36).substring(2, 5);
 
-    const meetingId = uuidv4();
-
-    const meeting = await Meeting.create({
+    await Meeting.create({
       meetingId,
+      hostId: userId || 'anonymous',
+      name: name ? `${name}'s Session` : 'Untitled Meeting',
+      status: 'active',
+      participants: userId ? [userId] : [],
       createdAt: new Date(),
     });
 
     return NextResponse.json({
       success: true,
-      meetingId: meeting.meetingId,
+      meetingId: meetingId,
     });
   } catch (error: any) {
-    console.error(error);
-
+    console.error("Meeting creation error:", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: error.message,
-      },
+      { success: false, error: error.message },
       { status: 500 }
     );
   }

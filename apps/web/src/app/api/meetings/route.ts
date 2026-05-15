@@ -1,44 +1,30 @@
 import { NextResponse } from 'next/server';
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-import { connectDB } from '@/lib/db';
-
 import Meeting from '@/models/Meeting';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    try {
-      const db = await connectDB();
-      if (db) {
-        const { searchParams } = new URL(request.url);
-        const userId = searchParams.get('userId');
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
 
-        if (!userId) {
-          return NextResponse.json({ success: true, meetings: [] });
-        }
-
-        const query = userId.startsWith('guest_') ? {} : { participants: userId };
-        const userMeetings = await Meeting.find(query).sort({ createdAt: -1 }).limit(50);
-        return NextResponse.json({ success: true, meetings: userMeetings });
-      }
-      return NextResponse.json({ success: true, meetings: [] });
-    } catch (e) {
-
-      console.error('Inner Fetch meetings error:', e);
-      return NextResponse.json({ success: true, meetings: [] });
+    if (!userId) {
+      return NextResponse.json({ success: false, error: "User ID required" }, { status: 400 });
     }
-  } catch (outerError) {
-    console.error('Outer Fetch meetings error:', outerError);
+
+    // For simplicity, we fetch meetings where the user is a participant
+    // Firestore find wrapper handles this
+    const userMeetings = await Meeting.find({ participants: userId }).sort({ createdAt: -1 }).limit(10);
+    
+    return NextResponse.json({ success: true, meetings: userMeetings });
+  } catch (error) {
+    console.error('Fetch meetings error:', error);
     return NextResponse.json({ success: true, meetings: [] });
   }
 }
 
-
-
-
 export async function DELETE(request: Request) {
   try {
-    await connectDB();
     const { searchParams } = new URL(request.url);
     const meetingId = searchParams.get('meetingId');
     const userId = searchParams.get('userId');
@@ -47,22 +33,21 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
     }
 
-    // Security: Only host can delete (or at least check participants)
     const meeting = await Meeting.findOne({ meetingId });
     if (!meeting) {
       return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });
     }
 
-    // Simple security: check if user is the host
-    if (meeting.hostId.toString() !== userId) {
-      return NextResponse.json({ error: 'Unauthorized: Only the host can delete this session' }, { status: 403 });
+    // Allow deletion if user is host or if it's their own record
+    if (meeting.hostId !== userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
     await Meeting.deleteOne({ meetingId });
 
-    return NextResponse.json({ success: true, message: 'Session successfully purged' });
-  } catch (error: unknown) {
+    return NextResponse.json({ success: true });
+  } catch (error) {
     console.error('Delete meeting error:', error);
-    return NextResponse.json({ error: 'Failed to purge session layer' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

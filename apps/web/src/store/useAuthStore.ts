@@ -1,5 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  updateProfile
+} from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 
 interface User {
   id: string;
@@ -7,81 +16,96 @@ interface User {
   email: string;
 }
 
-interface PendingSession {
-  roomId: string;
-  timestamp: number;
-}
-
 interface AuthState {
   user: User | null;
-  pendingSession: PendingSession | null;
   isLoading: boolean;
+  isInitialized: boolean;
   setUser: (user: User | null) => void;
-  setPendingSession: (session: PendingSession | null) => void;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
+  initialize: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
-      pendingSession: null,
       isLoading: false,
+      isInitialized: false,
       setUser: (user) => set({ user }),
-      setPendingSession: (pendingSession) => set({ pendingSession }),
+      
+      initialize: () => {
+        if (get().isInitialized) return;
+        onAuthStateChanged(auth, async (firebaseUser) => {
+          if (firebaseUser) {
+            const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              set({ user: { id: firebaseUser.uid, name: userData.name, email: firebaseUser.email! }, isInitialized: true });
+            } else {
+              set({ user: { id: firebaseUser.uid, name: firebaseUser.displayName || 'User', email: firebaseUser.email! }, isInitialized: true });
+            }
+          } else {
+            set({ user: null, isInitialized: true });
+          }
+        });
+      },
+
       login: async (email, password) => {
         set({ isLoading: true });
         try {
-          const res = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error || 'Login failed');
-          if (data.token) {
-            localStorage.setItem('token', data.token);
-            document.cookie = `token=${data.token}; path=/; max-age=604800; samesite=lax`;
-          }
-
-          set({ user: { id: data.user.id, name: data.user.name, email: data.user.email }, isLoading: false });
-        } catch (error) {
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          const firebaseUser = userCredential.user;
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          const name = userDoc.exists() ? userDoc.data().name : (firebaseUser.displayName || 'User');
+          
+          set({ user: { id: firebaseUser.uid, name, email: firebaseUser.email! }, isLoading: false });
+        } catch (error: any) {
           set({ isLoading: false });
-          throw error;
+          let message = 'Login failed';
+          if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+            message = 'Invalid email or password';
+          } else if (error.code === 'auth/too-many-requests') {
+            message = 'Too many failed attempts. Please try again later.';
+          }
+          throw new Error(message);
         }
       },
+
       signup: async (name, email, password) => {
         set({ isLoading: true });
         try {
-          const res = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password }),
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const firebaseUser = userCredential.user;
+          
+          await updateProfile(firebaseUser, { displayName: name });
+          
+          // Store user in Firestore
+          await setDoc(doc(db, 'users', firebaseUser.uid), {
+            name,
+            email,
+            createdAt: new Date().toISOString(),
           });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error || 'Signup failed');
-          if (data.token) {
-            localStorage.setItem('token', data.token);
-            document.cookie = `token=${data.token}; path=/; max-age=604800; samesite=lax`;
-          }
 
-          set({ user: { id: data.user.id, name: data.user.name, email: data.user.email }, isLoading: false });
-        } catch (error) {
+          set({ user: { id: firebaseUser.uid, name, email: firebaseUser.email! }, isLoading: false });
+        } catch (error: any) {
           set({ isLoading: false });
-          throw error;
+          let message = 'Signup failed';
+          if (error.code === 'auth/email-already-in-use') {
+            message = 'Email already in use';
+          }
+          throw new Error(message);
         }
       },
-      logout: () => {
-        localStorage.removeItem('token');
-        document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        set({ user: null, pendingSession: null });
-      },
 
+      logout: async () => {
+        await signOut(auth);
+        set({ user: null });
+      },
     }),
     {
-      name: 'confera-auth',
+      name: 'confera-auth-v2',
     }
   )
 );
