@@ -1,42 +1,32 @@
-import { NextResponse } from 'next/server';
-import { AccessToken } from 'livekit-server-sdk';
-
+import { AccessToken } from "livekit-server-sdk";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const room = searchParams.get('room');
-    const username = searchParams.get('username');
+    const { room, username } = await req.json();
 
     if (!room || !username) {
-      return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
+      return Response.json({ error: "Room and username are required" }, { status: 400 });
     }
 
-    const apiKey = process.env.LIVEKIT_API_KEY;
-    const apiSecret = process.env.LIVEKIT_API_SECRET;
-    const wsUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
-
-    if (!apiKey || !apiSecret || !wsUrl) {
-      return NextResponse.json({ error: 'LiveKit configuration missing' }, { status: 500 });
-    }
-
-    const at = new AccessToken(apiKey, apiSecret, {
-      identity: username,
-    });
+    const at = new AccessToken(
+      process.env.LIVEKIT_API_KEY!,
+      process.env.LIVEKIT_API_SECRET!,
+      { identity: username }
+    );
 
     at.addGrant({
+      room,
       roomJoin: true,
-      room: room,
       canPublish: true,
       canSubscribe: true,
     });
 
-    return NextResponse.json({ token: await at.toJwt() });
+    const token = await at.toJwt();
 
+    return Response.json({ token });
   } catch (error: any) {
-    console.error('Token generation error:', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    return Response.json({ error: error.message }, { status: 500 });
   }
 }

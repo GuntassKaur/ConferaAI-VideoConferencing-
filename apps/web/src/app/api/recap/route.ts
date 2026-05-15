@@ -1,51 +1,87 @@
-import { NextResponse } from 'next/server';
-import connectDB from '@/lib/db';
-import Recap from '@/models/Recap';
-import { gemini } from '@/lib/ai';
+import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+import connectToDatabase from '@/lib/mongodb';
+import Meeting from '@/models/Meeting';
+import { generateMeetingSummary } from '@/lib/gemini';
 
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    await connectDB();
-    const { roomId, transcript, participants } = await req.json();
+    const { roomId, transcript, participants, duration } = await req.json();
 
-    if (!transcript) {
-      return NextResponse.json({ error: 'Missing transcript' }, { status: 400 });
+    if (!roomId || !transcript) {
+      return NextResponse.json(
+        { error: 'Room ID and Transcript are required for recap generation' }, 
+        { status: 400 }
+      );
     }
 
-    const prompt = `
-      You are Confera AI's intelligence engine. Analyze the following meeting transcript and participants.
-      Participants: ${JSON.stringify(participants)}
-      Transcript: ${transcript}
+    // Generate recap using Gemini
+    const recap = await generateMeetingSummary(
+      transcript, 
+      participants || [], 
+      duration || 0
+    );
 
-      Return a professional JSON summary:
-      {
-        "summary": "2-sentence executive summary",
-        "keyPoints": ["point 1", "point 2"],
-        "actionItems": [{"task": "task description", "owner": "owner name"}],
-        "score": number (1-100)
-      }
-    `;
+    await connectToDatabase();
+    
+    // First, promote existing recap → previousRecap for historical brief context
+    const existingMeeting = await Meeting.findOne({ roomId });
+    const updatePayload: any = {
+      $set: { recap, status: 'ended' }
+    };
+    if (existingMeeting?.recap?.tldr) {
+      updatePayload.$set.previousRecap = {
+        tldr: existingMeeting.recap.tldr,
+        keyPoints: existingMeeting.recap.keyPoints || [],
+        decisions: existingMeeting.recap.decisions || [],
+      };
+    }
 
-    const result = await gemini.generateContent(prompt);
-    const text = result.response.text();
-    const cleanedJson = text.replace(/```json|```/g, '').trim();
-    const data = JSON.parse(cleanedJson);
+    // Update the meeting document with the generated recap and mark as ended
+    const updatedMeeting = await Meeting.findOneAndUpdate(
+      { roomId },
+      updatePayload,
+      { new: true }
+    );
 
-    const recap = await Recap.create({
-      meetingId: roomId,
-      summary: data.summary,
-      keyPoints: data.keyPoints,
-      actionItems: data.actionItems,
-      score: data.score
-    });
+    if (!updatedMeeting) {
+      return NextResponse.json(
+        { error: 'Meeting not found in registry' }, 
+        { status: 404 }
+      );
+    }
 
-    return NextResponse.json(recap);
+    return NextResponse.json(recap, { status: 200 });
 
-  } catch (error: any) {
-    console.error('Recap generation failed:', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  } catch (error: unknown) {
+    console.error('Recap API Error:', error);
+    return NextResponse.json(
+      { error: (error as Error).message || 'Internal Server Error during recap generation' }, 
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const roomId = searchParams.get('roomId');
+
+    if (!roomId) {
+      return NextResponse.json({ error: 'Room ID is required' }, { status: 400 });
+    }
+
+    await connectToDatabase();
+    const meeting = await Meeting.findOne({ roomId });
+
+    if (!meeting || !meeting.recap) {
+      return NextResponse.json({ error: 'Recap not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(meeting.recap);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch recap' }, { status: 500 });
   }
 }

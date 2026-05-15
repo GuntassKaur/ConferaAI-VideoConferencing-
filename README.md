@@ -1,23 +1,18 @@
-# Confera AI - Enterprise-Grade AI Video Conferencing
+# DinevaAI OS - Next-Gen Restaurant Intelligence
 
-**Confera AI** is a next-generation, elite video conferencing platform designed for modern enterprises. Built with a stunning Microsoft-level UI/UX, it leverages deep AI integration to transform meetings into actionable intelligence.
+**DinevaAI OS** is a premium, AI-powered restaurant operating system designed for modern hospitality. Built with a luxurious futuristic aesthetic, it transforms restaurant management into a data-driven, automated experience.
 
-![Confera AI Dashboard](/hero-v2.png) (Mock)
+![DinevaAI OS Dashboard](/hero.png) (Mock)
 
-## ✨ Enterprise Features
+## ✨ Premium Features
 
-- **💎 Microsoft-Level UX**: Futuristic glassmorphism, fluid Framer Motion animations, and custom Fluent-inspired design system.
-- **🧠 5-Minute AI Recap**: Instant meeting insights and summaries powered by structured AI analysis.
-- **⏱️ Smart Timeline**: A visual index of meeting highlights, decisions, and action items with keyword search.
-- **💬 Live Engagement**: Real-time emoji reactions, interactive polls, and AI-generated icebreakers.
-- **🌐 Global Collaboration**: Live transcription and instant translation hooks for multi-language conferences.
-- **🚪 AI Breakout Rooms**: Automated participant grouping based on role and expertise with dedicated AI moderators.
-- **🎨 Infinite Whiteboard**: Collaborative drawing space with vector tools and project export.
-- **🔒 Enterprise Security**: End-to-end encrypted signaling and secure session management.
-  - **Adaptive AI**: Smart background noise cancellation and adaptive video quality.
-  - **Security**: Military-grade end-to-end encryption (E2EE).
-  - **Performance**: High-speed WebRTC signaling and scalable Node.js backend.
-  - **Compliance**: Built for enterprise-level privacy and global standards.
+- **💎 Startup-Level UX**: Cinematic glassmorphism, fluid Framer Motion animations, and a custom design system inspired by Stripe and Linear.
+- **🧠 Neural Predictions**: AI-driven demand forecasting, peak-hour staffing optimization, and automated inventory management.
+- **📊 Real-time Analytics**: High-fidelity revenue dashboards, order tracking, and performance metrics.
+- **🍳 Kitchen Intelligence**: Automated prep workflows and live order queue management.
+- **📦 Smart Inventory**: Real-time stock tracking with automated reordering for critical essentials.
+- **👥 Staff Management**: Intelligent scheduling and team performance analytics.
+- **🔒 Secure Operations**: Enterprise-grade security for your data and financial records.
 
 ## 🚀 Tech Stack
 
@@ -25,43 +20,30 @@
 - **Framework**: [Next.js 15+](https://nextjs.org/) (App Router)
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
 - **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Charts**: [Recharts](https://recharts.org/)
 - **Icons**: [Lucide React](https://lucide.dev/)
-- **Real-time**: [Socket.io Client](https://socket.io/), [PeerJS](https://peerjs.com/)
 
-### Backend
-- **Core**: [Node.js](https://nodejs.org/), [Express](https://expressjs.com/)
-- **Real-time**: [Socket.io](https://socket.io/)
-- **Signaling**: PeerJS Server integration
-- **AI**: [OpenAI SDK](https://openai.com/)
+### Backend & Cloud
+- **Authentication**: [Firebase Auth](https://firebase.google.com/)
+- **Database**: [Firestore](https://firebase.google.com/products/firestore)
+- **AI**: [Google Gemini](https://ai.google.dev/) / [Anthropic](https://anthropic.com/)
 
 ## 🛠️ Local Setup
 
-### 1. Backend Server
+### 1. Install Dependencies
 ```bash
-cd server
 npm install
-# Configure your .env
-npm start
 ```
 
-### 2. Frontend Client
+### 2. Configure Environment
+Create a `.env.local` in `apps/web` with your Firebase and AI credentials.
+
+### 3. Run Development Server
 ```bash
-cd client
-npm install
 npm run dev
 ```
 
-## 🌐 Environment Variables
-
-### Server (`/server/.env`)
-- `OPENAI_API_KEY`: Your OpenAI API key for recaps/insights.
-- `FRONTEND_URL`: URL of your deployed client for CORS.
-- `PORT`: (Default: 5000)
-
-### Client (`/client/.env.local`)
-- `NEXT_PUBLIC_SOCKET_URL`: URL of your deployed server.
-
 ---
 
-Built for **Elite Collaboration** and **High-Performance Teams**.
-**Confera AI** - The Future of Meetings is Intelligent.
+Built for **Elite Hospitality** and **High-Performance Restaurants**.
+**DinevaAI OS** - Run Your Restaurant with AI Precision.
